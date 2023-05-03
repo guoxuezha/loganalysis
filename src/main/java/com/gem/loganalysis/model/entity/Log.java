@@ -2,62 +2,69 @@ package com.gem.loganalysis.model.entity;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.gem.loganalysis.model.bo.RsyslogNormalMessage;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
+
+import java.io.Serializable;
 
 /**
- * Description: 日志表对应的实体类
- * Date: 2023/4/25 19:04
+ * 日志内容
  *
  * @author GuoChao
- **/
-@TableName(value = "log")
+ * @since 2023-05-03
+ */
 @Data
-@NoArgsConstructor
-public class Log {
+@EqualsAndHashCode(callSuper = false)
+@Accessors(chain = true)
+public class Log implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     /**
-     * 日志ID
+     * 日志内容ID
      */
-    @TableId(type = IdType.AUTO)
+    @TableId(value = "LOG_ID", type = IdType.AUTO)
     private Integer logId;
-
-    /**
-     * 日志类型
-     */
-    private Integer logType;
 
     /**
      * 时间戳
      */
+    @TableField("TIMESTAMP")
     private String timestamp;
 
     /**
-     * 消息发生IP
+     * 主机
      */
+    @TableField("HOST")
     private String host;
 
     /**
-     * 日志严重级别
+     * 日志级别
      */
+    @TableField("SEVERITY")
     private String severity;
 
     /**
-     * 日志提供方
+     * 日志发送方
      */
+    @TableField("FACILITY")
     private String facility;
 
     /**
-     * 消息体
+     * 日志消息
      */
+    @TableField("MESSAGE")
     private String message;
 
     /**
-     * 消息标签
+     * 标签
      */
+    @TableField("TAG")
     private String tag;
 
     public Log(RsyslogNormalMessage message) {

@@ -4,11 +4,11 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.gem.loganalysis.model.entity.Log;
 
 /**
- * Description:
- * Date 2023/4/26 9:27
+ * 服务类
  *
  * @author GuoChao
- **/
-public interface LogService extends IService<Log> {
+ * @since 2023-05-03
+ */
+public interface ILogService extends IService<Log> {
 
 }

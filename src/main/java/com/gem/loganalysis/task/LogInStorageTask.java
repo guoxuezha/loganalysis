@@ -9,8 +9,8 @@ import com.gem.loganalysis.facility.Facility;
 import com.gem.loganalysis.model.bo.RsyslogNormalMessage;
 import com.gem.loganalysis.model.entity.Log;
 import com.gem.loganalysis.model.entity.LogIndex;
-import com.gem.loganalysis.service.LogIndexService;
-import com.gem.loganalysis.service.LogService;
+import com.gem.loganalysis.service.ILogIndexService;
+import com.gem.loganalysis.service.ILogService;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -37,15 +37,13 @@ public class LogInStorageTask {
     private final Set<Facility> facilitySetInstance = new HashSet<>();
 
     @Resource
-    private LogService logService;
+    private ILogService logService;
 
     @Resource
-    private LogIndexService logIndexService;
+    private ILogIndexService logIndexService;
 
     /**
      * 自动装载特征设施类
-     *
-     * @return 识别到的特征设施类名
      */
     private void loadFacilitySet() {
         Set<Class<?>> classes = ClassUtil.scanPackage("com.gem.loganalysis.facility");
@@ -97,22 +95,19 @@ public class LogInStorageTask {
      */
     private void insertOrUpdateLog(String key, RsyslogNormalMessage logInfo) {
         String unionKey;
-        String keyFormat;
         if (key.contains("&")) {
             String[] split = key.split("&");
             unionKey = split[0];
-            keyFormat = split[1];
             // 先查询log_index,判断应执行新增还是修改
             LambdaQueryWrapper<LogIndex> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(LogIndex::getLogType, 2)
-                    .eq(LogIndex::getKeyFormat, keyFormat)
+            queryWrapper.eq(LogIndex::getRuleRelaId, 2)
                     .eq(LogIndex::getUnionKey, unionKey);
             LogIndex logIndex = logIndexService.getOne(queryWrapper);
 
             Log l = new Log(logInfo);
             if (logIndex == null) {
                 if (logService.save(l)) {
-                    logIndexService.save(new LogIndex(l.getLogType(), keyFormat, unionKey, l.getLogId()));
+                    logIndexService.save(new LogIndex(null, unionKey, l.getLogId()));
                 }
             } else {
                 l.setLogId(logIndex.getLogId());

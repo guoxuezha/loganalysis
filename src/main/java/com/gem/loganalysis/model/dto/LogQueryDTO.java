@@ -11,8 +11,6 @@ import lombok.Data;
 @Data
 public class LogQueryDTO {
 
-    private Integer logType;
-
     private String host;
 
     private String severity;

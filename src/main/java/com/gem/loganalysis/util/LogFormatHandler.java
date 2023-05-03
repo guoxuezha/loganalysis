@@ -31,7 +31,7 @@ public class LogFormatHandler {
     /**
      * 解析日志内容,转为MAP对象
      *
-     * @param message   日志原文
+     * @param log       日志原文对象
      * @param keyList   关注KEY列表
      * @param itemSplit 数据项切分字符
      * @param kvSplit   键值切分字符

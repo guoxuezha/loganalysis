@@ -8,7 +8,7 @@ import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.Result;
 import com.gem.loganalysis.model.dto.LogQueryDTO;
 import com.gem.loganalysis.model.entity.Log;
-import com.gem.loganalysis.service.LogService;
+import com.gem.loganalysis.service.ILogService;
 import com.gem.loganalysis.task.LogInStorageTask;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -33,10 +32,8 @@ import java.util.Set;
 @AllArgsConstructor
 public class LogManagerController {
 
-    @Resource
-    private final LogService logService;
+    private final ILogService iLogService;
 
-    @Resource
     private final LogInStorageTask logInStorageTask;
 
     /**
@@ -50,9 +47,6 @@ public class LogManagerController {
         Page<Log> page = new Page<>(dto.getPageNum(), dto.getPageSize());
         LogQueryDTO data = dto.getData();
         LambdaQueryWrapper<Log> wrapper = new LambdaQueryWrapper<>();
-        if (data.getLogType() != null) {
-            wrapper.eq(Log::getLogType, data.getLogType());
-        }
         if (StrUtil.isNotEmpty(data.getHost())) {
             wrapper.like(Log::getHost, data.getHost());
         }
@@ -62,7 +56,7 @@ public class LogManagerController {
         if (StrUtil.isNotEmpty(data.getSeverity())) {
             wrapper.like(Log::getSeverity, data.getSeverity());
         }
-        return Result.ok(logService.page(page, wrapper));
+        return Result.ok(iLogService.page(page, wrapper));
     }
 
     @PostMapping("/fetchFacilityCache")
