@@ -62,9 +62,9 @@ public class LogInStorageTask {
     }
 
     /**
-     * 每3分钟执行一次缓存释放
+     * 每分钟执行一次缓存释放
      */
-    @Scheduled(cron = "0 0/1 * * * ? ")
+    //@Scheduled(cron = "0 0/1 * * * ? ")
     public void loadInStorage() {
         if (facilitySetInstance.size() == 0) {
             loadFacilitySet();

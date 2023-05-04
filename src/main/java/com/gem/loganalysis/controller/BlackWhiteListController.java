@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 2023-05-03
  */
 @RestController
-@RequestMapping("/loganalysis/blackWhiteList")
+@RequestMapping("/logAnalysis/blackWhiteList")
 @AllArgsConstructor
 @Slf4j
 public class BlackWhiteListController {

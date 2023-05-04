@@ -21,7 +21,7 @@ import java.util.List;
 @Component
 public class KafkaConsumer {
 
-    @KafkaListener(topics = {"remotelog04"})
+    //@KafkaListener(topics = {"remotelog04"})
     void onMessage1(String record) {
         List<RsyslogNormalMessage> messageList = JSONUtil.toList("[" + record + "]", RsyslogNormalMessage.class);
         // 消费的哪个topic、partition的消息,打印出消息内容

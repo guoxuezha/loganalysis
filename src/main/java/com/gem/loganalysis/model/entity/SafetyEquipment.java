@@ -1,7 +1,11 @@
 package com.gem.loganalysis.model.entity;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.date.DateUtil;
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.gem.loganalysis.model.dto.edit.SafetyEquipmentDTO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -24,13 +28,13 @@ public class SafetyEquipment implements Serializable {
     /**
      * 安全设备ID
      */
-    @TableField("EQUIP_ID")
+    @TableId(value = "EQUIP_ID", type = IdType.AUTO)
     private Integer equipId;
 
     /**
      * IP地址
      */
-    @TableId("IP")
+    @TableField("IP")
     private String ip;
 
     /**
@@ -117,5 +121,10 @@ public class SafetyEquipment implements Serializable {
     @TableField("DELETE_STATE")
     private Integer deleteState;
 
+    public SafetyEquipment(SafetyEquipmentDTO dto) {
+        BeanUtil.copyProperties(dto, this);
+        this.createTime = DateUtil.now();
+        this.updateTime = DateUtil.now();
+    }
 
 }

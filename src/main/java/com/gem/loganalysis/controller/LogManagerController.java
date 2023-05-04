@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gem.loganalysis.facility.Facility;
 import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.Result;
-import com.gem.loganalysis.model.dto.LogQueryDTO;
+import com.gem.loganalysis.model.dto.query.LogQueryDTO;
 import com.gem.loganalysis.model.entity.Log;
 import com.gem.loganalysis.service.ILogService;
 import com.gem.loganalysis.task.LogInStorageTask;

@@ -1,4 +1,4 @@
-package com.gem.loganalysis.model.dto;
+package com.gem.loganalysis.model.dto.query;
 
 import lombok.Data;
 

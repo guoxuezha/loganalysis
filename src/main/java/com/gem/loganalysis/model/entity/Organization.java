@@ -1,7 +1,10 @@
 package com.gem.loganalysis.model.entity;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.gem.loganalysis.model.dto.edit.OrganizationDTO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -24,8 +27,8 @@ public class Organization implements Serializable {
     /**
      * 组织ID
      */
-    @TableId("ORG_ID")
-    private String orgId;
+    @TableId(value = "ORG_ID")
+    private Integer orgId;
 
     /**
      * 组织名称
@@ -68,6 +71,15 @@ public class Organization implements Serializable {
      */
     @TableField("DELETE_STATE")
     private Integer deleteState;
+
+    public Organization(OrganizationDTO dto) {
+        /*this.orgId = dto.getOrgId();
+        this.orgName = dto.getOrgName();
+        this.orgDesc = dto.getOrgDesc();*/
+        BeanUtil.copyProperties(dto, this);
+        this.createTime = DateUtil.now();
+        this.updateTime = DateUtil.now();
+    }
 
 
 }

@@ -1,6 +1,9 @@
 package com.gem.loganalysis.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.gem.loganalysis.model.PageRequest;
+import com.gem.loganalysis.model.dto.query.BlockRecordQueryDTO;
 import com.gem.loganalysis.model.entity.BlockOffRule;
 
 /**
@@ -11,4 +14,5 @@ import com.gem.loganalysis.model.entity.BlockOffRule;
  */
 public interface IBlockOffRuleService extends IService<BlockOffRule> {
 
+    IPage<Object> blockOffRecords(PageRequest<BlockRecordQueryDTO> dto);
 }

@@ -1,7 +1,11 @@
 package com.gem.loganalysis.model.entity;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.date.DateUtil;
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.gem.loganalysis.model.dto.edit.BlockRuleDTO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -24,13 +28,13 @@ public class BlockOffRule implements Serializable {
     /**
      * 封堵规则ID
      */
-    @TableField("BLOCK_OFF_RULE_ID")
+    @TableId(value = "BLOCK_OFF_RULE_ID", type = IdType.AUTO)
     private Integer blockOffRuleId;
 
     /**
      * 设备唯一编码
      */
-    @TableId("EQUIP_ID")
+    @TableField("EQUIP_ID")
     private Integer equipId;
 
     /**
@@ -86,6 +90,12 @@ public class BlockOffRule implements Serializable {
      */
     @TableField("DELETE_STATE")
     private Integer deleteState;
+
+    public BlockOffRule(BlockRuleDTO dto) {
+        BeanUtil.copyProperties(dto, this);
+        this.createTime = DateUtil.now();
+        this.updateTime = DateUtil.now();
+    }
 
 
 }
