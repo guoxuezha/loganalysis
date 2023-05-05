@@ -33,7 +33,6 @@ public class SafetyEquipmentController {
 
     private final ISafetyEquipmentService iSafetyEquipmentService;
 
-
     /**
      * 分页查询安全设备基本信息
      *
