@@ -11,7 +11,7 @@
  Target Server Version : 80031
  File Encoding         : 65001
 
- Date: 04/05/2023 00:02:50
+ Date: 05/05/2023 12:52:16
 */
 
 SET NAMES utf8mb4;
@@ -86,6 +86,8 @@ CREATE TABLE `block_off_rule`  (
 -- ----------------------------
 -- Records of block_off_rule
 -- ----------------------------
+INSERT INTO `block_off_rule` VALUES (00000000001, 00000000002, 'debug', '', '', NULL, '2023-05-05 12:50:19', NULL, '2023-05-05 12:50:19', NULL, NULL);
+INSERT INTO `block_off_rule` VALUES (00000000002, 00000000002, 'debug', 'user', '', NULL, '2023-05-05 12:50:21', NULL, '2023-05-05 12:50:21', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for log
@@ -101,7 +103,7 @@ CREATE TABLE `log`  (
   `TAG` varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL COMMENT '标签',
   PRIMARY KEY (`LOG_ID`) USING BTREE,
   INDEX `SEARCH`(`HOST` ASC, `SEVERITY` ASC, `FACILITY` ASC) USING BTREE COMMENT '快速搜索'
-) ENGINE = InnoDB AUTO_INCREMENT = 228119 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci COMMENT = '日志内容' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci COMMENT = '日志内容' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of log
@@ -123,11 +125,12 @@ CREATE TABLE `log_analysis_rule`  (
   `UPDATE_BY` varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL COMMENT '修改人',
   `DELETE_STATE` int NULL DEFAULT NULL COMMENT '删除标记',
   UNIQUE INDEX `ANALYSIS_RULE_ID`(`ANALYSIS_RULE_ID` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci COMMENT = '日志解析规则' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci COMMENT = '日志解析规则' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of log_analysis_rule
 -- ----------------------------
+INSERT INTO `log_analysis_rule` VALUES (00000000003, 1, '', ',', ':', '2023-05-05 12:45:56', NULL, '2023-05-05 12:45:56', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for log_analysis_rule_rela
@@ -194,6 +197,7 @@ CREATE TABLE `organization`  (
 -- ----------------------------
 -- Records of organization
 -- ----------------------------
+INSERT INTO `organization` VALUES (00000000002, '测试组织机构', '描述', '2023-05-05 12:34:51', NULL, '2023-05-05 12:34:51', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for safety_equipment
@@ -225,5 +229,6 @@ CREATE TABLE `safety_equipment`  (
 -- ----------------------------
 -- Records of safety_equipment
 -- ----------------------------
+INSERT INTO `safety_equipment` VALUES (00000000002, '192.168.43.14', '8080', '1', 00000000002, '测试安全设备(本机)', '', '', '', NULL, '', '2023-05-05 12:40:08', NULL, '2023-05-05 12:40:08', NULL, NULL);
 
 SET FOREIGN_KEY_CHECKS = 1;
