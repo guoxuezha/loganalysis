@@ -1,4 +1,10 @@
 spring:
+  mvc:
+    static-path-pattern: /**
+  web:
+    resources:
+      static-locations: classpath:/META-INF/resources/
+
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/loganalysis?characterEncoding=utf8&nullCatalogMeansCurrent=true&useSSL=false&useUnicode=true&0=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Shanghai
@@ -53,8 +59,9 @@ spring:
       # 批量消费每次最多消费多少条消息
       max-poll-records: 50
 
+
 mybatis-plus:
   mapper-locations: classpath:mapper/*.xml
-  # 控制台打印sql语句
-  #configuration:
-    #log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    # 控制台打印sql语句
+    #configuration:
+  #log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

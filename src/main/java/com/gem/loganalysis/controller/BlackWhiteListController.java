@@ -8,6 +8,7 @@ import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.Result;
 import com.gem.loganalysis.model.entity.BlackWhiteList;
 import com.gem.loganalysis.service.IBlackWhiteListService;
+import io.swagger.annotations.Api;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/logAnalysis/blackWhiteList")
 @AllArgsConstructor
 @Slf4j
+@Api(tags = "黑白名单")
 public class BlackWhiteListController {
 
     private final IBlackWhiteListService iBlackWhiteListService;
@@ -39,8 +41,6 @@ public class BlackWhiteListController {
         }
         return Result.ok(iBlackWhiteListService.page(page, wrapper));
     }
-
-
 
 
 }

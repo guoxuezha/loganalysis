@@ -2,6 +2,7 @@ package com.gem.loganalysis.model.entity;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.DateUtil;
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.gem.loganalysis.model.dto.edit.OrganizationDTO;
@@ -27,7 +28,7 @@ public class Organization implements Serializable {
     /**
      * 组织ID
      */
-    @TableId(value = "ORG_ID")
+    @TableId(value = "ORG_ID", type = IdType.AUTO)
     private Integer orgId;
 
     /**

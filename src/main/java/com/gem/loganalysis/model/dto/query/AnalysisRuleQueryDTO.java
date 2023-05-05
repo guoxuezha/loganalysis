@@ -10,5 +10,12 @@ import lombok.Data;
 @Data
 public class AnalysisRuleQueryDTO {
 
+    private Integer equipId;
+
+    private String severity;
+
+    private String facility;
+
+    private Integer ruleType;
 
 }

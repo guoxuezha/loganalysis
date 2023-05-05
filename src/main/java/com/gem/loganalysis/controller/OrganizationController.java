@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class OrganizationController {
 
     private final IOrganizationService iOrganizationService;
-
     @PostMapping("/pageList")
     public Result<Object> fetchFacilityCache(@RequestBody PageRequest<String> dto) {
         Page<Organization> page = new Page<>(dto.getPageNum(), dto.getPageSize());
