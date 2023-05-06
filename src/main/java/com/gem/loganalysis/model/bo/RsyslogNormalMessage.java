@@ -3,7 +3,7 @@ package com.gem.loganalysis.model.bo;
 import lombok.Data;
 
 /**
- * Description:
+ * Description: Rsyslog模板化输出格式
  * Date: 2023/4/21 9:07
  *
  * @author GuoChao

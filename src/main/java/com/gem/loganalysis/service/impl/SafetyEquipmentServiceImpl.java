@@ -12,6 +12,7 @@ import com.gem.loganalysis.service.ISafetyEquipmentService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * 安全设备 服务实现类
@@ -35,7 +36,7 @@ public class SafetyEquipmentServiceImpl extends ServiceImpl<SafetyEquipmentMappe
     }
 
     @Override
-    public Log getEquipLog(PageRequest<Integer> equipId) {
+    public List<Log> getEquipLog(PageRequest<Integer> equipId) {
         return safetyEquipmentMapper.getEquipLog(equipId.getData());
     }
 

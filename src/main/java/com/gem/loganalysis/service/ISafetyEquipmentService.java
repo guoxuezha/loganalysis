@@ -8,6 +8,8 @@ import com.gem.loganalysis.model.entity.SafetyEquipment;
 import com.gem.loganalysis.model.vo.EquipAnalysisRuleVO;
 import com.gem.loganalysis.model.vo.EquipBlockRecordVO;
 
+import java.util.List;
+
 /**
  * 安全设备 服务类
  *
@@ -20,6 +22,6 @@ public interface ISafetyEquipmentService extends IService<SafetyEquipment> {
 
     EquipBlockRecordVO getEquipBlockRecords(PageRequest<Integer> equipId);
 
-    Log getEquipLog(PageRequest<Integer> equipId);
+    List<Log> getEquipLog(PageRequest<Integer> equipId);
 
 }
