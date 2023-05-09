@@ -5,46 +5,66 @@
     <!--查询安全设备的日志解析规则-->
     <select id="getEquipAnalysisRuleList" parameterType="com.gem.loganalysis.model.dto.query.AnalysisRuleQueryDTO"
             resultType="com.gem.loganalysis.model.vo.EquipAnalysisRuleVO">
-        SELECT A.EQUIP_ID,
-               A.EQUIP_NAME,
-               B.SEVERITY,
-               B.FACILITY,
-               C.RULE_TYPE,
-               METHOD_NAME,
-               ITEM_SPLIT,
-               KV_SPLIT
-        FROM safety_equipment A
-                 LEFT JOIN log_analysis_rule_rela B ON A.EQUIP_ID = B.EQUIP_ID
-                 LEFT JOIN log_analysis_rule C ON B.ANALYSIS_RULE_ID = C.ANALYSIS_RULE_ID
-        WHERE A.EQUIP_ID = #{equipId,jdbcType=INTEGER}
-          AND B.SEVERITY = #{severity,jdbcType=VARCHAR}
-          AND B.FACILITY = #{facility,jdbcType=VARCHAR}
-          AND C.RULE_TYPE = #{ruleType,jdbcType=VARCHAR}
+        SELECT a.equip_id,
+               a.equip_name,
+               b.severity,
+               b.facility,
+               c.rule_type,
+               method_name,
+               item_split,
+               kv_split
+        FROM safety_equipment a
+                 LEFT JOIN log_analysis_rule_rela b ON a.equip_id = b.equip_id
+                 LEFT JOIN log_analysis_rule c ON b.analysis_rule_id = c.analysis_rule_id
+        WHERE a.equip_id = #{equipId,jdbcType=INTEGER}
+          AND b.severity = #{severity,jdbcType=VARCHAR}
+          AND b.facility = #{facility,jdbcType=VARCHAR}
+          AND c.rule_type = #{ruleType,jdbcType=VARCHAR}
     </select>
 
     <!--查询安全设备相关的历史封堵记录-->
     <select id="getEquipBlockRecords" parameterType="java.lang.Integer"
             resultType="com.gem.loganalysis.model.vo.EquipBlockRecordVO">
-        SELECT A.EQUIP_ID,
-               A.SEVERITY,
-               A.FACILITY,
-               A.BLOCK_OFF_TIME,
-               B.BLOCK_OFF_IP,
-               B.BLOCK_START_TIME,
-               B.BLOCK_END_TIME,
-               B.BLOCK_STATE
-        FROM BLOCK_OFF_RULE A
-                 LEFT JOIN BLOCK_OFF_RECORD B ON A.BLOCK_OFF_RULE_ID = B.BLOCK_OFF_RULE_ID
-        WHERE B.EQUIP_ID = #{equipId, jdbcType=INTEGER}
+        SELECT a.equip_id,
+               a.severity,
+               a.facility,
+               a.block_off_time,
+               b.block_off_ip,
+               b.block_start_time,
+               b.block_end_time,
+               b.block_state
+        FROM block_off_rule a
+                 LEFT JOIN block_off_record b ON a.block_off_rule_id = b.block_off_rule_id
+        WHERE a.equip_id = #{equipId, jdbcType=INTEGER}
     </select>
 
     <!--查询安全设备归并后的日志记录-->
     <select id="getEquipLog" parameterType="java.lang.Integer" resultType="com.gem.loganalysis.model.entity.Log">
-        SELECT C.*
-        FROM log_analysis_rule_rela A
-                 LEFT JOIN LOG_INDEX B ON A.RULE_RELA_ID = B.RULE_RELA_ID
-                 LEFT JOIN LOG C ON B.LOG_ID = C.LOG_ID
-        WHERE A.EQUIP_ID = #{equipId, jdbcType=INTEGER}
+        SELECT c.*
+        FROM log_analysis_rule_rela a
+                 LEFT JOIN log_index b ON a.rule_rela_id = b.rule_rela_id
+                 LEFT JOIN log c ON b.log_id = c.log_id
+        WHERE a.equip_id = #{equipId, jdbcType=INTEGER}
+    </select>
+
+    <!--设备解析及阻塞规则-->
+    <select id="getEquipAnalysisAndBlockRule" parameterType="java.lang.String" resultType="java.util.HashMap">
+        SELECT a.*,
+               c.facility,
+               c.severity,
+               c.merge_items,
+               c.window_time,
+               d.item_split,
+               d.kv_split,
+               b.ip_item_name,
+               b.block_off_time
+        FROM safety_equipment a
+                 LEFT JOIN block_off_rule b ON a.equip_id = b.equip_id
+                 LEFT JOIN log_analysis_rule_rela c ON a.equip_id = c.equip_id
+                 LEFT JOIN log_analysis_rule d ON c.analysis_rule_id = d.analysis_rule_id
+        WHERE a.ip = #{ip, jdbcType=VARCHAR}
+          AND c.facility = #{facility, jdbcType=VARCHAR}
+          AND c.severity = #{severity, jdbcType=VARCHAR}
     </select>
 
 </mapper>
