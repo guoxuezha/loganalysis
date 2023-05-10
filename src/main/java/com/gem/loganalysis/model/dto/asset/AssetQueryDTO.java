@@ -4,7 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-@ApiModel("管理后台 - 安全管理资产查询 DTO ")
+@ApiModel("资产模块 - 安全管理资产查询 DTO ")
 @Data
 public class AssetQueryDTO {
 

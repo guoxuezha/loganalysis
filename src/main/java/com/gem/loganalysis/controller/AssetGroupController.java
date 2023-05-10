@@ -46,7 +46,7 @@ public class AssetGroupController {
                 .eqIfPresent(AssetGroup::getAssetOrg, dto.getAssetOrg())
                 .likeIfPresent(AssetGroup::getGroupName, dto.getGroupName())
                 .orderByAsc(AssetGroup::getCreateTime);//根据创建时间正序排
-        return Result.ok(assetGroupService.list(wrapper));
+        return Result.ok(AssetConvert.INSTANCE.convertList(assetGroupService.list(wrapper)));
     }
 
     @PostMapping("/edit")

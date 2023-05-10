@@ -5,6 +5,8 @@ import com.gem.loganalysis.model.dto.asset.AssetDTO;
 import com.gem.loganalysis.model.dto.asset.AssetGroupDTO;
 import com.gem.loganalysis.model.entity.Asset;
 import com.gem.loganalysis.model.entity.AssetGroup;
+import com.gem.loganalysis.model.vo.asset.AssetGroupRespVO;
+import com.gem.loganalysis.model.vo.asset.AssetRespVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
@@ -24,9 +26,9 @@ public interface AssetConvert {
 
     AssetGroup convert(AssetGroupDTO bean);
 
-    Page<AssetDTO> convertPage(Page<Asset> page);
+    Page<AssetRespVO> convertPage(Page<Asset> page);
 
-
+    List<AssetGroupRespVO> convertList(List<AssetGroup> list);
 
 
 

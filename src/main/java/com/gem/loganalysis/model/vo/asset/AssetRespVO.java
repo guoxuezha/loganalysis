@@ -1,13 +1,17 @@
-package com.gem.loganalysis.model.dto.asset;
+package com.gem.loganalysis.model.vo.asset;
 
-import lombok.*;
-import java.util.*;
-import io.swagger.annotations.*;
-import javax.validation.constraints.*;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
 
-@ApiModel("资产模块 - 安全管理资产创建/更新 DTO ")
+/**
+ * @author czw
+ * @version 1.0
+ * @date 2023/5/5 9:11
+ */
+@ApiModel("资产模块 - 安全资产VO Response ")
 @Data
-public class AssetDTO {
+public class AssetRespVO {
 
     @ApiModelProperty(value = "资产唯一编码")
     private String assetId;
@@ -57,9 +61,6 @@ public class AssetDTO {
     @ApiModelProperty(value = "网管账号")
     private String nmAccount;
 
-    @ApiModelProperty(value = "网管密码（加密存储）")
-    private String nmPassword;
-
     @ApiModelProperty(value = "资产所属组织（部门）")
     private String assetOrg;
 
@@ -74,5 +75,17 @@ public class AssetDTO {
 
     @ApiModelProperty(value = "资产状态（0在役/1退役/2在线/3离线）")
     private String assetStatus;
+
+    @ApiModelProperty(value = "创建时间")
+    private String createTime;
+
+    @ApiModelProperty(value = "创建人")
+    private String createBy;
+
+    @ApiModelProperty(value = "更新时间")
+    private String updateTime;
+
+    @ApiModelProperty(value = "更新人")
+    private String updateBy;
 
 }

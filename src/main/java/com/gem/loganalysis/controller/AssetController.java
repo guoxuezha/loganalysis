@@ -55,8 +55,7 @@ public class AssetController {
                 .eqIfPresent(Asset::getAssetOrg, data.getAssetOrg())
                 .eqIfPresent(Asset::getAssetStatus, data.getAssetStatus())
                 .orderByDesc(Asset::getUpdateTime);
-        Page<Asset> assetPage = assetService.page(page, wrapper);
-        return Result.ok(assetPage);
+        return Result.ok(AssetConvert.INSTANCE.convertPage(assetService.page(page, wrapper)));
     }
 
     @PostMapping("/physicalAssetType")
