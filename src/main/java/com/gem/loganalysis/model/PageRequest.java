@@ -1,5 +1,6 @@
 package com.gem.loganalysis.model;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,12 +20,14 @@ public class PageRequest<T> {
     /**
      * 当前页
      */
+    @ApiModelProperty(value = "页码，从 1 开始", required = true,example = "1")
     @NotNull(message = "当前页不能为空")
     private Integer pageNum;
 
     /**
      * 每页数量
      */
+    @ApiModelProperty(value = "每页条数", required = true, example = "10")
     @NotNull(message = "每页数量不能为空")
     private Integer pageSize;
 

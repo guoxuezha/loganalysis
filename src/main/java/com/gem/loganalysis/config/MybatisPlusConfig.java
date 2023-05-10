@@ -1,9 +1,11 @@
 package com.gem.loganalysis.config;
 
 import com.baomidou.mybatisplus.annotation.DbType;
+import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.OptimisticLockerInnerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
+import com.gem.loganalysis.handler.DefaultDBFieldHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -12,6 +14,13 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class MybatisPlusConfig {
+
+    @Bean
+    public MetaObjectHandler defaultMetaObjectHandler(){
+        // 自动填充参数类
+        return new DefaultDBFieldHandler();
+    }
+
 
     @Bean
     public MybatisPlusInterceptor mybatisPlusInterceptor() {
