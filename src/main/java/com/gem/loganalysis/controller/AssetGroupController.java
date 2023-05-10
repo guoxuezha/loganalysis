@@ -14,6 +14,7 @@ import com.gem.loganalysis.model.dto.asset.AssetQueryDTO;
 import com.gem.loganalysis.model.dto.query.LambdaQueryWrapperX;
 import com.gem.loganalysis.model.entity.Asset;
 import com.gem.loganalysis.model.entity.AssetGroup;
+import com.gem.loganalysis.model.vo.asset.AssetGroupRespVO;
 import com.gem.loganalysis.service.IAssetGroupService;
 import com.gem.loganalysis.service.IAssetService;
 import io.swagger.annotations.Api;
@@ -41,7 +42,7 @@ public class AssetGroupController {
 
     @PostMapping("/list")
     @ApiOperation("资产分组列表")
-    public Result<Object> pageList(@RequestBody AssetGroupQueryDTO dto) {
+    public Result<List<AssetGroupRespVO>> pageList(@RequestBody AssetGroupQueryDTO dto) {
         LambdaQueryWrapperX<AssetGroup> wrapper = new LambdaQueryWrapperX<AssetGroup>()
                 .eqIfPresent(AssetGroup::getAssetOrg, dto.getAssetOrg())
                 .likeIfPresent(AssetGroup::getGroupName, dto.getGroupName())
@@ -51,26 +52,26 @@ public class AssetGroupController {
 
     @PostMapping("/edit")
     @ApiOperation("创建/编辑资产分组")
-    public Result<Object> list(@RequestBody AssetGroupDTO dto) {
-        return Result.ok(assetGroupService.saveOrUpdate(AssetConvert.INSTANCE.convert(dto)));
+    public Result<String> list(@RequestBody AssetGroupDTO dto) {
+        return assetGroupService.saveOrUpdate(AssetConvert.INSTANCE.convert(dto))?Result.ok("操作成功!"):Result.failed("操作失败!");
     }
 
 
     @PostMapping("/orgList")
     @ApiOperation("部门列表(之后是金总提供的用户部门里的那一套，先用着这个)")
     public Result<Object> getOrgList() {
-        List<Map<String,String>> orgList = new ArrayList<>();
-        Map<String,String> map = new HashMap<>();
+        List<Map<String,Object>> orgList = new ArrayList<>();
+        Map<String,Object> map = new HashMap<>();
         map.put("label","信息网络部");
-        map.put("value","1");
+        map.put("value",1);
         orgList.add(map);
         map = new HashMap<>();
         map.put("label","互联网部");
-        map.put("value","2");
+        map.put("value",2);
         orgList.add(map);
         map = new HashMap<>();
         map.put("label","市场部");
-        map.put("value","3");
+        map.put("value",3);
         orgList.add(map);
         return Result.ok(orgList);
     }

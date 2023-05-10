@@ -12,6 +12,7 @@ import com.gem.loganalysis.model.dto.asset.AssetDTO;
 import com.gem.loganalysis.model.dto.asset.AssetQueryDTO;
 import com.gem.loganalysis.model.dto.query.LambdaQueryWrapperX;
 import com.gem.loganalysis.model.entity.Asset;
+import com.gem.loganalysis.model.vo.asset.AssetRespVO;
 import com.gem.loganalysis.service.IAssetService;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
@@ -36,13 +37,13 @@ public class AssetController {
 
     @PostMapping("/edit")
     @ApiOperation("创建/编辑安全管理资产")
-    public Result<Object> createAsset(@Valid @RequestBody AssetDTO dto) {
-        return Result.ok(assetService.saveOrUpdate(AssetConvert.INSTANCE.convert(dto))?Result.ok("操作成功!"):Result.failed("操作失败!"));
+    public Result<String> createAsset(@Valid @RequestBody AssetDTO dto) {
+        return assetService.saveOrUpdate(AssetConvert.INSTANCE.convert(dto))?Result.ok("操作成功!"):Result.failed("操作失败!");
     }
 
     @PostMapping("/pageList")
     @ApiOperation("分页查询安全管理资产")
-    public Result<Object> pageList(@RequestBody PageRequest<AssetQueryDTO> dto) {
+    public Result<Page<AssetRespVO>> pageList(@RequestBody PageRequest<AssetQueryDTO> dto) {
         Page<Asset> page = new Page<>(dto.getPageNum(), dto.getPageSize());
         AssetQueryDTO data = dto.getData();
         LambdaQueryWrapperX<Asset> wrapper = new LambdaQueryWrapperX<Asset>()
@@ -61,22 +62,22 @@ public class AssetController {
     @PostMapping("/physicalAssetType")
     @ApiOperation("物理资产类型(之后放到数据字典，先用着)")
     public Result<Object> getPhysicalAssetType() {
-        List<Map<String,String>> assetType = new ArrayList<>();
-        Map<String,String> map = new HashMap<>();
+        List<Map<String,Object>> assetType = new ArrayList<>();
+        Map<String,Object> map = new HashMap<>();
         map.put("label","服务器");
-        map.put("value","1");
+        map.put("value",1);
         assetType.add(map);
         map = new HashMap<>();
         map.put("label","路由器");
-        map.put("value","2");
+        map.put("value",2);
         assetType.add(map);
         map = new HashMap<>();
         map.put("label","交换机");
-        map.put("value","3");
+        map.put("value",3);
         assetType.add(map);
         map = new HashMap<>();
         map.put("label","防火墙");
-        map.put("value","4");
+        map.put("value",4);
         assetType.add(map);
         return Result.ok(assetType);
     }
@@ -84,22 +85,22 @@ public class AssetController {
     @PostMapping("/logicalAssetType")
     @ApiOperation("物理资产(之后放到数据字典，先用着)")
     public Result<Object> getLogicalAssetType() {
-        List<Map<String,String>> assetType = new ArrayList<>();
-        Map<String,String> map = new HashMap<>();
+        List<Map<String,Object>> assetType = new ArrayList<>();
+        Map<String,Object> map = new HashMap<>();
         map.put("label","数据库");
-        map.put("value","1");
+        map.put("value",1);
         assetType.add(map);
         map = new HashMap<>();
         map.put("label","中间件");
-        map.put("value","2");
+        map.put("value",2);
         assetType.add(map);
         map = new HashMap<>();
         map.put("label","网络应用");
-        map.put("value","3");
+        map.put("value",3);
         assetType.add(map);
         map = new HashMap<>();
         map.put("label","域名");
-        map.put("value","4");
+        map.put("value",4);
         assetType.add(map);
         return Result.ok(assetType);
     }
