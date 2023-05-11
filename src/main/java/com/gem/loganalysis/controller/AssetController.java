@@ -38,34 +38,14 @@ public class AssetController {
 
     @PostMapping("/edit")
     @ApiOperation("创建/编辑安全管理资产")
-    public Result<String> createAsset(@Valid @RequestBody AssetDTO dto) {
-        if(dto.getIpAddress()!=null&& !dto.getIpAddress().trim().equals("")){
-            String regex = "^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$";
-            if(!Pattern.matches(regex,dto.getIpAddress())){
-                //效验IP地址格式是否正确
-                System.out.println(11);
-               return Result.failed("请输入正确的IP地址格式");
-            }
-        }
-        return assetService.saveOrUpdate(AssetConvert.INSTANCE.convert(dto))?Result.ok("操作成功!"):Result.failed("操作失败!");
+    public Result<String> editAsset(@Valid @RequestBody AssetDTO dto) {
+        return assetService.editAsset(dto);
     }
 
     @PostMapping("/pageList")
     @ApiOperation("分页查询安全管理资产")
     public Result<Page<AssetRespVO>> pageList(@RequestBody PageRequest<AssetQueryDTO> dto) {
-        Page<Asset> page = new Page<>(dto.getPageNum(), dto.getPageSize());
-        AssetQueryDTO data = dto.getData();
-        LambdaQueryWrapperX<Asset> wrapper = new LambdaQueryWrapperX<Asset>()
-                .likeIfPresent(Asset::getAssetName, data.getAssetName())
-                .eqIfPresent(Asset::getAssetClass, data.getAssetClass())
-                .eqIfPresent(Asset::getAssetType, data.getAssetType())
-                .eqIfPresent(Asset::getIpAddress, data.getIpAddress())
-                .eqIfPresent(Asset::getAssetManager, data.getAssetManager())
-                .eqIfPresent(Asset::getAssetGroupId, data.getAssetGroupId())
-                .eqIfPresent(Asset::getAssetOrg, data.getAssetOrg())
-                .eqIfPresent(Asset::getAssetStatus, data.getAssetStatus())
-                .orderByDesc(Asset::getUpdateTime);
-        return Result.ok(AssetConvert.INSTANCE.convertPage(assetService.page(page, wrapper)));
+        return Result.ok(AssetConvert.INSTANCE.convertPage(assetService.getPageList(dto)));
     }
 
     @PostMapping("/physicalAssetType")
@@ -113,6 +93,8 @@ public class AssetController {
         assetType.add(map);
         return Result.ok(assetType);
     }
+
+
 
 
 }

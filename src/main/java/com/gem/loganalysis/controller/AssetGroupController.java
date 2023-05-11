@@ -42,18 +42,14 @@ public class AssetGroupController {
 
     @PostMapping("/list")
     @ApiOperation("资产分组列表")
-    public Result<List<AssetGroupRespVO>> pageList(@RequestBody AssetGroupQueryDTO dto) {
-        LambdaQueryWrapperX<AssetGroup> wrapper = new LambdaQueryWrapperX<AssetGroup>()
-                .eqIfPresent(AssetGroup::getAssetOrg, dto.getAssetOrg())
-                .likeIfPresent(AssetGroup::getGroupName, dto.getGroupName())
-                .orderByAsc(AssetGroup::getCreateTime);//根据创建时间正序排
-        return Result.ok(AssetConvert.INSTANCE.convertList(assetGroupService.list(wrapper)));
+    public Result<List<AssetGroupRespVO>> list(@RequestBody AssetGroupQueryDTO dto) {
+        return Result.ok(AssetConvert.INSTANCE.convertList(assetGroupService.getList(dto)));
     }
 
     @PostMapping("/edit")
     @ApiOperation("创建/编辑资产分组")
-    public Result<String> list(@RequestBody AssetGroupDTO dto) {
-        return assetGroupService.saveOrUpdate(AssetConvert.INSTANCE.convert(dto))?Result.ok("操作成功!"):Result.failed("操作失败!");
+    public Result<String> editGroup(@RequestBody AssetGroupDTO dto) {
+        return assetGroupService.editGroup(dto);
     }
 
 

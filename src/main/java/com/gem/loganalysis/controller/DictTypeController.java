@@ -47,17 +47,17 @@ public class DictTypeController {
     @ApiOperation("创建数据字典类型")
     public Result<String> createDictType(@Valid @RequestBody DictTypeDTO dto) {
         if(dto.getTypeId()!=null){
-            Result.failed("请勿传入字典类型主键");
+           return Result.failed("请勿传入字典类型主键");
         }
         //效验名称是否存在
         DictType name = dictTypeService.getOne(new LambdaQueryWrapperX<DictType>().eq(DictType::getName, dto.getName()));
         if(name!=null){
-            Result.failed("该字典类型名称已存在");
+            return Result.failed("该字典类型名称已存在");
         }
         //效验字典类型是否存在
         DictType type = dictTypeService.getOne(new LambdaQueryWrapperX<DictType>().eq(DictType::getType, dto.getType()));
         if(type!=null){
-            Result.failed("该字典类型已存在");
+            return Result.failed("该字典类型已存在");
         }
         //效验类型是否存在
         return dictTypeService.save(DictConvert.INSTANCE.convert(dto))?Result.ok("操作成功!"):Result.failed("操作失败!");
@@ -67,22 +67,22 @@ public class DictTypeController {
     @ApiOperation("修改数据字典类型")
     public Result<String> updateDictType(@Valid @RequestBody DictTypeDTO dto) {
         if(dto.getTypeId()==null){
-            Result.failed("字典类型编码ID不能为空");
+            return  Result.failed("字典类型编码ID不能为空");
         }
         //效验原字典类型是否存在
         DictType byId = dictTypeService.getById(dto.getTypeId());
         if(byId==null){
-            Result.failed("该字典类型不存在");
+            return Result.failed("该字典类型不存在");
         }
         //效验名称是否存在
         DictType name = dictTypeService.getOne(new LambdaQueryWrapperX<DictType>().eq(DictType::getName, dto.getName()));
         if(name!=null&&!name.getTypeId().equals(dto.getTypeId())){
-            Result.failed("该字典类型名称已存在");
+            return Result.failed("该字典类型名称已存在");
         }
         //效验字典类型是否存在
         DictType type = dictTypeService.getOne(new LambdaQueryWrapperX<DictType>().eq(DictType::getType, dto.getType()));
         if(type!=null&&!type.getTypeId().equals(dto.getTypeId())){
-            Result.failed("该字典类型已存在");
+            return Result.failed("该字典类型已存在");
         }
         return dictTypeService.updateById(DictConvert.INSTANCE.convert(dto))?Result.ok("操作成功!"):Result.failed("操作失败!");
     }
@@ -91,16 +91,16 @@ public class DictTypeController {
     @ApiOperation("删除数据字典类型")
     public Result<String> deleteDictType(@Valid @RequestBody Integer typeId) {
         if(typeId==null){
-            Result.failed("字典类型编码ID不能为空");
+            return Result.failed("字典类型编码ID不能为空");
         }
         //效验原字典类型是否存在
         DictType byId = dictTypeService.getById(typeId);
         if(byId==null){
-            Result.failed("改字典类型不存在");
+            return Result.failed("改字典类型不存在");
         }
         //判断底下是否还存在数据data
         if(dictDataService.count(new LambdaQueryWrapperX<DictData>().eq(DictData::getDictType,byId.getType()))>0){
-            Result.failed("请先删除该字典类型下的数据");
+            return Result.failed("请先删除该字典类型下的数据");
         };
         return dictTypeService.removeById(typeId)?Result.ok("操作成功!"):Result.failed("操作失败!");
     }

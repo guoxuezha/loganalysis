@@ -56,16 +56,16 @@ public class DictDataController {
     @ApiOperation("创建数据字典数据")
     public Result<String> createDictData(@Valid @RequestBody DictDataDTO dto) {
         if(dto.getDataId()!=null){
-            Result.failed("请勿传入字典数据主键");
+            return Result.failed("请勿传入字典数据主键");
         }
         //效验类型存在
         if(dictTypeService.count(new LambdaQueryWrapperX<DictType>().eq(DictType::getType,dto.getDictType()))==0){
-            Result.failed("该字类型不存在");
+            return Result.failed("该字类型不存在");
         }
         //效验值唯一
         DictData one = dictDataService.getOne(new LambdaQueryWrapperX<DictData>().eq(DictData::getValue, dto.getValue()));
         if(one!=null){
-            Result.failed("该字典键值已存在");
+            return  Result.failed("该字典键值已存在");
         }
         return dictDataService.save(DictConvert.INSTANCE.convert(dto))?Result.ok("操作成功!"):Result.failed("操作失败!");
     }
@@ -74,21 +74,21 @@ public class DictDataController {
     @ApiOperation("修改数据字典数据")
     public Result<String> updateDictType(@Valid @RequestBody DictDataDTO dto) {
         if(dto.getDataId()==null){
-            Result.failed("字典数据编码ID不能为空");
+            return Result.failed("字典数据编码ID不能为空");
         }
         //判断原数据字典是否存在
         DictData byId = dictDataService.getById(dto.getDataId());
         if(byId==null){
-            Result.failed("字典数据不存在");
+            return  Result.failed("字典数据不存在");
         }
         //效验类型存在
         if(dictTypeService.count(new LambdaQueryWrapperX<DictType>().eq(DictType::getType,dto.getDictType()))==0){
-            Result.failed("该字类型不存在");
+            return  Result.failed("该字类型不存在");
         }
         //效验值唯一
         DictData one = dictDataService.getOne(new LambdaQueryWrapperX<DictData>().eq(DictData::getValue, dto.getValue()));
         if(one!=null&&!byId.getDataId().equals(dto.getDataId())){
-            Result.failed("该字典键值已存在");
+            return Result.failed("该字典键值已存在");
         }
         return dictDataService.updateById(DictConvert.INSTANCE.convert(dto))?Result.ok("操作成功!"):Result.failed("操作失败!");
     }
@@ -97,12 +97,12 @@ public class DictDataController {
     @ApiOperation("删除数据字典数据")
     public Result<String> deleteDictData(@Valid @RequestBody Integer dataId) {
         if(dataId==null){
-            Result.failed("字典数据编码ID不能为空");
+            return  Result.failed("字典数据编码ID不能为空");
         }
         //判断原数据字典是否存在
         DictData byId = dictDataService.getById(dataId);
         if(byId==null){
-            Result.failed("字典数据不存在");
+            return Result.failed("字典数据不存在");
         }
         return dictDataService.removeById(dataId)?Result.ok("操作成功!"):Result.failed("操作失败!");
     }
@@ -136,7 +136,7 @@ public class DictDataController {
     @ApiOperation("获得某一数据字典数据详细")
     public Result<DictDataRespVO> getDictData(@Valid @RequestBody Integer dataId) {
         if(dataId==null){
-            Result.failed("请勿传入字典数据主键");
+            return  Result.failed("请勿传入字典数据主键");
         }
         return Result.ok(DictConvert.INSTANCE.convert(dictDataService.getById(dataId)));
     }
