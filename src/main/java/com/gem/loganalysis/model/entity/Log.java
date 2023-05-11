@@ -4,8 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.gem.loganalysis.model.bo.RsyslogNormalMessage;
+import com.gem.loganalysis.model.bo.MergeLog;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -69,7 +68,7 @@ public class Log implements Serializable {
     @TableField("TAG")
     private String tag;
 
-    public Log(RsyslogNormalMessage message) {
+    public Log(MergeLog message) {
         BeanUtil.copyProperties(message, this);
     }
 

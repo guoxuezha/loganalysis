@@ -2,6 +2,7 @@ package com.gem.loganalysis.model.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -12,26 +13,27 @@ import java.io.Serializable;
  * 日志解析规则映射关系
  *
  * @author GuoChao
- * @since 2023-05-03
+ * @since 2023-05-10
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
+@TableName("sop_log_analysis_rule_rela")
 public class LogAnalysisRuleRela implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     /**
-     * 关联关系ID
+     * 关联关系编码
      */
-    @TableField("RULE_RELA_ID")
-    private Integer ruleRelaId;
+    @TableId("RULE_RELA_ID")
+    private String ruleRelaId;
 
     /**
-     * 设备唯一编码
+     * 资产唯一编码
      */
-    @TableId("EQUIP_ID")
-    private Integer equipId;
+    @TableField("ASSET_ID")
+    private String assetId;
 
     /**
      * 日志级别
@@ -40,28 +42,46 @@ public class LogAnalysisRuleRela implements Serializable {
     private String severity;
 
     /**
-     * 日志生产子系统
+     * 产生日志的子系统
      */
     @TableField("FACILITY")
     private String facility;
 
     /**
-     * 规则ID
+     * 日志分析规则编码
      */
     @TableField("ANALYSIS_RULE_ID")
-    private Integer analysisRuleId;
+    private String analysisRuleId;
 
     /**
-     * 归并字段(列表)
+     * 归并字段属性列表
      */
     @TableField("MERGE_ITEMS")
     private String mergeItems;
 
     /**
-     * 归并窗口时长 用于判断是否需要执行归并
+     * 归并窗口时长（分钟）
      */
-    @TableField("WINDOW_TIME")
-    private Long windowTime;
+    @TableField("MERGE_WINDOW_TIME")
+    private Integer mergeWindowTime;
+
+    /**
+     * 事件判定窗口时长（分钟）
+     */
+    @TableField("EVENT_WINDOW_TIME")
+    private Integer eventWindowTime;
+
+    /**
+     * 事件判定阈值
+     */
+    @TableField("EVENT_THRESHOLD")
+    private Integer eventThreshold;
+
+    /**
+     * 事件判定关键字或正则表达式
+     */
+    @TableField("EVENT_KEYWORD")
+    private String eventKeyword;
 
     /**
      * 创建时间

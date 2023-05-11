@@ -3,13 +3,13 @@ package com.gem.loganalysis.controller;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.gem.loganalysis.facility.Facility;
 import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.Result;
+import com.gem.loganalysis.model.bo.LogAnalysisRule;
+import com.gem.loganalysis.model.bo.LogAnalysisRulePool;
 import com.gem.loganalysis.model.dto.query.LogQueryDTO;
 import com.gem.loganalysis.model.entity.Log;
 import com.gem.loganalysis.service.ILogService;
-import com.gem.loganalysis.task.LogInStorageTask;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
-import java.util.Set;
+import java.util.Map;
 
 /**
  * Description: 日志相关交互接口
@@ -34,7 +34,7 @@ public class LogManagerController {
 
     private final ILogService iLogService;
 
-    private final LogInStorageTask logInStorageTask;
+    private final LogAnalysisRulePool logAnalysisRulePool;
 
     /**
      * 分页查询日志
@@ -61,10 +61,9 @@ public class LogManagerController {
 
     @PostMapping("/fetchFacilityCache")
     public Result<Object> fetchFacilityCache() {
-        Set<Facility> instanceSet = logInStorageTask.getFacilitySetInstance();
         HashMap<String, Object> map = new HashMap<>(8);
-        for (Facility facility : instanceSet) {
-            map.put(facility.getClass().getSimpleName(), facility.getCacheInfo());
+        for (Map.Entry<String, LogAnalysisRule> entry : logAnalysisRulePool.getSafetyEquipmentBoMap().entrySet()) {
+            map.put(entry.getKey(), entry.getValue().getCacheInfo());
         }
         return Result.ok(map);
     }

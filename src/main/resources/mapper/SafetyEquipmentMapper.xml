@@ -47,24 +47,4 @@
         WHERE a.equip_id = #{equipId, jdbcType=INTEGER}
     </select>
 
-    <!--设备解析及阻塞规则-->
-    <select id="getEquipAnalysisAndBlockRule" parameterType="java.lang.String" resultType="java.util.HashMap">
-        SELECT a.*,
-               c.facility,
-               c.severity,
-               c.merge_items,
-               c.window_time,
-               d.item_split,
-               d.kv_split,
-               b.ip_item_name,
-               b.block_off_time
-        FROM safety_equipment a
-                 LEFT JOIN block_off_rule b ON a.equip_id = b.equip_id
-                 LEFT JOIN log_analysis_rule_rela c ON a.equip_id = c.equip_id
-                 LEFT JOIN log_analysis_rule d ON c.analysis_rule_id = d.analysis_rule_id
-        WHERE a.ip = #{ip, jdbcType=VARCHAR}
-          AND c.facility = #{facility, jdbcType=VARCHAR}
-          AND c.severity = #{severity, jdbcType=VARCHAR}
-    </select>
-
 </mapper>

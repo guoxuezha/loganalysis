@@ -8,7 +8,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.util.concurrent.TimeUnit;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "com.gem.loganalysis")
 @EnableScheduling
 @Slf4j
 public class LoganalysisApplication {

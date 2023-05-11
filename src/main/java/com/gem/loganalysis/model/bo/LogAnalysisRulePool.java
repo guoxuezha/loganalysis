@@ -1,7 +1,8 @@
 package com.gem.loganalysis.model.bo;
 
 import cn.hutool.core.collection.CollUtil;
-import com.gem.loganalysis.mapper.SafetyEquipmentMapper;
+import com.gem.loganalysis.mapper.LogAnalysisRuleRelaMapper;
+import lombok.Getter;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -14,32 +15,27 @@ import java.util.HashMap;
  * @author GuoChao
  **/
 @Component
-public class SafetyEquipmentPool {
+public class LogAnalysisRulePool {
 
-    //private static SafetyEquipmentPool INSTANCE;
-    private final HashMap<String, SafetyEquipmentBO> safetyEquipmentBoMap;
+    @Getter
+    private final HashMap<String, LogAnalysisRule> safetyEquipmentBoMap;
+
     @Resource
-    private SafetyEquipmentMapper safetyEquipmentMapper;
+    private LogAnalysisRuleRelaMapper logAnalysisRuleRelaMapper;
 
-    private SafetyEquipmentPool() {
+    private LogAnalysisRulePool() {
         safetyEquipmentBoMap = new HashMap<>();
     }
 
-    //public static SafetyEquipmentPool getInstance() {
-    //    if (INSTANCE == null) {
-    //        INSTANCE = new SafetyEquipmentPool();
-    //    }
-    //    return INSTANCE;
-    //}
-
     /**
      * 根据三项信息查询
-     * @param ip
-     * @param facility
-     * @param severity
-     * @return
+     *
+     * @param ip       IP
+     * @param facility 子系统
+     * @param severity 日志级别
+     * @return 已维护好的日志解析规则对象
      */
-    public SafetyEquipmentBO getSafetyEquipmentBO(String ip, String facility, String severity) {
+    public LogAnalysisRule getLogAnalysisRuleObject(String ip, String facility, String severity) {
         String key = ip + "~" + facility + "~" + severity;
         if (safetyEquipmentBoMap.get(key) == null) {
             loadSafetyEquipmentBO(key);
@@ -54,9 +50,9 @@ public class SafetyEquipmentPool {
      */
     private void loadSafetyEquipmentBO(String key) {
         String[] split = key.split("~");
-        HashMap<String, String> ruleMap = safetyEquipmentMapper.getEquipAnalysisAndBlockRule(split[0], split[1], split[2]);
+        HashMap<String, Object> ruleMap = logAnalysisRuleRelaMapper.getEquipAnalysisAndBlockRule(split[0], split[1], split[2]);
         if (CollUtil.isNotEmpty(ruleMap)) {
-            SafetyEquipmentBO equipmentBO = new SafetyEquipmentBO(ruleMap);
+            LogAnalysisRule equipmentBO = new LogAnalysisRule(ruleMap);
             safetyEquipmentBoMap.put(key, equipmentBO);
         }
     }

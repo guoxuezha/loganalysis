@@ -2,4 +2,77 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.gem.loganalysis.mapper.LogAnalysisRuleRelaMapper">
 
+    <!--设备解析及阻塞规则-->
+    <select id="getEquipAnalysisAndBlockRule" parameterType="java.lang.String" resultType="java.util.HashMap">
+        SELECT b.RULE_RELA_ID,
+               a.ASSET_ID,
+               a.ASSET_NAME,
+               a.ASSET_CLASS,
+               a.ASSET_TYPE,
+               a.IP_ADDRESS,
+               a.SERVICE_PORT,
+               a.NM_PORT,
+               a.NM_PROCOTOL,
+               a.NM_ACCOUNT,
+               a.NM_PASSWORD,
+               a.ASSET_ORG,
+               a.ASSET_MANAGER,
+               b.SEVERITY,
+               b.FACILITY,
+               b.MERGE_ITEMS,
+               b.MERGE_WINDOW_TIME,
+               b.EVENT_WINDOW_TIME,
+               b.EVENT_THRESHOLD,
+               b.EVENT_KEYWORD,
+               c.RULE_TYPE,
+               c.METHOD_NAME,
+               c.ITEM_SPLIT,
+               c.KV_SPLIT
+        FROM sop_asset a
+                 LEFT JOIN sop_log_analysis_rule_rela b ON a.ASSET_ID = b.ASSET_ID
+                 LEFT JOIN sop_log_analysis_rule C ON b.ANALYSIS_RULE_ID = C.ANALYSIS_RULE_ID
+        WHERE a.ASSET_STATUS = 2
+          AND a.DELETE_STATE = 0
+          AND b.DELETE_STATE = 0
+          AND c.DELETE_STATE = 0
+          AND a.IP_ADDRESS = #{ip, jdbcType=VARCHAR}
+          AND b.FACILITY = #{facility, jdbcType=VARCHAR}
+          AND b.SEVERITY = #{severity, jdbcType=VARCHAR}
+    </select>
+
+    <select id="getEquipAnalysisAndBlockRuleList" parameterType="java.lang.String" resultType="java.util.HashMap">
+        SELECT b.RULE_RELA_ID,
+               a.ASSET_ID,
+               a.ASSET_NAME,
+               a.ASSET_CLASS,
+               a.ASSET_TYPE,
+               a.IP_ADDRESS,
+               a.SERVICE_PORT,
+               a.NM_PORT,
+               a.NM_PROCOTOL,
+               a.NM_ACCOUNT,
+               a.NM_PASSWORD,
+               a.ASSET_ORG,
+               a.ASSET_MANAGER,
+               b.SEVERITY,
+               b.FACILITY,
+               b.MERGE_ITEMS,
+               b.MERGE_WINDOW_TIME,
+               b.EVENT_WINDOW_TIME,
+               b.EVENT_THRESHOLD,
+               b.EVENT_KEYWORD,
+               c.RULE_TYPE,
+               c.METHOD_NAME,
+               c.ITEM_SPLIT,
+               c.KV_SPLIT
+        FROM sop_asset a
+                 LEFT JOIN sop_log_analysis_rule_rela b ON a.ASSET_ID = b.ASSET_ID
+                 LEFT JOIN sop_log_analysis_rule C ON b.ANALYSIS_RULE_ID = C.ANALYSIS_RULE_ID
+        WHERE a.ASSET_STATUS = 2
+          AND a.DELETE_STATE = 0
+          AND b.DELETE_STATE = 0
+          AND c.DELETE_STATE = 0
+    </select>
+
+
 </mapper>
