@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 @Api(tags = "资产模块 - 安全管理资产")
 @RestController
@@ -38,6 +39,14 @@ public class AssetController {
     @PostMapping("/edit")
     @ApiOperation("创建/编辑安全管理资产")
     public Result<String> createAsset(@Valid @RequestBody AssetDTO dto) {
+        if(dto.getIpAddress()!=null&& !dto.getIpAddress().trim().equals("")){
+            String regex = "^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$";
+            if(!Pattern.matches(regex,dto.getIpAddress())){
+                //效验IP地址格式是否正确
+                System.out.println(11);
+               return Result.failed("请输入正确的IP地址格式");
+            }
+        }
         return assetService.saveOrUpdate(AssetConvert.INSTANCE.convert(dto))?Result.ok("操作成功!"):Result.failed("操作失败!");
     }
 

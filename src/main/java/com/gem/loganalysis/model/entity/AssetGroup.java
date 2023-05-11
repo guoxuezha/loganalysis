@@ -1,8 +1,11 @@
 package com.gem.loganalysis.model.entity;
 
 import lombok.*;
+
+import java.io.Serializable;
 import java.util.*;
 import com.baomidou.mybatisplus.annotation.*;
+import lombok.experimental.Accessors;
 import org.apache.ibatis.type.JdbcType;
 
 /**
@@ -11,11 +14,13 @@ import org.apache.ibatis.type.JdbcType;
  * @author czw
  */
 @TableName("SOP_ASSET_GROUP")
+@EqualsAndHashCode(callSuper = false)
+@Accessors(chain = true)
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AssetGroup{
+public class AssetGroup implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

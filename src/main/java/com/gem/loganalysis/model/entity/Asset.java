@@ -2,7 +2,10 @@ package com.gem.loganalysis.model.entity;
 
 import lombok.*;
 import com.baomidou.mybatisplus.annotation.*;
+import lombok.experimental.Accessors;
 import org.apache.ibatis.type.JdbcType;
+
+import java.io.Serializable;
 
 /**
  * 安全管理资产 DO
@@ -10,11 +13,13 @@ import org.apache.ibatis.type.JdbcType;
  * @author czw
  */
 @TableName("SOP_ASSET")
+@EqualsAndHashCode(callSuper = false)
+@Accessors(chain = true)
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Asset {
+public class Asset implements Serializable {
 
     /**
      * 资产唯一编码
