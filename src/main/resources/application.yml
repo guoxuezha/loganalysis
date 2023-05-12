@@ -85,5 +85,5 @@ spring:
 mybatis-plus:
   mapper-locations: classpath:mapper/*.xml
   # 控制台打印sql语句
-  #configuration:
-  #log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

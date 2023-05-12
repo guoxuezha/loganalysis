@@ -38,6 +38,13 @@ public class LambdaQueryWrapperX<T> extends LambdaQueryWrapper<T> {
         return this;
     }
 
+    public LambdaQueryWrapperX<T> eqIfPresent(SFunction<T, ?> column, String val) {
+        if (StringUtils.hasText(val)) {
+            return (LambdaQueryWrapperX<T>) super.eq(column, val);
+        }
+        return this;
+    }
+
     public LambdaQueryWrapperX<T> eqIfPresent(SFunction<T, ?> column, Object val) {
         if (val != null) {
             return (LambdaQueryWrapperX<T>) super.eq(column, val);
@@ -76,6 +83,19 @@ public class LambdaQueryWrapperX<T> extends LambdaQueryWrapper<T> {
     public LambdaQueryWrapperX<T> leIfPresent(SFunction<T, ?> column, Object val) {
         if (val != null) {
             return (LambdaQueryWrapperX<T>) super.le(column, val);
+        }
+        return this;
+    }
+
+    public LambdaQueryWrapperX<T> betweenIfPresent(SFunction<T, ?> column, String val1, String val2) {
+        if (StringUtils.hasText(val1) && StringUtils.hasText(val2)) {
+            return (LambdaQueryWrapperX<T>) super.between(column, val1, val2);
+        }
+        if (StringUtils.hasText(val1)) {
+            return (LambdaQueryWrapperX<T>) ge(column, val1);
+        }
+        if (StringUtils.hasText(val2)) {
+            return (LambdaQueryWrapperX<T>) le(column, val2);
         }
         return this;
     }

@@ -1,9 +1,14 @@
 package com.gem.loganalysis.service.impl;
 
 import com.baomidou.dynamic.datasource.annotation.DS;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gem.loganalysis.mapper.LogicalAssetTempMapper;
+import com.gem.loganalysis.model.PageRequest;
+import com.gem.loganalysis.model.dto.asset.LogicalAssetQueryDTO;
+import com.gem.loganalysis.model.dto.query.LambdaQueryWrapperX;
 import com.gem.loganalysis.model.entity.LogicalAssetTemp;
+import com.gem.loganalysis.model.entity.PhysicalAssetTemp;
 import com.gem.loganalysis.service.ILogicalAssetTempService;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +24,17 @@ import org.springframework.stereotype.Service;
 @DS("slave")
 public class LogicalAssetTempServiceImpl extends ServiceImpl<LogicalAssetTempMapper, LogicalAssetTemp> implements ILogicalAssetTempService {
 
-    public void abc(){
-        System.out.println(11);
+    @Override
+    public Page<LogicalAssetTemp> getLogicalAssetPage(PageRequest<LogicalAssetQueryDTO> dto) {
+        Page<LogicalAssetTemp> page = new Page<>(dto.getPageNum(), dto.getPageSize());
+        LogicalAssetQueryDTO data = dto.getData();
+        LambdaQueryWrapperX<LogicalAssetTemp> wrapper = new LambdaQueryWrapperX<LogicalAssetTemp>()
+                .eqIfPresent(LogicalAssetTemp::getIpAddress, data.getIpAddress())
+                .eqIfPresent(LogicalAssetTemp::getEnablePort, data.getEnablePort())
+                .eqIfPresent(LogicalAssetTemp::getAssetOrg, data.getAssetOrg())
+                .eqIfPresent(LogicalAssetTemp::getAssetType, data.getAssetType())
+                .betweenIfPresent(LogicalAssetTemp::getScanTime,data.getBeginScanTime(), data.getEndScanTime())
+                .orderByDesc(LogicalAssetTemp::getScanTime);
+        return this.page(page, wrapper);
     }
 }

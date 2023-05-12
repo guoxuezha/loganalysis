@@ -49,7 +49,6 @@ public class ScannerController {
     @PostMapping("/scannerPort")
     @ApiOperation("资产端口扫描，需提供某个资产的编码ID")
     public Result<String> scannerPort(@Valid @RequestBody GetDTO dto) {
-        System.out.println(dto);
         Asset byId = assetService.getById(dto.getId());
         if(byId==null){
             return Result.failed("该资产不存在");
@@ -79,13 +78,13 @@ public class ScannerController {
     @PostMapping("/logicalAssetPage")
     @ApiOperation("逻辑资产扫描结果分页")
     public Result<Page<LogicalAssetScannerRespVO>> getLogicalAssetPage(@RequestBody PageRequest<LogicalAssetQueryDTO> dto) {
-        return Result.ok(null);
+        return Result.ok(AssetConvert.INSTANCE.convertPage02(logicalAssetTempService.getLogicalAssetPage(dto)));
     }
 
     @PostMapping("/physicalAssetPage")
     @ApiOperation("IP物理资产扫描结果分页")
     public Result<Page<PhysicalAssetScannerRespVO>> getPhysicalAssetPage(@RequestBody PageRequest<PhysicalAssetQueryDTO> dto) {
-        return Result.ok(null);
+        return Result.ok(AssetConvert.INSTANCE.convertPage03(physicalAssetTempService.getPhysicalAssetPage(dto)));
     }
 
 

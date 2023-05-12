@@ -34,7 +34,7 @@ public class ScanJob implements Runnable {
         if(scan.getOpen()!=null&&scan.getOpen()){
             this.logicalAssetTempService = GetBeanUtil.getApplicationContext().getBean(ILogicalAssetTempService.class);
             boolean save = logicalAssetTempService.save(new LogicalAssetTemp().setScanTime(DateUtil.format(new Date(),"yyyyMMddHHmmss"))
-                    .setAssetOrg("测试")
+                    .setAssetOrg("测试")//目前还没有部门
                     .setIpAddress(object.getIp())
                     .setEnablePort(object.getPort())
                     .setAssetType(object.getService())

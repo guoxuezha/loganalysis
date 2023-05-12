@@ -5,8 +5,12 @@ import com.gem.loganalysis.model.dto.asset.AssetDTO;
 import com.gem.loganalysis.model.dto.asset.AssetGroupDTO;
 import com.gem.loganalysis.model.entity.Asset;
 import com.gem.loganalysis.model.entity.AssetGroup;
+import com.gem.loganalysis.model.entity.LogicalAssetTemp;
+import com.gem.loganalysis.model.entity.PhysicalAssetTemp;
 import com.gem.loganalysis.model.vo.asset.AssetGroupRespVO;
 import com.gem.loganalysis.model.vo.asset.AssetRespVO;
+import com.gem.loganalysis.model.vo.asset.LogicalAssetScannerRespVO;
+import com.gem.loganalysis.model.vo.asset.PhysicalAssetScannerRespVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
@@ -30,6 +34,10 @@ public interface AssetConvert {
 
     List<AssetGroupRespVO> convertList(List<AssetGroup> list);
 
+    //逻辑资产扫描
+    Page<LogicalAssetScannerRespVO> convertPage02(Page<LogicalAssetTemp> page);
+    //IP资产扫描
+    Page<PhysicalAssetScannerRespVO> convertPage03(Page<PhysicalAssetTemp> page);
 
 
 }

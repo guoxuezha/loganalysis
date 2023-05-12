@@ -34,6 +34,7 @@ public class Scanner {
      */
     @Async
     public static void start(String ips, String ports) {
+        System.out.println();
         // 解析端口
         String[] portArray = ports.split("-");
         int portStart = Integer.parseInt(portArray[0]);
