@@ -9,8 +9,8 @@ import lombok.Data;
  * @date 2023/5/4 11:53
  */
 @Data
-public class GetDTO {
+public class IpSectionDTO {
 
-    @ApiModelProperty(value = "通用ID，传业务对象的ID")
-    private String id;
+    @ApiModelProperty(value = "IP区段")
+    private String ipSection;
 }

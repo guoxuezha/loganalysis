@@ -10,5 +10,5 @@ import lombok.Data;
 @Data
 public class DeleteDTO {
 
-    private Integer id;
+    private String id;
 }
