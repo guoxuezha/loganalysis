@@ -42,6 +42,12 @@ public class AssetController {
         return assetService.editAsset(dto);
     }
 
+    @PostMapping("/batchInsert")
+    @ApiOperation("批量插入安全管理资产")
+    public Result<String> editAsset(@Valid @RequestBody List<AssetDTO> dto) {
+        return null;
+    }
+
     @PostMapping("/pageList")
     @ApiOperation("分页查询安全管理资产")
     public Result<Page<AssetRespVO>> pageList(@RequestBody PageRequest<AssetQueryDTO> dto) {

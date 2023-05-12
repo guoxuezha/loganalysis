@@ -52,7 +52,6 @@ public class AssetGroupController {
         return assetGroupService.editGroup(dto);
     }
 
-
     @PostMapping("/orgList")
     @ApiOperation("部门列表(之后是金总提供的用户部门里的那一套，先用着这个)")
     public Result<Object> getOrgList() {

@@ -5,8 +5,12 @@ import com.gem.loganalysis.convert.AssetConvert;
 import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.Result;
 import com.gem.loganalysis.model.dto.asset.AssetQueryDTO;
+import com.gem.loganalysis.model.dto.asset.LogicalAssetQueryDTO;
+import com.gem.loganalysis.model.dto.asset.PhysicalAssetQueryDTO;
 import com.gem.loganalysis.model.entity.Asset;
 import com.gem.loganalysis.model.vo.asset.AssetRespVO;
+import com.gem.loganalysis.model.vo.asset.LogicalAssetScannerRespVO;
+import com.gem.loganalysis.model.vo.asset.PhysicalAssetScannerRespVO;
 import com.gem.loganalysis.service.IAssetService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -60,14 +64,14 @@ public class ScannerController {
 
     @PostMapping("/logicalAssetPage")
     @ApiOperation("逻辑资产扫描结果分页")
-    public Result<Page<AssetRespVO>> getLogicalAssetPage(@RequestBody PageRequest<AssetQueryDTO> dto) {
-        return Result.ok(AssetConvert.INSTANCE.convertPage(assetService.getPageList(dto)));
+    public Result<Page<LogicalAssetScannerRespVO>> getLogicalAssetPage(@RequestBody PageRequest<LogicalAssetQueryDTO> dto) {
+        return Result.ok(null);
     }
 
     @PostMapping("/physicalAssetPage")
     @ApiOperation("IP物理资产扫描结果分页")
-    public Result<Page<AssetRespVO>> getPhysicalAssetPage(@RequestBody PageRequest<AssetQueryDTO> dto) {
-        return Result.ok(AssetConvert.INSTANCE.convertPage(assetService.getPageList(dto)));
+    public Result<Page<PhysicalAssetScannerRespVO>> getPhysicalAssetPage(@RequestBody PageRequest<PhysicalAssetQueryDTO> dto) {
+        return Result.ok(null);
     }
 
 
