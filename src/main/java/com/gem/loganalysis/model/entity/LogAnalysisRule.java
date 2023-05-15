@@ -5,6 +5,7 @@ import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.gem.loganalysis.model.dto.edit.LogAnalysisRuleDTO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -23,6 +24,7 @@ import java.io.Serializable;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @NoArgsConstructor
+@TableName("sop_log_analysis_rule")
 public class LogAnalysisRule implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -34,10 +36,22 @@ public class LogAnalysisRule implements Serializable {
     private Integer analysisRuleId;
 
     /**
+     * 规则名称
+     */
+    @TableField("ANALYSIS_RULE_NAME")
+    private String analysisRuleName;
+
+    /**
      * 规则类型(1配置类规则 2硬编码规则)
      */
     @TableField("RULE_TYPE")
     private Integer ruleType;
+
+    @TableField("JAR_NAME")
+    private String jarName;
+
+    @TableField("VERSION")
+    private String version;
 
     /**
      * 硬编码方法名

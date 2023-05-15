@@ -18,13 +18,13 @@ import java.util.HashMap;
 public class LogAnalysisRulePool {
 
     @Getter
-    private final HashMap<String, LogAnalysisRule> safetyEquipmentBoMap;
+    private final HashMap<String, LogAnalysisRuleBo> logAnalysisRuleBoMap;
 
     @Resource
     private LogAnalysisRuleRelaMapper logAnalysisRuleRelaMapper;
 
     private LogAnalysisRulePool() {
-        safetyEquipmentBoMap = new HashMap<>();
+        logAnalysisRuleBoMap = new HashMap<>();
     }
 
     /**
@@ -35,12 +35,12 @@ public class LogAnalysisRulePool {
      * @param severity 日志级别
      * @return 已维护好的日志解析规则对象
      */
-    public LogAnalysisRule getLogAnalysisRuleObject(String ip, String facility, String severity) {
+    public LogAnalysisRuleBo getLogAnalysisRuleObject(String ip, String facility, String severity) {
         String key = ip + "~" + facility + "~" + severity;
-        if (safetyEquipmentBoMap.get(key) == null) {
-            loadSafetyEquipmentBO(key);
+        if (logAnalysisRuleBoMap.get(key) == null) {
+            loadAnalysisRuleBO(key);
         }
-        return safetyEquipmentBoMap.get(key);
+        return logAnalysisRuleBoMap.get(key);
     }
 
     /**
@@ -48,12 +48,12 @@ public class LogAnalysisRulePool {
      *
      * @param key 业务唯一联合主键
      */
-    private void loadSafetyEquipmentBO(String key) {
+    private void loadAnalysisRuleBO(String key) {
         String[] split = key.split("~");
         HashMap<String, Object> ruleMap = logAnalysisRuleRelaMapper.getEquipAnalysisAndBlockRule(split[0], split[1], split[2]);
         if (CollUtil.isNotEmpty(ruleMap)) {
-            LogAnalysisRule equipmentBO = new LogAnalysisRule(ruleMap);
-            safetyEquipmentBoMap.put(key, equipmentBO);
+            LogAnalysisRuleBo equipmentBO = new LogAnalysisRuleBo(ruleMap);
+            logAnalysisRuleBoMap.put(key, equipmentBO);
         }
     }
 

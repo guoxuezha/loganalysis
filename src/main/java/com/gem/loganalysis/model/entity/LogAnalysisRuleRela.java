@@ -1,8 +1,11 @@
 package com.gem.loganalysis.model.entity;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.gem.loganalysis.model.dto.edit.LogAnalysisRuleRelaDTO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -113,5 +116,10 @@ public class LogAnalysisRuleRela implements Serializable {
     @TableField("DELETE_STATE")
     private Integer deleteState;
 
+    public LogAnalysisRuleRela(LogAnalysisRuleRelaDTO dto) {
+        BeanUtil.copyProperties(dto, this);
+        this.createTime = this.updateTime = DateUtil.now();
+        //DateUtil.format(new Date(), PURE_DATETIME_FORMAT);
+    }
 
 }

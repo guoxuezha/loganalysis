@@ -10,12 +10,24 @@ import lombok.Data;
 @Data
 public class AnalysisRuleQueryDTO {
 
-    private Integer equipId;
+    /**
+     * 资产ID
+     */
+    private Integer assetId;
 
+    /**
+     * 规则类型
+     */
+    private Integer ruleType;
+
+    /**
+     * 安全等级
+     */
     private String severity;
 
+    /**
+     * 子系统
+     */
     private String facility;
-
-    private Integer ruleType;
 
 }

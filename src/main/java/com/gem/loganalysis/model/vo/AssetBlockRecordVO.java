@@ -8,7 +8,7 @@ import lombok.Data;
  * @date 2023/5/5 9:11
  */
 @Data
-public class EquipBlockRecordVO {
+public class AssetBlockRecordVO {
 
     private String equipId;
 

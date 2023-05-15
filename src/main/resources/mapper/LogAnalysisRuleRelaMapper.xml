@@ -2,42 +2,128 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.gem.loganalysis.mapper.LogAnalysisRuleRelaMapper">
 
-    <!--设备解析及阻塞规则-->
-    <select id="getEquipAnalysisAndBlockRule" parameterType="java.lang.String" resultType="java.util.HashMap">
-        SELECT b.RULE_RELA_ID,
-               a.ASSET_ID,
-               a.ASSET_NAME,
-               a.ASSET_CLASS,
-               a.ASSET_TYPE,
-               a.IP_ADDRESS,
-               a.SERVICE_PORT,
-               a.NM_PORT,
-               a.NM_PROCOTOL,
-               a.NM_ACCOUNT,
-               a.NM_PASSWORD,
-               a.ASSET_ORG,
-               a.ASSET_MANAGER,
+    <!--根据资产ID查询日志解析规则-->
+    <select id="getAnalysisRules" parameterType="com.gem.loganalysis.model.dto.query.AnalysisRuleQueryDTO"
+            resultType="com.gem.loganalysis.model.vo.AssetAnalysisRuleVO">
+        SELECT a.ASSET_ID,
+        a.ASSET_NAME,
+        b.SEVERITY,
+        b.FACILITY,
+        c.RULE_TYPE,
+        c.METHOD_NAME,
+        c.ITEM_SPLIT,
+        c.KV_SPLIT,
+        d.jar_name,
+        d.version
+        FROM sop_asset a
+        LEFT JOIN sop_log_analysis_rule_rela b ON a.ASSET_ID = b.ASSET_ID
+        LEFT JOIN sop_log_analysis_rule c ON b.ANALYSIS_RULE_ID = c.ANALYSIS_RULE_ID
+        LEFT JOIN sop_log_analysis_customization_rule d ON c.METHOD_NAME = d.METHOD_NAME
+        WHERE a.ASSET_STATUS = 2
+        AND a.DELETE_STATE = 0
+        AND b.DELETE_STATE = 0
+        AND c.DELETE_STATE = 0
+        <if test="assetId != null and assetId != ''">
+            AND a.ASSET_ID = #{assetId, jdbcType=VARCHAR}
+        </if>
+        <if test="ruleType != null and ruleType != ''">
+            AND c.RULE_TYPE = #{ruleType,jdbcType=VARCHAR}
+        </if>
+        <if test="severity != null and severity != ''">
+            AND b.SEVERITY = #{severity,jdbcType=VARCHAR}
+        </if>
+        <if test="facility != null and facility != ''">
+            AND b.FACILITY = #{facility,jdbcType=VARCHAR}
+        </if>
+    </select>
+
+    <!--查询资产日志列表-->
+    <select id="getLogRecordsByAsset" parameterType="java.lang.String"
+            resultType="com.gem.loganalysis.model.bo.MergeLog">
+        SELECT a.IP_ADDRESS,
                b.SEVERITY,
                b.FACILITY,
-               b.MERGE_ITEMS,
-               b.MERGE_WINDOW_TIME,
-               b.EVENT_WINDOW_TIME,
-               b.EVENT_THRESHOLD,
-               b.EVENT_KEYWORD,
-               c.RULE_TYPE,
-               c.METHOD_NAME,
-               c.ITEM_SPLIT,
-               c.KV_SPLIT
+               c.LOG_ID,
+               c.UNION_KEY,
+               c.UPDATE_TIME AS `TIMESTAMP`,
+               c.MESSAGE,
+               c.TAG,
+               c.EVENT_COUNT AS `mergeCount`
         FROM sop_asset a
                  LEFT JOIN sop_log_analysis_rule_rela b ON a.ASSET_ID = b.ASSET_ID
-                 LEFT JOIN sop_log_analysis_rule C ON b.ANALYSIS_RULE_ID = C.ANALYSIS_RULE_ID
+                 LEFT JOIN sop_asset_merge_log C ON b.RULE_RELA_ID = C.RULE_RELA_ID
         WHERE a.ASSET_STATUS = 2
           AND a.DELETE_STATE = 0
           AND b.DELETE_STATE = 0
-          AND c.DELETE_STATE = 0
-          AND a.IP_ADDRESS = #{ip, jdbcType=VARCHAR}
-          AND b.FACILITY = #{facility, jdbcType=VARCHAR}
-          AND b.SEVERITY = #{severity, jdbcType=VARCHAR}
+          AND a.ASSET_ID = #{assetId, jdbcType=VARCHAR}
+    </select>
+
+    <select id="getLogRecordsByRuleRela" parameterType="java.lang.String"
+            resultType="com.gem.loganalysis.model.bo.MergeLog">
+        SELECT a.IP_ADDRESS,
+               b.SEVERITY,
+               b.FACILITY,
+               c.LOG_ID,
+               c.UNION_KEY,
+               c.UPDATE_TIME AS `TIMESTAMP`,
+               c.MESSAGE,
+               c.TAG,
+               c.EVENT_COUNT AS `mergeCount`
+        FROM sop_asset a
+                 LEFT JOIN sop_log_analysis_rule_rela b ON a.ASSET_ID = b.ASSET_ID
+                 LEFT JOIN sop_asset_merge_log C ON b.RULE_RELA_ID = C.RULE_RELA_ID
+        WHERE a.ASSET_STATUS = 2
+          AND a.DELETE_STATE = 0
+          AND b.DELETE_STATE = 0
+          AND B.RULE_RELA_ID = #{ruleRelaId, jdbcType=VARCHAR}
+    </select>
+
+    <!--设备解析及阻塞规则-->
+    <select id="getEquipAnalysisAndBlockRule" parameterType="java.lang.String" resultType="java.util.HashMap">
+        SELECT b.RULE_RELA_ID,
+        a.ASSET_ID,
+        a.ASSET_NAME,
+        a.ASSET_CLASS,
+        a.ASSET_TYPE,
+        a.IP_ADDRESS,
+        a.SERVICE_PORT,
+        a.NM_PORT,
+        a.NM_PROCOTOL,
+        a.NM_ACCOUNT,
+        a.NM_PASSWORD,
+        a.ASSET_ORG,
+        a.ASSET_MANAGER,
+        b.ANALYSIS_RULE_ID,
+        b.SEVERITY,
+        b.FACILITY,
+        b.MERGE_ITEMS,
+        b.MERGE_WINDOW_TIME,
+        b.EVENT_WINDOW_TIME,
+        b.EVENT_THRESHOLD,
+        b.EVENT_KEYWORD,
+        c.RULE_TYPE,
+        d.JAR_NAME,
+        d.VERSION,
+        c.METHOD_NAME,
+        c.ITEM_SPLIT,
+        c.KV_SPLIT
+        FROM sop_asset a
+        LEFT JOIN sop_log_analysis_rule_rela b ON a.ASSET_ID = b.ASSET_ID
+        LEFT JOIN sop_log_analysis_rule c ON b.ANALYSIS_RULE_ID = c.ANALYSIS_RULE_ID
+        LEFT JOIN sop_log_analysis_customization_rule d ON c.METHOD_NAME = d.METHOD_NAME
+        WHERE a.ASSET_STATUS = 2
+        AND a.DELETE_STATE = 0
+        AND b.DELETE_STATE = 0
+        AND c.DELETE_STATE = 0
+        <if test="ip != null and ip != ''">
+            AND a.IP_ADDRESS = #{ip, jdbcType=VARCHAR}
+        </if>
+        <if test="facility != null and facility != ''">
+            AND b.FACILITY = #{facility, jdbcType=VARCHAR}
+        </if>
+        <if test="severity != null and severity != ''">
+            AND b.SEVERITY = #{severity, jdbcType=VARCHAR}
+        </if>
     </select>
 
     <select id="getEquipAnalysisAndBlockRuleList" parameterType="java.lang.String" resultType="java.util.HashMap">

@@ -20,14 +20,30 @@ public class LogEventListener {
     private LogAnalysisRulePool logAnalysisRulePool;
 
     /**
-     * 每5秒扫描一次事件
+     * 每分钟扫描一次缓存是否需要持久化
      */
-    @Scheduled(cron = "0/5 * * * * ? ")
-    public void loadInStorage() {
-        if (CollUtil.isNotEmpty(logAnalysisRulePool.getSafetyEquipmentBoMap())) {
-            for (LogAnalysisRule analysisRule : logAnalysisRulePool.getSafetyEquipmentBoMap().values()) {
-                analysisRule.scanAndStopEvent();
-                analysisRule.scanAndStartEvent();
+    @Scheduled(cron = "0 0/1 * * * ? ")
+    public void cacheFlushScan() {
+        if (CollUtil.isNotEmpty(logAnalysisRulePool.getLogAnalysisRuleBoMap())) {
+            for (LogAnalysisRuleBo analysisRule : logAnalysisRulePool.getLogAnalysisRuleBoMap().values()) {
+                if (analysisRule.isEnable()) {
+                    analysisRule.flushCache();
+                }
+            }
+        }
+    }
+
+    /**
+     * 每30秒扫描一次是否有事件结束
+     */
+    @Scheduled(cron = "0/30 * * * * ? ")
+    public void logEventEndScan() {
+        if (CollUtil.isNotEmpty(logAnalysisRulePool.getLogAnalysisRuleBoMap())) {
+            for (LogAnalysisRuleBo analysisRule : logAnalysisRulePool.getLogAnalysisRuleBoMap().values()) {
+                if (analysisRule.isEnable()) {
+                    analysisRule.scanAndStopEvent();
+                    // analysisRule.scanAndStartEvent();
+                }
             }
         }
     }

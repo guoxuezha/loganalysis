@@ -62,8 +62,8 @@ public class MergeLog {
         mergeCount = new AtomicInteger(1);
     }
 
-    public LogAnalysisRule.SimpleQueueMessageInfo toSimpleQueueMessageInfo() {
-        return new LogAnalysisRule.SimpleQueueMessageInfo(unionKey, timestamp);
+    public LogAnalysisRuleBo.SimpleQueueMessageInfo toSimpleQueueMessageInfo() {
+        return new LogAnalysisRuleBo.SimpleQueueMessageInfo(unionKey, timestamp);
     }
 
 }

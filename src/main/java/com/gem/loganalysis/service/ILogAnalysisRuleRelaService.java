@@ -1,7 +1,13 @@
 package com.gem.loganalysis.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.gem.loganalysis.model.PageRequest;
+import com.gem.loganalysis.model.PageResponse;
+import com.gem.loganalysis.model.bo.MergeLog;
+import com.gem.loganalysis.model.dto.query.AnalysisRuleQueryDTO;
 import com.gem.loganalysis.model.entity.LogAnalysisRuleRela;
+import com.gem.loganalysis.model.vo.AssetAnalysisRuleVO;
+import com.github.pagehelper.Page;
 
 /**
  * <p>
@@ -13,4 +19,9 @@ import com.gem.loganalysis.model.entity.LogAnalysisRuleRela;
  */
 public interface ILogAnalysisRuleRelaService extends IService<LogAnalysisRuleRela> {
 
+    Page<AssetAnalysisRuleVO> getAnalysisRules(PageRequest<AnalysisRuleQueryDTO> dto);
+
+    PageResponse<MergeLog> getLogRecordsByAsset(PageRequest<String> dto);
+
+    PageResponse<MergeLog> getLogRecordsByRuleRela(PageRequest<String> dto);
 }

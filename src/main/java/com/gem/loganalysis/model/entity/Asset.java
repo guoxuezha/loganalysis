@@ -1,7 +1,7 @@
 package com.gem.loganalysis.model.entity;
 
-import lombok.*;
 import com.baomidou.mybatisplus.annotation.*;
+import lombok.*;
 import lombok.experimental.Accessors;
 import org.apache.ibatis.type.JdbcType;
 

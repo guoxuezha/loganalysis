@@ -1,12 +1,11 @@
 package com.gem.loganalysis.model.entity;
 
-import lombok.*;
-
-import java.io.Serializable;
-import java.util.*;
 import com.baomidou.mybatisplus.annotation.*;
+import lombok.*;
 import lombok.experimental.Accessors;
 import org.apache.ibatis.type.JdbcType;
+
+import java.io.Serializable;
 
 /**
  * 资产分组 DO

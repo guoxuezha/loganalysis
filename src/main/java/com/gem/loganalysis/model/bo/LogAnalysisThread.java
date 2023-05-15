@@ -27,10 +27,10 @@ public class LogAnalysisThread implements Runnable {
         // 消费的哪个topic、partition的消息,打印出消息内容
         log.info("1.监听到的 messageList.size = {}", messageList.size());
         for (MergeLog mergelog : messageList) {
-            LogAnalysisRule logAnalysisRuleObject = logAnalysisRulePool.getLogAnalysisRuleObject(mergelog.getHost(), mergelog.getSeverity(), mergelog.getFacility());
-            if (logAnalysisRuleObject != null) {
-                logAnalysisRuleObject.printOverview();
-                logAnalysisRuleObject.insertInCache(mergelog);
+            LogAnalysisRuleBo logAnalysisRuleBoObject = logAnalysisRulePool.getLogAnalysisRuleObject(mergelog.getHost(), mergelog.getSeverity(), mergelog.getFacility());
+            if (logAnalysisRuleBoObject != null) {
+                logAnalysisRuleBoObject.printOverview();
+                logAnalysisRuleBoObject.insertInCache(mergelog);
             }
         }
     }
