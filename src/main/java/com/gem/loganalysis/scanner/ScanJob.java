@@ -19,13 +19,15 @@ public class ScanJob implements Runnable {
     private ScanObject object;
     // 扫描类型
     private String scanType;
+    // 扫描时间批次
+    private String scanTime;
 
     private ILogicalAssetTempService logicalAssetTempService;
 
-    public ScanJob(ScanObject object,String scanType) {
+    public ScanJob(ScanObject object,String scanType,String scanTime) {
         this.object = object;
         this.scanType = scanType;
-
+        this.scanTime = scanTime;
     }
 
     @Override
@@ -33,8 +35,8 @@ public class ScanJob implements Runnable {
         ScanObject scan = ScanEngine.scan(object, scanType);
         if(scan.getOpen()!=null&&scan.getOpen()){
             this.logicalAssetTempService = GetBeanUtil.getApplicationContext().getBean(ILogicalAssetTempService.class);
-            boolean save = logicalAssetTempService.save(new LogicalAssetTemp().setScanTime(DateUtil.format(new Date(),"yyyyMMddHHmmss"))
-                    .setAssetOrg("测试")//目前还没有部门
+            boolean save = logicalAssetTempService.save(new LogicalAssetTemp().setScanTime(scanTime)
+                    .setAssetOrg("测试")//TODO 目前还没有部门 之后从登录人获取部门
                     .setIpAddress(object.getIp())
                     .setEnablePort(object.getPort())
                     .setAssetType(object.getService())

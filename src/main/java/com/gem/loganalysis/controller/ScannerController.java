@@ -1,5 +1,6 @@
 package com.gem.loganalysis.controller;
 
+import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gem.loganalysis.convert.AssetConvert;
 import com.gem.loganalysis.model.PageRequest;
@@ -13,6 +14,7 @@ import com.gem.loganalysis.model.entity.Asset;
 import com.gem.loganalysis.model.vo.asset.AssetRespVO;
 import com.gem.loganalysis.model.vo.asset.LogicalAssetScannerRespVO;
 import com.gem.loganalysis.model.vo.asset.PhysicalAssetScannerRespVO;
+import com.gem.loganalysis.scanner.IpScanner;
 import com.gem.loganalysis.scanner.Scanner;
 import com.gem.loganalysis.service.IAssetService;
 import com.gem.loganalysis.service.ILogAnalysisRuleRelaService;
@@ -29,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.util.Date;
 import java.util.regex.Pattern;
 
 @Api(tags = "资产模块 - 资产扫描")
@@ -53,7 +56,8 @@ public class ScannerController {
         if(byId==null){
             return Result.failed("该资产不存在");
         }
-        Scanner.start(byId.getIpAddress(),"1-65535");
+        //TODO 改成异步 先返回扫描成功再开启扫描
+        Scanner.start(byId.getIpAddress(),"1-65535",DateUtil.format(new Date(),"yyyyMMddHHmmss"));
         return Result.ok("扫描成功");
     }
 
@@ -72,6 +76,8 @@ public class ScannerController {
             //效验IP地址格式是否正确
             return Result.failed("请输入正确的网段格式，例如192.168.1.0/24");
         }
+        //TODO 改成异步 先返回扫描成功再开启扫描
+        IpScanner.scannerIpSection(ipSection.getIpSection(),DateUtil.format(new Date(),"yyyyMMddHHmmss"));
         return Result.ok("扫描成功");
     }
 

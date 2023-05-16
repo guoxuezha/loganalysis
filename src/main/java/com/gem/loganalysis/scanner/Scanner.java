@@ -32,9 +32,7 @@ public class Scanner {
      * @param ips 输入的待扫描ip列表
      * @param ports 输入的待扫描端口
      */
-    @Async
-    public static void start(String ips, String ports) {
-        System.out.println();
+    public static void start(String ips, String ports,String scanTime) {
         // 解析端口
         String[] portArray = ports.split("-");
         int portStart = Integer.parseInt(portArray[0]);
@@ -45,17 +43,16 @@ public class Scanner {
             String[] ipList = ips.split(",");
             logger.info("[-] IP list: " + ipList.toString());
             for (String ip : ipList) {
-                scanAllPort(ip,portStart,portEnd);
+                scanAllPort(ip,portStart,portEnd,scanTime);
             }
         }else if (ips.indexOf('/') != -1){
-            // TODO 支持ip地址网段的解析
             String[] ipArray = ips.split("/");
             String ipAddress = ipArray[0];
             int mask = Integer.parseInt(ipArray[1]);
             String[] ipSplit = ipAddress.split(".");
 
         }else {
-            scanAllPort(ips,portStart,portEnd);
+            scanAllPort(ips,portStart,portEnd,scanTime);
         }
         try{
             while(true){
@@ -76,9 +73,9 @@ public class Scanner {
      * @param portStart 开始扫描的的端口
      * @param portEnd 停止扫描的端口
      */
-    public static void scanAllPort(String ip, int portStart, int portEnd){
+    public static void scanAllPort(String ip, int portStart, int portEnd,String scanTime){
         for (int port = portStart; port <= portEnd; port++){
-            scan(ip,port);
+            scan(ip,port,scanTime);
         }
     }
 
@@ -87,10 +84,10 @@ public class Scanner {
      * @param ip ip地址
      * @param port 端口
      */
-    public static void scan(String ip, int port){
+    public static void scan(String ip, int port,String scanTime){
 
         // 执行扫描任务
-        poolExecutor.execute(new ScanJob(new ScanObject(ip,port),ScanEngine.TCP_FULL_CONNECT_SCAN));
+        poolExecutor.execute(new ScanJob(new ScanObject(ip,port),ScanEngine.TCP_FULL_CONNECT_SCAN,scanTime));
 
     }
 }
