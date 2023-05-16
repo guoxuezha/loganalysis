@@ -23,15 +23,15 @@ spring:
         master:
           name: loganalysis
           driver-class-name: com.mysql.cj.jdbc.Driver
-          url: jdbc:mysql://localhost/${spring.datasource.dynamic.datasource.master.name}?characterEncoding=utf8&nullCatalogMeansCurrent=true&useSSL=false&useUnicode=true&0=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Shanghai
+          url: jdbc:mysql://123.249.42.58:3306/${spring.datasource.dynamic.datasource.master.name}?characterEncoding=utf8&nullCatalogMeansCurrent=true&useSSL=false&useUnicode=true&0=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Shanghai
           username: root
           password: MySqlPassword!!
-#        slave:
-#          name: loganalysis
-#          driver-class-name: com.mysql.cj.jdbc.Driver
-#          url: jdbc:mysql://121.42.24.63:3306/${spring.datasource.dynamic.datasource.slave.name}?characterEncoding=utf8&nullCatalogMeansCurrent=true&useSSL=false&useUnicode=true&0=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Shanghai
-#          username: gemuser
-#          password: gemuser123
+        slave:
+          name: loganalysis
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://121.42.24.63:3306/${spring.datasource.dynamic.datasource.slave.name}?characterEncoding=utf8&nullCatalogMeansCurrent=true&useSSL=false&useUnicode=true&0=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Shanghai
+          username: gemuser
+          password: gemuser123
 
   kafka:
     ###########【Kafka集群】###########
