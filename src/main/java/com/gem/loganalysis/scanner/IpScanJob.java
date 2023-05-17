@@ -30,10 +30,13 @@ public class IpScanJob implements Runnable {
         IpScanObject scan = IpScanner.pingDeviceIp(ip);
         if(scan!=null){
             this.physicalAssetTempService = GetBeanUtil.getApplicationContext().getBean(IPhysicalAssetTempService.class);
-            boolean save = physicalAssetTempService.save(new PhysicalAssetTemp().setAssetStatus(scan.getIsOpen()?"1":"0")
+      /*      boolean save = physicalAssetTempService.save(new PhysicalAssetTemp().setAssetStatus(scan.getIsOpen()?"1":"0")
                     .setAssetOrg("测试")//TODO 目前还没有部门 之后从登录人获取部门
                     .setIpAddress(scan.getIp())
-                    .setScanTime(scanTime));
+                    .setScanTime(scanTime));*/
+            if(scan.getIsOpen()){
+                System.out.println(scan);
+            }
         }
     }
 }

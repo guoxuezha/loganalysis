@@ -3,6 +3,8 @@ package com.gem.loganalysis.model.dto;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.validation.constraints.NotNull;
+
 /**
  * @author GuoChao
  * @version 1.0
@@ -11,6 +13,8 @@ import lombok.Data;
 @Data
 public class IpSectionDTO {
 
-    @ApiModelProperty(value = "IP区段")
-    private String ipSection;
+    @ApiModelProperty(value = "资产所属组织(部门)",required = true)
+    @NotNull(message = "请传入资产所属组织ID")
+    private String orgId;
+
 }

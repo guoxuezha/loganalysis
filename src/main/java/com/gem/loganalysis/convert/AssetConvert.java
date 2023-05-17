@@ -3,14 +3,8 @@ package com.gem.loganalysis.convert;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gem.loganalysis.model.dto.asset.AssetDTO;
 import com.gem.loganalysis.model.dto.asset.AssetGroupDTO;
-import com.gem.loganalysis.model.entity.Asset;
-import com.gem.loganalysis.model.entity.AssetGroup;
-import com.gem.loganalysis.model.entity.LogicalAssetTemp;
-import com.gem.loganalysis.model.entity.PhysicalAssetTemp;
-import com.gem.loganalysis.model.vo.asset.AssetGroupRespVO;
-import com.gem.loganalysis.model.vo.asset.AssetRespVO;
-import com.gem.loganalysis.model.vo.asset.LogicalAssetScannerRespVO;
-import com.gem.loganalysis.model.vo.asset.PhysicalAssetScannerRespVO;
+import com.gem.loganalysis.model.entity.*;
+import com.gem.loganalysis.model.vo.asset.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -43,6 +37,8 @@ public interface AssetConvert {
     //资产分组分页
     List<AssetGroupRespVO> convertList(List<AssetGroup> list);
     Page<AssetGroupRespVO> convertPage04(Page<AssetGroup> page);
+    //Vlan配置
+    Page<OrgVlanRespVO> convertPage05(Page<OrgVlan> page);
 
 
 }

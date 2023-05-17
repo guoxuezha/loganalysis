@@ -1,11 +1,16 @@
 package com.gem.loganalysis.scanner;
 
 import cn.hutool.core.date.DateUtil;
+import com.gem.loganalysis.model.dto.IpSectionDTO;
+import com.gem.loganalysis.model.dto.asset.VlanDTO;
 import com.gem.loganalysis.model.entity.LogicalAssetTemp;
+import com.gem.loganalysis.model.entity.OrgVlan;
+import com.gem.loganalysis.util.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.net.InetAddress;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -44,20 +49,20 @@ public class IpScanner {
 
     /**
      * IP区段扫描
-     * @param  ipSection
      */
-    public static void scannerIpSection(String ipSection,String scanTime){
-        //把网段拼接成IP开启线程
-        String beforeLast = StringUtils.substringBeforeLast(ipSection, ".");
-        String s = StringUtils.substringAfterLast(ipSection, ".");
-        Integer before = Integer.parseInt(StringUtils.substringBeforeLast(s, "/"));
-        Integer after = Integer.parseInt(StringUtils.substringAfterLast(s, "/"));
-        for(int i = 1;i <= 254;i++){
-            String ip = beforeLast+"."+i;
-            // 执行扫描任务
-            poolExecutor.execute(new IpScanJob(ip,scanTime));
-        }
-
+    public static void scannerIpSection(OrgVlan orgVlan, String scanTime){
+        List<VlanDTO> vlanDTOS = JsonUtils.parseArray(orgVlan.getVlan(), VlanDTO.class);
+        vlanDTOS.forEach(e->{
+            String ipBefore = StringUtils.substringBeforeLast(e.getBeginIp(), ".");
+            String begin = StringUtils.substringAfterLast(e.getBeginIp(), ".");
+            String end = StringUtils.substringAfterLast(e.getEndIp(), ".");
+            //把网段拼接成IP开启线程
+            for(int i = Integer.parseInt(begin);i <= Integer.parseInt(end);i++){
+                String ip = ipBefore+'.'+i;
+                // 执行扫描任务
+                poolExecutor.execute(new ScanJob(new ScanObject(ip,0),ScanEngine.TCP_FULL_CONNECT_SCAN,scanTime));
+            }
+        });
     }
 
 }

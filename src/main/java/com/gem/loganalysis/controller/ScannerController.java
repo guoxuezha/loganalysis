@@ -7,19 +7,16 @@ import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.Result;
 import com.gem.loganalysis.model.dto.GetDTO;
 import com.gem.loganalysis.model.dto.IpSectionDTO;
-import com.gem.loganalysis.model.dto.asset.AssetQueryDTO;
-import com.gem.loganalysis.model.dto.asset.LogicalAssetQueryDTO;
-import com.gem.loganalysis.model.dto.asset.PhysicalAssetQueryDTO;
+import com.gem.loganalysis.model.dto.asset.*;
 import com.gem.loganalysis.model.entity.Asset;
+import com.gem.loganalysis.model.entity.OrgVlan;
 import com.gem.loganalysis.model.vo.asset.AssetRespVO;
 import com.gem.loganalysis.model.vo.asset.LogicalAssetScannerRespVO;
+import com.gem.loganalysis.model.vo.asset.OrgVlanRespVO;
 import com.gem.loganalysis.model.vo.asset.PhysicalAssetScannerRespVO;
 import com.gem.loganalysis.scanner.IpScanner;
 import com.gem.loganalysis.scanner.Scanner;
-import com.gem.loganalysis.service.IAssetService;
-import com.gem.loganalysis.service.ILogAnalysisRuleRelaService;
-import com.gem.loganalysis.service.ILogicalAssetTempService;
-import com.gem.loganalysis.service.IPhysicalAssetTempService;
+import com.gem.loganalysis.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
@@ -32,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.util.Date;
+import java.util.List;
 import java.util.regex.Pattern;
 
 @Api(tags = "资产模块 - 资产扫描")
@@ -49,6 +47,9 @@ public class ScannerController {
     @Resource
     private IPhysicalAssetTempService physicalAssetTempService;
 
+    @Resource
+    private IOrgVlanService orgVlanService;
+
     @PostMapping("/scannerPort")
     @ApiOperation("资产端口扫描，需提供某个资产的编码ID")
     public Result<String> scannerPort(@Valid @RequestBody GetDTO dto) {
@@ -63,15 +64,13 @@ public class ScannerController {
 
     @PostMapping("/scannerIpSection")
     @ApiOperation("IP区段扫描")
-    public Result<String> scannerIpSection(@Valid @RequestBody IpSectionDTO ipSection) {
-        String regex = "^(?=(\\b|\\D))(((\\d{1,2})|(1\\d{1,2})|(2[0-4]\\d)|(25[0-5]))\\.){3}((\\d{1,2})|(1\\d{1,2})|(2[0-4]\\d)|(25[0-5]))(?=(\\b|\\D))/([1-2][0-9]|3[0-2]|[1-9])$";
-        if(!Pattern.matches(regex,ipSection.getIpSection())){
-            //效验IP地址格式是否正确
-            return Result.failed("请输入正确的网段格式，例如192.168.1.0/24");
+    public Result<String> scannerIpSection(@Valid @RequestBody IpSectionDTO dto) {
+        OrgVlan orgVlan = orgVlanService.getById(dto.getOrgId());
+        if(orgVlan==null){
+            return Result.failed("该资产组织机构的Vlan配置不存在");
         }
-        String s = StringUtils.substringAfterLast(ipSection.getIpSection(), ".");
         //TODO 改成异步 先返回扫描成功再开启扫描
-        IpScanner.scannerIpSection(ipSection.getIpSection(),DateUtil.format(new Date(),"yyyyMMddHHmmss"));
+        //IpScanner.scannerIpSection(orgVlan,DateUtil.format(new Date(),"yyyyMMddHHmmss"));
         return Result.ok("扫描成功");
     }
 
@@ -86,6 +85,34 @@ public class ScannerController {
     public Result<Page<PhysicalAssetScannerRespVO>> getPhysicalAssetPage(@RequestBody PageRequest<PhysicalAssetQueryDTO> dto) {
         return Result.ok(AssetConvert.INSTANCE.convertPage03(physicalAssetTempService.getPhysicalAssetPage(dto)));
     }
+
+    @PostMapping("/vlanPage")
+    @ApiOperation("VLAN设置界面分页")
+    public Result<Page<OrgVlanRespVO>> getVlanPage(@Valid @RequestBody PageRequest<OrgVlanQueryDTO> dto) {
+        return Result.ok(orgVlanService.getVlanPage(dto));
+    }
+
+    @PostMapping("/editVlan")
+    @ApiOperation("新增编辑VLAN设置")
+    public Result<String> editVlan(@Valid @RequestBody OrgVlanDTO dto) {
+        String regex = "^([1-9]|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])(\\.(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])){3}$";
+        List<VlanDTO> vlanList = dto.getVlanList();
+        if(vlanList.size()==0){
+            return Result.failed("IP区段不能为空");
+        }
+        for (VlanDTO vlanDTO : vlanList) {
+            if(!Pattern.matches(regex,vlanDTO.getBeginIp())){
+                //效验IP地址格式是否正确
+                return Result.failed("请输入正确的IP格式");
+            }
+            if(!Pattern.matches(regex,vlanDTO.getEndIp())){
+                //效验IP地址格式是否正确
+                return Result.failed("请输入正确的IP格式");
+            }
+        }
+        return orgVlanService.editVlan(dto)?Result.ok("操作成功"):Result.failed("操作失败");
+    }
+
 
 
 }

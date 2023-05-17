@@ -46,7 +46,7 @@ public class ScanEngine {
         try{
             // 全连接扫描，发现可用服务
             Socket socket = new Socket();
-            socket.connect(new InetSocketAddress(object.getIp(),object.getPort()),600);
+            socket.connect(new InetSocketAddress(object.getIp(),object.getPort()));
             object.setOpen(true);
             object.setService();
             // 发送招手信息
