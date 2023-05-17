@@ -10,5 +10,6 @@ import lombok.Data;
 @Data
 public class LogFileQueryDTO {
 
+    private String fileName;
 
 }

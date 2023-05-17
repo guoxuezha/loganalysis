@@ -1,8 +1,5 @@
-/*
 package com.gem.loganalysis.util;
 
-import cn.hutool.core.date.DatePattern;
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.gem.loganalysis.config.MinioConfig;
 import io.minio.*;
@@ -18,18 +15,15 @@ import javax.annotation.Resource;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-*/
 /**
  * Minio工具类
  *
  * @author GuoChao
  * @version 1.0
  * @date 2023/5/17 10:16
- *//*
-
+ */
 @Component
 @Slf4j
 public class MinioUtil {
@@ -40,13 +34,11 @@ public class MinioUtil {
     @Resource
     private MinioClient minioClient;
 
-    */
-/**
+    /**
      * 查看存储bucket是否存在
      *
      * @return boolean
-     *//*
-
+     */
     public Boolean bucketExists(String bucketName) {
         boolean found;
         try {
@@ -58,13 +50,11 @@ public class MinioUtil {
         return found;
     }
 
-    */
-/**
+    /**
      * 创建存储bucket
      *
      * @return Boolean
-     *//*
-
+     */
     public Boolean makeBucket(String bucketName) {
         try {
             minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
@@ -75,13 +65,11 @@ public class MinioUtil {
         return true;
     }
 
-    */
-/**
+    /**
      * 删除存储bucket
      *
      * @return Boolean
-     *//*
-
+     */
     public Boolean removeBucket(String bucketName) {
         try {
             minioClient.removeBucket(RemoveBucketArgs.builder().bucket(bucketName).build());
@@ -92,11 +80,9 @@ public class MinioUtil {
         return true;
     }
 
-    */
-/**
+    /**
      * 获取全部bucket
-     *//*
-
+     */
     public List<Bucket> getAllBuckets() {
         try {
             return minioClient.listBuckets();
@@ -106,41 +92,36 @@ public class MinioUtil {
         return null;
     }
 
-
-    */
-/**
+    /**
      * 文件上传
      *
      * @param file 文件
      * @return Boolean
-     *//*
-
+     */
     public String upload(MultipartFile file) {
         String originalFilename = file.getOriginalFilename();
         if (StrUtil.isBlank(originalFilename)) {
             throw new RuntimeException();
         }
-        String fileName = originalFilename.substring(originalFilename.lastIndexOf("."));
-        String objectName = DateUtil.format(new Date(), DatePattern.PURE_DATE_PATTERN) + "/" + fileName;
+        /*String fileName = originalFilename.substring(originalFilename.lastIndexOf("."));
+        String objectName = DateUtil.format(new Date(), DatePattern.PURE_DATE_PATTERN) + "/" + fileName;*/
         try {
-            PutObjectArgs objectArgs = PutObjectArgs.builder().bucket(prop.getBucketName()).object(objectName).stream(file.getInputStream(), file.getSize(), -1).contentType(file.getContentType()).build();
+            PutObjectArgs objectArgs = PutObjectArgs.builder().bucket(prop.getBucketName()).object(originalFilename).stream(file.getInputStream(), file.getSize(), -1).contentType(file.getContentType()).build();
             // 文件名称相同会覆盖
             minioClient.putObject(objectArgs);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
-        return objectName;
+        return originalFilename;
     }
 
-    */
-/**
+    /**
      * 预览图片
      *
      * @param fileName 图片名称
      * @return
-     *//*
-
+     */
     public String preview(String fileName) {
         // 查看文件地址
         GetPresignedObjectUrlArgs build = new GetPresignedObjectUrlArgs().builder().bucket(prop.getBucketName()).object(fileName).method(Method.GET).build();
@@ -153,15 +134,13 @@ public class MinioUtil {
         return null;
     }
 
-    */
-/**
+    /**
      * 文件下载
      *
      * @param fileName 文件名称
      * @param res      response
      * @return Boolean
-     *//*
-
+     */
     public void download(String fileName, HttpServletResponse res) {
         GetObjectArgs objectArgs = GetObjectArgs.builder().bucket(prop.getBucketName()).object(fileName).build();
         try (GetObjectResponse response = minioClient.getObject(objectArgs)) {
@@ -187,13 +166,11 @@ public class MinioUtil {
         }
     }
 
-    */
-/**
+    /**
      * 查看文件对象
      *
      * @return 存储bucket内文件对象信息
-     *//*
-
+     */
     public List<Item> listObjects() {
         Iterable<Result<Item>> results = minioClient.listObjects(ListObjectsArgs.builder().bucket(prop.getBucketName()).build());
         List<Item> items = new ArrayList<>();
@@ -208,15 +185,13 @@ public class MinioUtil {
         return items;
     }
 
-    */
-/**
+    /**
      * 删除
      *
      * @param fileName
      * @return
      * @throws Exception
-     *//*
-
+     */
     public boolean remove(String fileName) {
         try {
             minioClient.removeObject(RemoveObjectArgs.builder().bucket(prop.getBucketName()).object(fileName).build());
@@ -226,4 +201,3 @@ public class MinioUtil {
         return true;
     }
 }
-*/

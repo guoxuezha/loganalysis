@@ -10,10 +10,19 @@ import lombok.Data;
 @Data
 public class LogContentQueryDTO {
 
+    /**
+     * 日主解析规则ID
+     */
     private String ruleRelaId;
 
+    /**
+     * 日志更新日期
+     */
     private String updateTime;
 
+    /**
+     * 归并日志ID
+     */
     private String logId;
 
 }

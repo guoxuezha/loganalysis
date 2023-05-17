@@ -23,7 +23,7 @@ spring:
         master:
           name: loganalysis
           driver-class-name: com.mysql.cj.jdbc.Driver
-          url: jdbc:mysql://123.249.42.58:3306/${spring.datasource.dynamic.datasource.master.name}?characterEncoding=utf8&nullCatalogMeansCurrent=true&useSSL=false&useUnicode=true&0=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Shanghai
+          url: jdbc:mysql://localhost:3306/${spring.datasource.dynamic.datasource.master.name}?characterEncoding=utf8&nullCatalogMeansCurrent=true&useSSL=false&useUnicode=true&0=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Shanghai
           username: root
           password: MySqlPassword!!
         slave:
@@ -94,10 +94,10 @@ logging:
 
 minio:
   #Minio服务所在地址
-  endpoint: http://123.249.94.31:9000
-  #存储桶名称
-  bucketName: logRecord
+  endpoint: http://123.249.94.31:5000/
   #访问的key
   accessKey: Jonny
   #访问的秘钥
-  secretKey: minioadmin
+  secretKey: F144724684DE8673E7B31C27A234FB76
+  #存储桶名称
+  bucketName: logrecord
