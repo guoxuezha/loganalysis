@@ -70,12 +70,6 @@ public class ScannerController {
             return Result.failed("请输入正确的网段格式，例如192.168.1.0/24");
         }
         String s = StringUtils.substringAfterLast(ipSection.getIpSection(), ".");
-        String before = StringUtils.substringBeforeLast(s, "/");
-        String after = StringUtils.substringAfterLast(s, "/");
-        if(Integer.parseInt(before)>=Integer.parseInt(after)){
-            //效验IP地址格式是否正确
-            return Result.failed("请输入正确的网段格式，例如192.168.1.0/24");
-        }
         //TODO 改成异步 先返回扫描成功再开启扫描
         IpScanner.scannerIpSection(ipSection.getIpSection(),DateUtil.format(new Date(),"yyyyMMddHHmmss"));
         return Result.ok("扫描成功");

@@ -52,7 +52,7 @@ public class IpScanner {
         String s = StringUtils.substringAfterLast(ipSection, ".");
         Integer before = Integer.parseInt(StringUtils.substringBeforeLast(s, "/"));
         Integer after = Integer.parseInt(StringUtils.substringAfterLast(s, "/"));
-        for(int i = before;i <= after;i++){
+        for(int i = 1;i <= 254;i++){
             String ip = beforeLast+"."+i;
             // 执行扫描任务
             poolExecutor.execute(new IpScanJob(ip,scanTime));
