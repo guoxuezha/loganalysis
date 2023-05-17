@@ -13,7 +13,7 @@ public class LogAnalysisRuleDTO {
     /**
      * 规则ID
      */
-    private Integer analysisRuleId;
+    private String analysisRuleId;
 
     /**
      * 规则类型(1配置类规则 2硬编码规则)

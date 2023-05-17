@@ -13,12 +13,24 @@ public class AssetAnalysisRuleVO {
     /**
      * 资产ID
      */
-    private Integer assetId;
+    private String assetId;
+
+    private String ruleRelaId;
 
     /**
      * 资产名称
      */
     private String assetName;
+
+    /**
+     * 日志分析规则ID
+     */
+    private String analysisRuleId;
+
+    /**
+     * 日志分析规则名称
+     */
+    private String analysisRuleName;
 
     /**
      * 安全等级
@@ -60,5 +72,14 @@ public class AssetAnalysisRuleVO {
      */
     private String methodName;
 
+    private String mergeItems;
+
+    private Integer mergeWindowTime;
+
+    private Integer eventWindowTime;
+
+    private Integer eventThreshold;
+
+    private String eventKeyword;
 
 }

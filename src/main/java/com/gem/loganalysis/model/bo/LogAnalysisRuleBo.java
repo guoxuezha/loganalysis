@@ -17,12 +17,16 @@ import com.gem.loganalysis.model.dto.edit.LogAnalysisRuleRelaDTO;
 import com.gem.loganalysis.model.entity.Asset;
 import com.gem.loganalysis.model.entity.AssetEvent;
 import com.gem.loganalysis.model.entity.AssetMergeLog;
-import com.gem.loganalysis.model.entity.LogAnalysisRule;
+import com.gem.loganalysis.model.vo.AssetAnalysisRuleVO;
+import com.gem.loganalysis.util.BlockFileUtil;
 import com.gem.loganalysis.util.SpringContextUtil;
+import com.gem.utils.file.BlockFile;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import jdk.nashorn.internal.ir.debug.ObjectSizeCalculator;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -36,7 +40,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author GuoChao
  **/
-@Data
 @Slf4j
 public class LogAnalysisRuleBo {
 
@@ -59,102 +62,84 @@ public class LogAnalysisRuleBo {
      * 日志事件状态,用于判断当前事件是否为新事件
      */
     private final Cache<String, String> logEventState;
+    private final AssetEventMapper assetEventMapper;
+    private final AssetMergeLogMapper assetMergeLogMapper;
+    private final LogAnalysisRuleMapper logAnalysisRuleMapper;
+    /**
+     * 资产对象
+     */
+    private final Asset asset;
+    /**
+     * 规则ID
+     */
+    @Getter
+    private final String ruleRelaId;
+    private final String analysisRuleId;
+
+    /**
+     * 全量日志快文件
+     */
+    @Getter
+    @Setter
+    private BlockFile blockFile;
+
+
+    @Getter
+    @Setter
+    private String blockFileDay;
 
     /**
      * 可用状态
      */
     private boolean enable;
-
-    private AssetEventMapper assetEventMapper;
-
-    private AssetMergeLogMapper assetMergeLogMapper;
-
-    private LogAnalysisRuleMapper logAnalysisRuleMapper;
-
-    /**
-     * 资产对象
-     */
-    private Asset asset;
-
-    /**
-     * 规则ID
-     */
-    private String ruleRelaId;
-
-    private String analysisRuleId;
-
     /**
      * 日志生产子系统
      */
     private String facility;
-
     /**
      * 日志级别
      */
     private String severity;
-
     private Integer ruleType;
-
     private String jarName;
-
     private String version;
-
     private String methodName;
-
     /**
      * 分段字符序列
      */
     private String itemSplitSequence;
-
     /**
      * 分值字符序列
      */
     private String kvSplitSequence;
-
     /**
      * 归并字段列表
      */
     private List<String> mergeItemList;
-
     /**
      * 归并窗口时长(分钟)
      */
     private Integer mergeWindowTime;
-
     /**
      * 下一个归并窗口(周期)的开始时间
      */
     private Date nextMergeWindowStartTime;
-
     /**
      * 事件统计滑动窗口时长(分钟)
      */
     private Integer eventWindowTime;
-
     /**
      * 事件判定阈值
      */
     private Integer eventThreshold;
-
     /**
      * 关注的IP字段名
      */
     private String eventKeyWord;
-
     /**
      * 封堵时长
      */
     private Long blockOffSecond;
-
-    public LogAnalysisRuleBo() {
-        this.queue = new LinkedBlockingQueue<>();
-        this.cacheMap = new ConcurrentHashMap<>();
-        this.logCount = Caffeine.newBuilder()
-//                .expireAfterWrite(1, TimeUnit.MINUTES)
-                .maximumSize(10000).build();
-        this.logEventState = Caffeine.newBuilder().maximumSize(10000).build();
-        this.enable = true;
-    }
 
     public LogAnalysisRuleBo(HashMap<String, Object> ruleMap) {
         this.ruleRelaId = (String) ruleMap.get("RULE_RELA_ID");
@@ -203,7 +188,15 @@ public class LogAnalysisRuleBo {
         this.jarName = (String) ruleMap.get("JAR_NAME");
         this.version = (String) ruleMap.get("VERSION");
         this.methodName = (String) ruleMap.get("METHOD_NAME");
+
+        this.blockFileDay = DateUtil.format(new Date(), DatePattern.PURE_DATE_PATTERN);
+        String fileName = ruleRelaId + blockFileDay;
+        this.blockFile = new BlockFile("./", fileName + ".DAT", fileName + ".IDX", true, 3, 64);
         this.enable = true;
+    }
+
+    public boolean isEnable() {
+        return this.enable;
     }
 
     /**
@@ -225,7 +218,7 @@ public class LogAnalysisRuleBo {
         this.eventKeyWord = dto.getEventKeyword();
         // 若绑定的解析规则发生了变更,再执行关联修改
         if (!this.analysisRuleId.equals(dto.getAnalysisRuleId())) {
-            LogAnalysisRule analysisRule = logAnalysisRuleMapper.selectById(dto.getAnalysisRuleId());
+            AssetAnalysisRuleVO analysisRule = logAnalysisRuleMapper.getAnalysisRuleVOById(dto.getAnalysisRuleId());
             this.ruleType = analysisRule.getRuleType();
             this.itemSplitSequence = analysisRule.getItemSplit();
             this.kvSplitSequence = analysisRule.getKvSplit();
@@ -283,15 +276,18 @@ public class LogAnalysisRuleBo {
         // 判断该日志是否需要作为当前归并周期的第一条生成logId
         if (cacheMap.get(unionKeyStr) == null) {
             mergeLog.generateLogId();
+        } else {
+            mergeLog.setLogId(cacheMap.get(unionKeyStr).getLogId());
         }
 
         queue.add(mergeLog.toSimpleQueueMessageInfo());
 
         logIncrAndStartEvent(mergeLog, unionKeyStr);
 
-        // TODO: 将日志信息放入文件写入队列
-
+        // 将日志信息放入文件写入日志文件
+        BlockFileUtil.writeLog(mergeLog, this);
     }
+
 
     /**
      * 将取到的日志放入缓存并累加归并次数,再判断是否触发了事件
@@ -306,8 +302,9 @@ public class LogAnalysisRuleBo {
             cacheMap.putIfAbsent(unionKey, mergeLog);
             cacheMap.get(unionKey).getMergeCount().getAndIncrement();
             AtomicInteger atomicInteger = logCount.getIfPresent(unionKey);
-            if (atomicInteger == null) {
+            if (logCount.getIfPresent(unionKey) == null) {
                 logCount.put(unionKey, new AtomicInteger(0));
+                atomicInteger = logCount.getIfPresent(unionKey);
             }
             assert atomicInteger != null;
             atomicInteger.getAndIncrement();

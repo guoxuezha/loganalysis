@@ -91,3 +91,13 @@ mybatis-plus:
 logging:
   file:
     name: D:/workspace/project/loganalysis/src/main/resources/log/local.log
+
+minio:
+  #Minio服务所在地址
+  endpoint: http://123.249.94.31:9000
+  #存储桶名称
+  bucketName: logRecord
+  #访问的key
+  accessKey: Jonny
+  #访问的秘钥
+  secretKey: minioadmin

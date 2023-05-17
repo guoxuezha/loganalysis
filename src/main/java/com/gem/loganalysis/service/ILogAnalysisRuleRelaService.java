@@ -7,7 +7,6 @@ import com.gem.loganalysis.model.bo.MergeLog;
 import com.gem.loganalysis.model.dto.query.AnalysisRuleQueryDTO;
 import com.gem.loganalysis.model.entity.LogAnalysisRuleRela;
 import com.gem.loganalysis.model.vo.AssetAnalysisRuleVO;
-import com.github.pagehelper.Page;
 
 /**
  * <p>
@@ -19,7 +18,7 @@ import com.github.pagehelper.Page;
  */
 public interface ILogAnalysisRuleRelaService extends IService<LogAnalysisRuleRela> {
 
-    Page<AssetAnalysisRuleVO> getAnalysisRules(PageRequest<AnalysisRuleQueryDTO> dto);
+    PageResponse<AssetAnalysisRuleVO> getAnalysisRules(PageRequest<AnalysisRuleQueryDTO> dto);
 
     PageResponse<MergeLog> getLogRecordsByAsset(PageRequest<String> dto);
 

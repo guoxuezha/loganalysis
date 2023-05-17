@@ -54,11 +54,4 @@ public interface LogAnalysisRuleRelaMapper extends BaseMapper<LogAnalysisRuleRel
      */
     HashMap<String, Object> getEquipAnalysisAndBlockRule(@Param("ip") String ip, @Param("facility") String facility, @Param("severity") String severity);
 
-    /**
-     * 查询日志解析规则对象列表
-     *
-     * @return list
-     */
-    List<HashMap<String, String>> getEquipAnalysisAndBlockRuleList();
-
 }
