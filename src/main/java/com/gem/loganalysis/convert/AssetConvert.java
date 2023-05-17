@@ -12,6 +12,8 @@ import com.gem.loganalysis.model.vo.asset.AssetRespVO;
 import com.gem.loganalysis.model.vo.asset.LogicalAssetScannerRespVO;
 import com.gem.loganalysis.model.vo.asset.PhysicalAssetScannerRespVO;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Mappings;
 import org.mapstruct.factory.Mappers;
 
 import java.util.List;
@@ -38,6 +40,8 @@ public interface AssetConvert {
     Page<LogicalAssetScannerRespVO> convertPage02(Page<LogicalAssetTemp> page);
     //IP资产扫描
     Page<PhysicalAssetScannerRespVO> convertPage03(Page<PhysicalAssetTemp> page);
+    //资产分组分页
+    Page<AssetGroupRespVO> convertPage04(Page<AssetGroup> page);
 
 
 }

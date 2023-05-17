@@ -1,6 +1,8 @@
 package com.gem.loganalysis.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.Result;
 import com.gem.loganalysis.model.dto.asset.AssetDTO;
 import com.gem.loganalysis.model.dto.asset.AssetGroupDTO;
@@ -18,16 +20,15 @@ import java.util.List;
 public interface IAssetGroupService extends IService<AssetGroup> {
 
     /**
-     * 资产分组列表
-     * @param dto
-     * @return
-     */
-    List<AssetGroup> getList(AssetGroupQueryDTO dto);
-
-    /**
      * 创建/编辑资产分组
      * @param dto
      * @return
      */
     Result<String> editGroup(AssetGroupDTO dto);
+    /**
+     * 资产分组分页
+     * @param dto
+     * @return
+     */
+    Page<AssetGroup> getPageList(PageRequest<AssetGroupQueryDTO> dto);
 }

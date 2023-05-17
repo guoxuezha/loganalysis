@@ -40,10 +40,10 @@ public class AssetGroupController {
     @Resource
     private IAssetGroupService assetGroupService;
 
-    @PostMapping("/list")
+    @PostMapping("/pageList")
     @ApiOperation("资产分组列表")
-    public Result<List<AssetGroupRespVO>> list(@RequestBody AssetGroupQueryDTO dto) {
-        return Result.ok(AssetConvert.INSTANCE.convertList(assetGroupService.getList(dto)));
+    public Result<Page<AssetGroupRespVO>> list(@RequestBody PageRequest<AssetGroupQueryDTO> dto) {
+        return Result.ok(AssetConvert.INSTANCE.convertPage04(assetGroupService.getPageList(dto)));
     }
 
     @PostMapping("/edit")

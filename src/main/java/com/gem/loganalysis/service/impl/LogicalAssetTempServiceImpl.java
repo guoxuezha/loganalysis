@@ -12,6 +12,12 @@ import com.gem.loganalysis.model.entity.PhysicalAssetTemp;
 import com.gem.loganalysis.service.ILogicalAssetTempService;
 import org.springframework.stereotype.Service;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 /**
  * <p>
  * 逻辑资产扫描结果 服务实现类
