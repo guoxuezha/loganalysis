@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.gem.loganalysis.model.dto.edit.LogAnalysisRuleRelaDTO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
@@ -22,6 +23,7 @@ import java.io.Serializable;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("sop_log_analysis_rule_rela")
+@NoArgsConstructor
 public class LogAnalysisRuleRela implements Serializable {
 
     private static final long serialVersionUID = 1L;

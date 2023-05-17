@@ -33,7 +33,7 @@ public class LogAnalysisRule implements Serializable {
      * 规则ID
      */
     @TableId(value = "ANALYSIS_RULE_ID", type = IdType.AUTO)
-    private Integer analysisRuleId;
+    private String analysisRuleId;
 
     /**
      * 规则名称
@@ -46,12 +46,6 @@ public class LogAnalysisRule implements Serializable {
      */
     @TableField("RULE_TYPE")
     private Integer ruleType;
-
-    @TableField("JAR_NAME")
-    private String jarName;
-
-    @TableField("VERSION")
-    private String version;
 
     /**
      * 硬编码方法名

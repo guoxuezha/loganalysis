@@ -112,12 +112,28 @@ public class LogAnalysisRuleController {
                 LogAnalysisRuleRela byId = iLogAnalysisRuleRelaService.getById(ruleRela.getRuleRelaId());
                 LambdaQueryWrapper<Asset> queryWrapper = new LambdaQueryWrapper<>();
                 queryWrapper.eq(Asset::getAssetId, byId.getAssetId());
-                String ipAddress = assetService.getOne(queryWrapper).getIpAddress();
-                LogAnalysisRuleBo logAnalysisRuleBo = logAnalysisRulePool.getLogAnalysisRuleBoMap().get(ipAddress + "~" + byId.getFacility() + "~" + byId.getSeverity());
-                logAnalysisRuleBo.reloadInfo(dto);
+                Asset one = assetService.getOne(queryWrapper);
+                if (one != null) {
+                    String ipAddress = one.getIpAddress();
+                    LogAnalysisRuleBo logAnalysisRuleBo = logAnalysisRulePool.getLogAnalysisRuleBoMap().get(ipAddress + "~" + byId.getFacility() + "~" + byId.getSeverity());
+                    if (logAnalysisRuleBo != null) {
+                        logAnalysisRuleBo.reloadInfo(dto);
+                    }
+                }
             }
         }
         return editResult ? Result.ok("编辑成功!") : Result.failed("编辑失败！");
+    }
+
+    /**
+     * 删除日志解析规则映射关系
+     *
+     * @param dto 入参
+     * @return 删除结果
+     */
+    @PostMapping("/deleteAnalysisRuleRela")
+    public Result<Object> deleteAnalysisRuleRela(@RequestBody DeleteDTO dto) {
+        return iLogAnalysisRuleRelaService.removeById(dto.getId()) ? Result.ok("删除成功!") : Result.failed("删除失败!");
     }
 
     /**

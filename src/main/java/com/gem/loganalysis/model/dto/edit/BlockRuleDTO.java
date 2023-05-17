@@ -18,7 +18,7 @@ public class BlockRuleDTO {
     /**
      * 设备唯一编码
      */
-    private Integer equipId;
+    private String equipId;
 
     /**
      * 日志级别

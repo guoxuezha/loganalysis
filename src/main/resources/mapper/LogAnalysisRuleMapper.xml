@@ -2,4 +2,23 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.gem.loganalysis.mapper.LogAnalysisRuleMapper">
 
+    <select id="getAnalysisRuleVOById" parameterType="java.lang.String"
+            resultType="com.gem.loganalysis.model.vo.AssetAnalysisRuleVO">
+        SELECT a.ANALYSIS_RULE_ID,
+        a.ANALYSIS_RULE_NAME,
+        a.RULE_TYPE,
+        a.ITEM_SPLIT,
+        a.KV_SPLIT,
+        b.JAR_NAME,
+        b.VERSION,
+        a.METHOD_NAME
+        FROM sop_log_analysis_rule a
+        LEFT JOIN sop_log_analysis_customization_rule b ON a.METHOD_NAME = b.METHOD_NAME
+        <if test="analysisRuleId != null and analysisRuleId != ''">
+            WHERE ANALYSIS_RULE_ID = #{analysisRuleId, jdbcType=VARCHAR}
+        </if>
+    </select>
+
+
+
 </mapper>

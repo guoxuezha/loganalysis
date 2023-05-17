@@ -30,10 +30,10 @@ public class LogAnalysisRuleRelaServiceImpl extends ServiceImpl<LogAnalysisRuleR
     private LogAnalysisRuleRelaMapper logAnalysisRuleRelaMapper;
 
     @Override
-    public Page<AssetAnalysisRuleVO> getAnalysisRules(PageRequest<AnalysisRuleQueryDTO> dto) {
+    public PageResponse<AssetAnalysisRuleVO> getAnalysisRules(PageRequest<AnalysisRuleQueryDTO> dto) {
         Page<AssetAnalysisRuleVO> result = PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
         logAnalysisRuleRelaMapper.getAnalysisRules(dto.getData());
-        return result;
+        return new PageResponse<>(result);
     }
 
     @Override
