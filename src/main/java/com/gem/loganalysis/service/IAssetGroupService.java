@@ -31,4 +31,11 @@ public interface IAssetGroupService extends IService<AssetGroup> {
      * @return
      */
     Page<AssetGroup> getPageList(PageRequest<AssetGroupQueryDTO> dto);
+
+    /**
+     * 资产分组列表
+     * @param dto
+     * @return
+     */
+    List<AssetGroup> getList(AssetGroupQueryDTO dto);
 }

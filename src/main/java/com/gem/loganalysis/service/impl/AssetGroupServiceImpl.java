@@ -50,4 +50,13 @@ public class AssetGroupServiceImpl extends ServiceImpl<AssetGroupMapper, AssetGr
         return this.page(page, wrapper);
     }
 
+    @Override
+    public List<AssetGroup> getList(AssetGroupQueryDTO dto) {
+        LambdaQueryWrapperX<AssetGroup> wrapper = new LambdaQueryWrapperX<AssetGroup>()
+                .eqIfPresent(AssetGroup::getAssetOrg, dto.getAssetOrg())
+                .likeIfPresent(AssetGroup::getGroupName, dto.getGroupName())
+                .orderByAsc(AssetGroup::getCreateTime);//根据创建时间正序排
+        return this.list(wrapper);
+    }
+
 }

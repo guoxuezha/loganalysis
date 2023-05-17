@@ -34,13 +34,14 @@ public interface AssetConvert {
 
     Page<AssetRespVO> convertPage(Page<Asset> page);
 
-    List<AssetGroupRespVO> convertList(List<AssetGroup> list);
+
 
     //逻辑资产扫描
     Page<LogicalAssetScannerRespVO> convertPage02(Page<LogicalAssetTemp> page);
     //IP资产扫描
     Page<PhysicalAssetScannerRespVO> convertPage03(Page<PhysicalAssetTemp> page);
     //资产分组分页
+    List<AssetGroupRespVO> convertList(List<AssetGroup> list);
     Page<AssetGroupRespVO> convertPage04(Page<AssetGroup> page);
 
 
