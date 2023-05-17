@@ -49,11 +49,11 @@ public class BlockFileUtil {
         if (!DateUtil.format(new Date(), DatePattern.PURE_DATE_PATTERN).equals(analysisRuleBo.getBlockFileDay())) {
             // 旧日文件关闭上传
             analysisRuleBo.getBlockFile().close();
-            MinioUtil minioUtil = SpringContextUtil.getBean(MinioUtil.class);
+            /*MinioUtil minioUtil = SpringContextUtil.getBean(MinioUtil.class);
             File datFile = new File("./" + analysisRuleBo.getRuleRelaId() + analysisRuleBo.getBlockFileDay() + ".DAT");
             File idxFile = new File("./" + analysisRuleBo.getRuleRelaId() + analysisRuleBo.getBlockFileDay() + ".IDX");
             minioUtil.upload(getMultipartFile(datFile));
-            minioUtil.upload(getMultipartFile(idxFile));
+            minioUtil.upload(getMultipartFile(idxFile));*/
             analysisRuleBo.setBlockFileDay(DateUtil.format(new Date(), DatePattern.PURE_DATE_PATTERN));
             analysisRuleBo.setBlockFile(new BlockFile("./", analysisRuleBo.getRuleRelaId() + analysisRuleBo.getBlockFileDay() + ".DAT",
                     analysisRuleBo.getRuleRelaId() + analysisRuleBo.getBlockFileDay() + ".IDX", true, 3, 64));

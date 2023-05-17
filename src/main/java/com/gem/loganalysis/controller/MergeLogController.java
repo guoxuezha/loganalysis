@@ -4,11 +4,8 @@ package com.gem.loganalysis.controller;
 import cn.hutool.core.collection.CollUtil;
 import com.gem.loganalysis.model.Result;
 import com.gem.loganalysis.model.dto.query.LogContentQueryDTO;
-import com.gem.loganalysis.model.dto.query.LogFileQueryDTO;
-import com.gem.loganalysis.util.MinioUtil;
 import com.gem.utils.file.BlockData;
 import com.gem.utils.file.BlockFile;
-import io.minio.messages.Item;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,14 +26,14 @@ import java.util.List;
 @AllArgsConstructor
 public class MergeLogController {
 
-    private final MinioUtil minioUtil;
+//    private final MinioUtil minioUtil;
 
-    @PostMapping("/fileList")
+    /*@PostMapping("/fileList")
     public Result<Object> fileList(@RequestBody LogFileQueryDTO dto) {
         List<Item> items = minioUtil.listObjects();
 
         return Result.ok();
-    }
+    }*/
 
     /**
      * 从文件中读取原始日志信息
