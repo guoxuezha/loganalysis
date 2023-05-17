@@ -70,7 +70,7 @@ public class ScannerController {
             return Result.failed("该资产组织机构的Vlan配置不存在");
         }
         //TODO 改成异步 先返回扫描成功再开启扫描
-        //IpScanner.scannerIpSection(orgVlan,DateUtil.format(new Date(),"yyyyMMddHHmmss"));
+        IpScanner.scannerIpSection(orgVlan,DateUtil.format(new Date(),"yyyyMMddHHmmss"));
         return Result.ok("扫描成功");
     }
 

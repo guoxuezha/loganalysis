@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gem.loganalysis.convert.DictConvert;
 import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.Result;
+import com.gem.loganalysis.model.dto.DeleteDTO;
+import com.gem.loganalysis.model.dto.GetDTO;
 import com.gem.loganalysis.model.dto.edit.DictDataDTO;
 import com.gem.loganalysis.model.dto.edit.DictTypeDTO;
 import com.gem.loganalysis.model.dto.query.DictDataQueryDTO;
@@ -63,7 +65,9 @@ public class DictDataController {
             return Result.failed("该字类型不存在");
         }
         //效验值唯一
-        DictData one = dictDataService.getOne(new LambdaQueryWrapperX<DictData>().eq(DictData::getValue, dto.getValue()));
+        DictData one = dictDataService.getOne(new LambdaQueryWrapperX<DictData>()
+                .eq(DictData::getDictType,dto.getDictType())
+                .eq(DictData::getValue, dto.getValue()));
         if(one!=null){
             return  Result.failed("该字典键值已存在");
         }
@@ -86,7 +90,9 @@ public class DictDataController {
             return  Result.failed("该字类型不存在");
         }
         //效验值唯一
-        DictData one = dictDataService.getOne(new LambdaQueryWrapperX<DictData>().eq(DictData::getValue, dto.getValue()));
+        DictData one = dictDataService.getOne(new LambdaQueryWrapperX<DictData>()
+                .eq(DictData::getDictType,dto.getDictType())
+                .eq(DictData::getValue, dto.getValue()));
         if(one!=null&&!byId.getDataId().equals(dto.getDataId())){
             return Result.failed("该字典键值已存在");
         }
@@ -95,16 +101,16 @@ public class DictDataController {
 
     @PostMapping("/deleted")
     @ApiOperation("删除数据字典数据")
-    public Result<String> deleteDictData(@Valid @RequestBody Integer dataId) {
-        if(dataId==null){
+    public Result<String> deleteDictData(@Valid @RequestBody DeleteDTO dto) {
+        if(dto.getId()==null){
             return  Result.failed("字典数据编码ID不能为空");
         }
         //判断原数据字典是否存在
-        DictData byId = dictDataService.getById(dataId);
+        DictData byId = dictDataService.getById(dto.getId());
         if(byId==null){
             return Result.failed("字典数据不存在");
         }
-        return dictDataService.removeById(dataId)?Result.ok("操作成功!"):Result.failed("操作失败!");
+        return dictDataService.removeById(dto.getId())?Result.ok("操作成功!"):Result.failed("操作失败!");
     }
 
     @PostMapping("/pageList")
@@ -134,11 +140,11 @@ public class DictDataController {
 
     @PostMapping("/get")
     @ApiOperation("获得某一数据字典数据详细")
-    public Result<DictDataRespVO> getDictData(@Valid @RequestBody Integer dataId) {
-        if(dataId==null){
+    public Result<DictDataRespVO> getDictData(@Valid @RequestBody GetDTO dto) {
+        if(dto.getId()==null){
             return  Result.failed("请勿传入字典数据主键");
         }
-        return Result.ok(DictConvert.INSTANCE.convert(dictDataService.getById(dataId)));
+        return Result.ok(DictConvert.INSTANCE.convert(dictDataService.getById(dto.getId())));
     }
 
 

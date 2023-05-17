@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gem.loganalysis.convert.DictConvert;
 import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.Result;
+import com.gem.loganalysis.model.dto.DeleteDTO;
+import com.gem.loganalysis.model.dto.GetDTO;
 import com.gem.loganalysis.model.dto.edit.DictTypeDTO;
 import com.gem.loganalysis.model.dto.query.DictTypeQueryDTO;
 import com.gem.loganalysis.model.dto.query.LambdaQueryWrapperX;
@@ -89,20 +91,20 @@ public class DictTypeController {
 
     @PostMapping("/deleted")
     @ApiOperation("删除数据字典类型")
-    public Result<String> deleteDictType(@Valid @RequestBody Integer typeId) {
-        if(typeId==null){
+    public Result<String> deleteDictType(@Valid @RequestBody DeleteDTO dto) {
+        if(dto.getId()==null){
             return Result.failed("字典类型编码ID不能为空");
         }
         //效验原字典类型是否存在
-        DictType byId = dictTypeService.getById(typeId);
+        DictType byId = dictTypeService.getById(dto.getId());
         if(byId==null){
-            return Result.failed("改字典类型不存在");
+            return Result.failed("该字典类型不存在");
         }
         //判断底下是否还存在数据data
         if(dictDataService.count(new LambdaQueryWrapperX<DictData>().eq(DictData::getDictType,byId.getType()))>0){
             return Result.failed("请先删除该字典类型下的数据");
         };
-        return dictTypeService.removeById(typeId)?Result.ok("操作成功!"):Result.failed("操作失败!");
+        return dictTypeService.removeById(dto.getId())?Result.ok("操作成功!"):Result.failed("操作失败!");
     }
 
     @PostMapping("/pageList")
@@ -132,11 +134,11 @@ public class DictTypeController {
 
     @PostMapping("/get")
     @ApiOperation("获得某一数据字典类型详细")
-    public Result<DictTypeRespVO> createDictType(@Valid @RequestBody Integer typeId) {
-        if(typeId==null){
+    public Result<DictTypeRespVO> createDictType(@Valid @RequestBody GetDTO dto) {
+        if(dto.getId()==null){
             Result.failed("字典类型编码ID不能为空");
         }
-        return Result.ok(DictConvert.INSTANCE.convert(dictTypeService.getById(typeId)));
+        return Result.ok(DictConvert.INSTANCE.convert(dictTypeService.getById(dto.getId())));
     }
 
 }

@@ -28,6 +28,7 @@ public class IpScanJob implements Runnable {
     @Override
     public void run() {
         IpScanObject scan = IpScanner.pingDeviceIp(ip);
+        System.out.println(scan);
         if(scan!=null){
             this.physicalAssetTempService = GetBeanUtil.getApplicationContext().getBean(IPhysicalAssetTempService.class);
       /*      boolean save = physicalAssetTempService.save(new PhysicalAssetTemp().setAssetStatus(scan.getIsOpen()?"1":"0")
@@ -35,7 +36,7 @@ public class IpScanJob implements Runnable {
                     .setIpAddress(scan.getIp())
                     .setScanTime(scanTime));*/
             if(scan.getIsOpen()){
-                System.out.println(scan);
+               // System.out.println(scan);
             }
         }
     }

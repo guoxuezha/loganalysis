@@ -8,6 +8,7 @@ import com.gem.loganalysis.model.entity.OrgVlan;
 import com.gem.loganalysis.util.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Date;
 import java.util.List;
@@ -37,12 +38,11 @@ public class IpScanner {
         if(StringUtils.isEmpty(ip)){
             return null;
         }
-        int timeOut = 3000;
+        int timeOut = 5000;
         boolean reachable =false;
         try{
             reachable = InetAddress.getByName(ip).isReachable(timeOut);
-        }catch (Exception e){
-            e.printStackTrace();
+        }catch (IOException e){
         }
         return new IpScanObject().setIsOpen(reachable).setIp(ip);
     }
@@ -60,7 +60,8 @@ public class IpScanner {
             for(int i = Integer.parseInt(begin);i <= Integer.parseInt(end);i++){
                 String ip = ipBefore+'.'+i;
                 // 执行扫描任务
-                poolExecutor.execute(new ScanJob(new ScanObject(ip,0),ScanEngine.TCP_FULL_CONNECT_SCAN,scanTime));
+                poolExecutor.execute(new IpScanJob(ip,scanTime));
+                //poolExecutor.execute(new ScanJob(new ScanObject(ip,0),ScanEngine.TCP_FULL_CONNECT_SCAN,scanTime));
             }
         });
     }
