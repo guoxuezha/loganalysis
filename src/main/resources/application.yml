@@ -32,6 +32,11 @@ spring:
           url: jdbc:mysql://121.42.24.63:3306/${spring.datasource.dynamic.datasource.slave.name}?characterEncoding=utf8&nullCatalogMeansCurrent=true&useSSL=false&useUnicode=true&0=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Shanghai
           username: gemuser
           password: gemuser123
+#        prod:
+#          driver-class-name: com.mysql.cj.jdbc.Driver
+#          url: jdbc:mysql://222.95.84.173:3306/sop?characterEncoding=utf8&nullCatalogMeansCurrent=true&useSSL=false&useUnicode=true&0=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Shanghai
+#          username: root
+#          password: M^stBechgd1
 
   kafka:
     ###########【Kafka集群】###########
