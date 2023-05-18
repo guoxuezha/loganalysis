@@ -101,7 +101,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         if(respVO.getAssetType().equals("0")){//逻辑资产
             respVO.setAssetTypeName(dictDataService.getDictData(DictType.LOGICAL_ASSET_TYPE.getType(),respVO.getAssetType()));
         }
-        if(respVO.getAssetType().equals("0")){//物理资产
+        if(respVO.getAssetType().equals("1")){//物理资产
             respVO.setAssetTypeName(dictDataService.getDictData(DictType.PHYSICAL_ASSET_TYPE.getType(),respVO.getAssetType()));
         }
         respVO.setAssetSecurityStatusName(dictDataService.getDictData(DictType.PHYSICAL_ASSET_STATUS.getType(),respVO.getAssetSecurityStatus()));

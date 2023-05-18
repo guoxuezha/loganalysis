@@ -28,6 +28,7 @@ public class IpScanJob implements Runnable {
     @Override
     public void run() {
         IpScanObject scan = IpScanner.pingDeviceIp(ip);
+        //TODO 用IP扫不好 但是暂时我没有更好的解决方案
         if(scan!=null){
             this.physicalAssetTempService = GetBeanUtil.getApplicationContext().getBean(IPhysicalAssetTempService.class);
             boolean save = physicalAssetTempService.save(new PhysicalAssetTemp().setAssetStatus(scan.getIsOpen()?"1":"0")
