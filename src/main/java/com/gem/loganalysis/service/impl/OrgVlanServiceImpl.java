@@ -47,11 +47,11 @@ public class OrgVlanServiceImpl extends ServiceImpl<OrgVlanMapper, OrgVlan> impl
         Page<OrgVlanRespVO> orgVlanRespVOPage = AssetConvert.INSTANCE.convertPage05(resp);
         List<OrgVlanRespVO> records = orgVlanRespVOPage.getRecords();
         records.forEach(e->{
-            //TODO 先写死 到时候改成链表查或者缓存里取 时间不是很够 更推荐放缓存因为频繁使用
+            //TODO 先写死 等有部门表了放入
             if(e.getOrgId().equals("1")){
-                e.setOrgName("客户运营部");
-            }else if(e.getOrgId().equals("2")){
                 e.setOrgName("资产管理部");
+            }else if(e.getOrgId().equals("2")){
+                e.setOrgName("客户运营部");
             }
             e.setVlanList(JsonUtils.parseArray(e.getVlan(),VlanDTO.class));
         });

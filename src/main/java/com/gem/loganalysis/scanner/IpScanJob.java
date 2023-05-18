@@ -28,16 +28,12 @@ public class IpScanJob implements Runnable {
     @Override
     public void run() {
         IpScanObject scan = IpScanner.pingDeviceIp(ip);
-        System.out.println(scan);
         if(scan!=null){
             this.physicalAssetTempService = GetBeanUtil.getApplicationContext().getBean(IPhysicalAssetTempService.class);
-      /*      boolean save = physicalAssetTempService.save(new PhysicalAssetTemp().setAssetStatus(scan.getIsOpen()?"1":"0")
-                    .setAssetOrg("测试")//TODO 目前还没有部门 之后从登录人获取部门
+            boolean save = physicalAssetTempService.save(new PhysicalAssetTemp().setAssetStatus(scan.getIsOpen()?"1":"0")
+                    .setAssetOrg("资产管理部")//TODO 目前还没有部门 之后从登录人获取部门
                     .setIpAddress(scan.getIp())
-                    .setScanTime(scanTime));*/
-            if(scan.getIsOpen()){
-               // System.out.println(scan);
-            }
+                    .setScanTime(scanTime));
         }
     }
 }

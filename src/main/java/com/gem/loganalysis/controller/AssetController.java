@@ -1,21 +1,14 @@
 package com.gem.loganalysis.controller;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.util.StrUtil;
-import com.baomidou.dynamic.datasource.annotation.DS;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.gem.loganalysis.convert.AssetConvert;
 import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.Result;
 import com.gem.loganalysis.model.dto.GetDTO;
 import com.gem.loganalysis.model.dto.asset.AssetDTO;
 import com.gem.loganalysis.model.dto.asset.AssetQueryDTO;
-import com.gem.loganalysis.model.dto.query.LambdaQueryWrapperX;
-import com.gem.loganalysis.model.entity.Asset;
+import com.gem.loganalysis.model.vo.asset.AssetAccountRespVO;
 import com.gem.loganalysis.model.vo.asset.AssetRespVO;
 import com.gem.loganalysis.service.IAssetService;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -23,11 +16,7 @@ import javax.validation.Valid;
 import org.springframework.validation.annotation.Validated;
 import io.swagger.annotations.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
 
 @Api(tags = "资产模块 - 安全管理资产")
 @RestController
@@ -64,5 +53,15 @@ public class AssetController {
         }
         return Result.ok(assetService.getAsset(dto.getId()));
     }
+
+    @PostMapping("/getAccount")
+    @ApiOperation("根据ID获得网管密码")
+    public Result<AssetAccountRespVO> getAssetAccount(@RequestBody GetDTO dto) {
+        if(dto.getId()==null||dto.getId().trim().equals("")){
+            return Result.failed("请传入资产唯一编码ID");
+        }
+        return Result.ok(assetService.getAssetAccount(dto.getId()));
+    }
+
 
 }

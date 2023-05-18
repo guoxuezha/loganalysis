@@ -61,7 +61,6 @@ public class IpScanner {
                 String ip = ipBefore+'.'+i;
                 // 执行扫描任务
                 poolExecutor.execute(new IpScanJob(ip,scanTime));
-                //poolExecutor.execute(new ScanJob(new ScanObject(ip,0),ScanEngine.TCP_FULL_CONNECT_SCAN,scanTime));
             }
         });
     }

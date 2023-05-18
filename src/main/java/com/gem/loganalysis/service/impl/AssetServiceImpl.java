@@ -13,6 +13,7 @@ import com.gem.loganalysis.model.dto.asset.AssetQueryDTO;
 import com.gem.loganalysis.model.dto.query.LambdaQueryWrapperX;
 import com.gem.loganalysis.model.entity.Asset;
 import com.gem.loganalysis.model.entity.AssetGroup;
+import com.gem.loganalysis.model.vo.asset.AssetAccountRespVO;
 import com.gem.loganalysis.model.vo.asset.AssetRespVO;
 import com.gem.loganalysis.service.IAssetGroupService;
 import com.gem.loganalysis.service.IAssetService;
@@ -49,6 +50,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 return Result.failed("请输入正确的IP地址格式");
             }
         }
+        //TODO AES加密
         return this.saveOrUpdate(AssetConvert.INSTANCE.convert(dto)) ? Result.ok("操作成功!") : Result.failed("操作失败!");
     }
 
@@ -82,6 +84,15 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         Asset asset = this.getById(id);
         AssetRespVO convert = AssetConvert.INSTANCE.convert(asset);
         return changeAssetName(convert);
+    }
+
+    @Override
+    public AssetAccountRespVO getAssetAccount(String id) {
+        Asset asset = this.getById(id);
+        AssetAccountRespVO account = new AssetAccountRespVO();
+        account.setNmAccount(asset.getNmAccount());
+        account.setNmPassword(asset.getNmPassword());
+        return account;
     }
 
     private AssetRespVO changeAssetName(AssetRespVO respVO){

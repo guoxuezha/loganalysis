@@ -8,6 +8,7 @@ import com.gem.loganalysis.model.dto.asset.AssetDTO;
 import com.gem.loganalysis.model.dto.asset.AssetQueryDTO;
 import com.gem.loganalysis.model.entity.Asset;
 import com.gem.loganalysis.model.entity.BlockOffRecord;
+import com.gem.loganalysis.model.vo.asset.AssetAccountRespVO;
 import com.gem.loganalysis.model.vo.asset.AssetRespVO;
 
 import java.util.*;
@@ -35,4 +36,6 @@ public interface IAssetService extends IService<Asset> {
     Page<AssetRespVO> getPageList(PageRequest<AssetQueryDTO> dto);
 
     AssetRespVO getAsset(String id);
+
+    AssetAccountRespVO getAssetAccount(String id);
 }
