@@ -15,6 +15,8 @@ import com.gem.loganalysis.model.entity.PhysicalAssetTemp;
 import com.gem.loganalysis.service.IPhysicalAssetTempService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * <p>
  * IP设备扫描结果 服务实现类
@@ -39,5 +41,16 @@ public class PhysicalAssetTempServiceImpl extends ServiceImpl<PhysicalAssetTempM
                 .betweenIfPresent(PhysicalAssetTemp::getScanTime,data.getBeginScanTime(), data.getEndScanTime())
                 .orderByDesc(PhysicalAssetTemp::getScanTime);
         return this.page(page, wrapper);
+    }
+
+    @Override
+    public List<PhysicalAssetTemp> getPhysicalAssetList(PhysicalAssetQueryDTO dto) {
+        LambdaQueryWrapperX<PhysicalAssetTemp> wrapper = new LambdaQueryWrapperX<PhysicalAssetTemp>()
+                .eqIfPresent(PhysicalAssetTemp::getIpAddress, dto.getIpAddress())
+                .eqIfPresent(PhysicalAssetTemp::getAssetStatus, dto.getAssetStatus())
+                .eqIfPresent(PhysicalAssetTemp::getAssetOrg, dto.getAssetOrg())
+                .betweenIfPresent(PhysicalAssetTemp::getScanTime,dto.getBeginScanTime(), dto.getEndScanTime())
+                .orderByDesc(PhysicalAssetTemp::getScanTime);
+        return this.list(wrapper);
     }
 }

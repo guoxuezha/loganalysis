@@ -63,4 +63,22 @@ public class OrgVlanServiceImpl extends ServiceImpl<OrgVlanMapper, OrgVlan> impl
         String s = JsonUtils.toJsonString(dto.getVlanList());//转成JSON格式放入数据库
         return this.saveOrUpdate(new OrgVlan().setVlan(s).setOrgId(dto.getOrgId()));
     }
+
+    @Override
+    public List<OrgVlanRespVO> getVlanList(OrgVlanQueryDTO dto) {
+        LambdaQueryWrapperX<OrgVlan> wrapper = new LambdaQueryWrapperX<OrgVlan>()
+                .eqIfPresent(OrgVlan::getOrgId, dto.getOrgId());
+        List<OrgVlan> list = this.list(wrapper);
+        List<OrgVlanRespVO> orgVlanRespVOPage = AssetConvert.INSTANCE.convertList05(list);
+        orgVlanRespVOPage.forEach(e->{
+            //TODO 先写死 等有部门表了放入
+            if(e.getOrgId().equals("1")){
+                e.setOrgName("资产管理部");
+            }else if(e.getOrgId().equals("2")){
+                e.setOrgName("客户运营部");
+            }
+            e.setVlanList(JsonUtils.parseArray(e.getVlan(),VlanDTO.class));
+        });
+        return orgVlanRespVOPage;
+    }
 }

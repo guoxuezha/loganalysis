@@ -1,6 +1,7 @@
 package com.gem.loganalysis.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.gem.loganalysis.convert.AssetConvert;
 import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.Result;
 import com.gem.loganalysis.model.dto.GetDTO;
@@ -36,7 +37,8 @@ public class AssetController {
     @PostMapping("/batchInsert")
     @ApiOperation("批量插入安全管理资产")
     public Result<String> editAsset(@Valid @RequestBody List<AssetDTO> dto) {
-        return null;
+        return assetService.saveBatch(AssetConvert.INSTANCE.convertList01(dto))?
+                Result.ok("插入成功"):Result.failed("插入失败");
     }
 
     @PostMapping("/pageList")

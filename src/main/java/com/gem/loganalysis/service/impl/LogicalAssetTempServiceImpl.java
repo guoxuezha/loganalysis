@@ -12,10 +12,7 @@ import com.gem.loganalysis.model.entity.PhysicalAssetTemp;
 import com.gem.loganalysis.service.ILogicalAssetTempService;
 import org.springframework.stereotype.Service;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -42,5 +39,17 @@ public class LogicalAssetTempServiceImpl extends ServiceImpl<LogicalAssetTempMap
                 .betweenIfPresent(LogicalAssetTemp::getScanTime,data.getBeginScanTime(), data.getEndScanTime())
                 .orderByDesc(LogicalAssetTemp::getScanTime);
         return this.page(page, wrapper);
+    }
+
+    @Override
+    public List<LogicalAssetTemp> getLogicalAssetList(LogicalAssetQueryDTO dto) {
+        LambdaQueryWrapperX<LogicalAssetTemp> wrapper = new LambdaQueryWrapperX<LogicalAssetTemp>()
+                .eqIfPresent(LogicalAssetTemp::getIpAddress, dto.getIpAddress())
+                .eqIfPresent(LogicalAssetTemp::getEnablePort, dto.getEnablePort())
+                .eqIfPresent(LogicalAssetTemp::getAssetOrg, dto.getAssetOrg())
+                .eqIfPresent(LogicalAssetTemp::getAssetType, dto.getAssetType())
+                .betweenIfPresent(LogicalAssetTemp::getScanTime,dto.getBeginScanTime(), dto.getEndScanTime())
+                .orderByDesc(LogicalAssetTemp::getScanTime);
+        return this.list(wrapper);
     }
 }

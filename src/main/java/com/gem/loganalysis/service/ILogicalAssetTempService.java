@@ -6,6 +6,8 @@ import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.dto.asset.LogicalAssetQueryDTO;
 import com.gem.loganalysis.model.entity.LogicalAssetTemp;
 
+import java.util.List;
+
 /**
  * <p>
  * 逻辑资产扫描结果 服务类
@@ -18,4 +20,6 @@ public interface ILogicalAssetTempService extends IService<LogicalAssetTemp> {
 
 
     Page<LogicalAssetTemp> getLogicalAssetPage(PageRequest<LogicalAssetQueryDTO> dto);
+
+    List<LogicalAssetTemp> getLogicalAssetList(LogicalAssetQueryDTO dto);
 }

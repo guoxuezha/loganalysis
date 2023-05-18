@@ -86,10 +86,29 @@ public class ScannerController {
         return Result.ok(AssetConvert.INSTANCE.convertPage03(physicalAssetTempService.getPhysicalAssetPage(dto)));
     }
 
+    @PostMapping("/logicalAssetList")
+    @ApiOperation("逻辑资产扫描结果列表")
+    public Result<List<LogicalAssetScannerRespVO>> getLogicalAssetList(@RequestBody LogicalAssetQueryDTO dto) {
+        return Result.ok(AssetConvert.INSTANCE.convertList02(logicalAssetTempService.getLogicalAssetList(dto)));
+    }
+
+    @PostMapping("/physicalAssetList")
+    @ApiOperation("IP物理资产扫描结果列表")
+    public Result<List<PhysicalAssetScannerRespVO>> getPhysicalAssetList(@RequestBody PhysicalAssetQueryDTO dto) {
+        return Result.ok(AssetConvert.INSTANCE.convertList03(physicalAssetTempService.getPhysicalAssetList(dto)));
+    }
+
+
     @PostMapping("/vlanPage")
     @ApiOperation("VLAN设置界面分页")
     public Result<Page<OrgVlanRespVO>> getVlanPage(@Valid @RequestBody PageRequest<OrgVlanQueryDTO> dto) {
         return Result.ok(orgVlanService.getVlanPage(dto));
+    }
+
+    @PostMapping("/vlanList")
+    @ApiOperation("VLAN设置界面列表")
+    public Result<List<OrgVlanRespVO>> getVlanList(@Valid @RequestBody OrgVlanQueryDTO dto) {
+        return Result.ok(orgVlanService.getVlanList(dto));
     }
 
     @PostMapping("/editVlan")

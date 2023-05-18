@@ -25,7 +25,7 @@ public interface AssetConvert {
     Asset convert(AssetDTO bean);
 
     AssetGroup convert(AssetGroupDTO bean);
-
+    List<Asset> convertList01(List<AssetDTO> list);
     Page<AssetRespVO> convertPage(Page<Asset> page);
 
     AssetRespVO convert(Asset page);
@@ -34,13 +34,15 @@ public interface AssetConvert {
 
     //逻辑资产扫描
     Page<LogicalAssetScannerRespVO> convertPage02(Page<LogicalAssetTemp> page);
+    List<LogicalAssetScannerRespVO> convertList02(List<LogicalAssetTemp> list);
     //IP资产扫描
     Page<PhysicalAssetScannerRespVO> convertPage03(Page<PhysicalAssetTemp> page);
+    List<PhysicalAssetScannerRespVO> convertList03(List<PhysicalAssetTemp> list);
     //资产分组分页
     List<AssetGroupRespVO> convertList(List<AssetGroup> list);
     Page<AssetGroupRespVO> convertPage04(Page<AssetGroup> page);
     //Vlan配置
     Page<OrgVlanRespVO> convertPage05(Page<OrgVlan> page);
-
+    List<OrgVlanRespVO> convertList05(List<OrgVlan> list);
 
 }

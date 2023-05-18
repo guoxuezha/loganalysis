@@ -9,6 +9,8 @@ import com.gem.loganalysis.model.entity.AssetEvent;
 import com.gem.loganalysis.model.entity.OrgVlan;
 import com.gem.loganalysis.model.vo.asset.OrgVlanRespVO;
 
+import java.util.List;
+
 /**
  * <p>
  * Vlan配置 服务类
@@ -22,4 +24,6 @@ public interface IOrgVlanService extends IService<OrgVlan> {
     Page<OrgVlanRespVO> getVlanPage(PageRequest<OrgVlanQueryDTO> dto);
 
     boolean editVlan(OrgVlanDTO dto);
+
+    List<OrgVlanRespVO> getVlanList(OrgVlanQueryDTO dto);
 }

@@ -21,8 +21,8 @@ public class Scanner {
     // 日志
     private static Logger logger = Logger.getLogger("Scanner");
     // 使用多线程扫描
-    private static ThreadPoolExecutor poolExecutor = new ThreadPoolExecutor((cpuCores * 2 + 1) * 10
-            ,(cpuCores * 2 + 1) * 100,1000,
+    private static ThreadPoolExecutor poolExecutor = new ThreadPoolExecutor(2*cpuCores
+            ,25*cpuCores,10,
             TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(),
             Executors.defaultThreadFactory(),new ThreadPoolExecutor.AbortPolicy());
 
