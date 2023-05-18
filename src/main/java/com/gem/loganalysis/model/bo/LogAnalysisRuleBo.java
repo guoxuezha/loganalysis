@@ -34,6 +34,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.gem.loganalysis.util.BlockFileUtil.getBlockFileRootPath;
+
 /**
  * Description: 安全设施业务类对象
  * Date: 2023/5/5 20:54
@@ -191,7 +193,7 @@ public class LogAnalysisRuleBo {
 
         this.blockFileDay = DateUtil.format(new Date(), DatePattern.PURE_DATE_PATTERN);
         String fileName = ruleRelaId + blockFileDay;
-        this.blockFile = new BlockFile("./", fileName + ".DAT", fileName + ".IDX", true, 3, 64);
+        this.blockFile = new BlockFile(getBlockFileRootPath(), fileName + ".DAT", fileName + ".IDX", true, 3, 64);
         this.enable = true;
     }
 

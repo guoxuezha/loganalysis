@@ -6,6 +6,7 @@ import com.gem.loganalysis.model.bo.LogAnalysisRuleBo;
 import com.gem.loganalysis.model.bo.LogAnalysisRulePool;
 import com.gem.loganalysis.model.bo.MergeLog;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -34,7 +35,7 @@ public class KafkaConsumer {
     @Resource
     private LogAnalysisRulePool logAnalysisRulePool;
 
-//    @KafkaListener(topics = {"logrepo4"})
+    @KafkaListener(topics = {"logrepo5"})
     void onMessage1(String record) {
         List<MergeLog> messageList = convertLogFormat(record);
         // 消费的哪个topic、partition的消息,打印出消息内容

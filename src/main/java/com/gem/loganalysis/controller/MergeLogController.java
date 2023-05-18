@@ -5,6 +5,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.StrUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gem.loganalysis.config.MinioConfig;
 import com.gem.loganalysis.model.Result;
 import com.gem.loganalysis.model.dto.query.LogContentQueryDTO;
@@ -29,6 +30,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.gem.loganalysis.util.BlockFileUtil.getBlockFileRootPath;
 import static com.gem.loganalysis.util.BlockFileUtil.getMultipartFile;
 
 /**
@@ -43,6 +45,8 @@ import static com.gem.loganalysis.util.BlockFileUtil.getMultipartFile;
 public class MergeLogController {
 
     private final MinioConfig prop;
+
+    private final ObjectMapper objectMapper;
 
     /**
      * 查询桶中日志文件列表
@@ -73,8 +77,8 @@ public class MergeLogController {
     @PostMapping("/writeTest")
     public Result<Object> writeTest() {
         MinioUtil minioUtil = SpringContextUtil.getBean(MinioUtil.class);
-        File datFile = new File("./0220230517.DAT");
-        File idxFile = new File("./0220230517.IDX");
+        File datFile = new File(getBlockFileRootPath() + "0220230517.DAT");
+        File idxFile = new File(getBlockFileRootPath() + "0220230517.IDX");
         minioUtil.upload(getMultipartFile(datFile));
         minioUtil.upload(getMultipartFile(idxFile));
         return Result.ok();
@@ -93,7 +97,7 @@ public class MergeLogController {
         String day = dto.getUpdateTime().substring(0, 8);
         String fileName = ruleRelaId + day;
         // 若目标文件不存在,则尝试从minio拉取
-        if (!FileUtil.exist("./" + fileName + ".DAT")) {
+        if (!FileUtil.exist(getBlockFileRootPath() + fileName + ".DAT")) {
             try (InputStream datInputStream = MinioRW.read(prop.getEndpoint(), prop.getAccessKey(), prop.getSecretKey(), prop.getBucketName(), fileName + ".DAT");
                  InputStream idxInputStream = MinioRW.read(prop.getEndpoint(), prop.getAccessKey(), prop.getSecretKey(), prop.getBucketName(), fileName + ".IDX");
                  FileOutputStream datOutputStream = new FileOutputStream("./" + fileName + ".DAT");
@@ -104,14 +108,16 @@ public class MergeLogController {
                 e.printStackTrace();
             }
         }
-        BlockFile blockFile = new BlockFile("./", fileName + ".DAT", fileName + ".IDX", false, 3, 64);
+        BlockFile blockFile = new BlockFile(getBlockFileRootPath(), fileName + ".DAT", fileName + ".IDX", false, 3, 64);
         List<BlockData> blockDataList = blockFile.readData(dto.getLogId());
         if (CollUtil.isNotEmpty(blockDataList)) {
             for (BlockData blockData : blockDataList) {
-                result.add(new String(blockData.getData()));
+                // result.add(objectMapper.readValue(new String(blockData.getData()), MergeLog.class));
+                result.add((new String(blockData.getData())));
             }
         }
         return Result.ok(result);
     }
+
 
 }
