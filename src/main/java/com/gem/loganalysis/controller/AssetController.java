@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gem.loganalysis.convert.AssetConvert;
 import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.Result;
+import com.gem.loganalysis.model.dto.GetDTO;
 import com.gem.loganalysis.model.dto.asset.AssetDTO;
 import com.gem.loganalysis.model.dto.asset.AssetQueryDTO;
 import com.gem.loganalysis.model.dto.query.LambdaQueryWrapperX;
@@ -52,7 +53,16 @@ public class AssetController {
     @PostMapping("/pageList")
     @ApiOperation("分页查询安全管理资产")
     public Result<Page<AssetRespVO>> pageList(@RequestBody PageRequest<AssetQueryDTO> dto) {
-        return Result.ok(AssetConvert.INSTANCE.convertPage(assetService.getPageList(dto)));
+        return Result.ok(assetService.getPageList(dto));
+    }
+
+    @PostMapping("/get")
+    @ApiOperation("根据ID获得单一资产信息")
+    public Result<AssetRespVO> getAsset(@RequestBody GetDTO dto) {
+        if(dto.getId()==null||dto.getId().trim().equals("")){
+            return Result.failed("请传入资产唯一编码ID");
+        }
+        return Result.ok(assetService.getAsset(dto.getId()));
     }
 
 }

@@ -14,6 +14,7 @@ import com.gem.loganalysis.model.dto.asset.AssetQueryDTO;
 import com.gem.loganalysis.model.dto.query.LambdaQueryWrapperX;
 import com.gem.loganalysis.model.entity.Asset;
 import com.gem.loganalysis.model.entity.AssetGroup;
+import com.gem.loganalysis.model.vo.asset.AssetGroupRespVO;
 import com.gem.loganalysis.service.IAssetGroupService;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -40,23 +41,39 @@ public class AssetGroupServiceImpl extends ServiceImpl<AssetGroupMapper, AssetGr
     }
 
     @Override
-    public Page<AssetGroup> getPageList(PageRequest<AssetGroupQueryDTO> dto) {
+    public Page<AssetGroupRespVO> getPageList(PageRequest<AssetGroupQueryDTO> dto) {
         Page<AssetGroup> page = new Page<>(dto.getPageNum(), dto.getPageSize());
         AssetGroupQueryDTO data = dto.getData();
         LambdaQueryWrapperX<AssetGroup> wrapper = new LambdaQueryWrapperX<AssetGroup>()
                 .eqIfPresent(AssetGroup::getAssetOrg, data.getAssetOrg())
                 .likeIfPresent(AssetGroup::getGroupName, data.getGroupName())
                 .orderByAsc(AssetGroup::getCreateTime);//根据创建时间正序排
-        return this.page(page, wrapper);
+        Page<AssetGroupRespVO> resp = AssetConvert.INSTANCE.convertPage04(this.page(page, wrapper));
+        resp.getRecords().forEach(e->{
+            e.setAssetOrgName("资产管理部");//TODO 等补全部门
+        });
+        return resp;
     }
 
     @Override
-    public List<AssetGroup> getList(AssetGroupQueryDTO dto) {
+    public List<AssetGroupRespVO> getList(AssetGroupQueryDTO dto) {
         LambdaQueryWrapperX<AssetGroup> wrapper = new LambdaQueryWrapperX<AssetGroup>()
                 .eqIfPresent(AssetGroup::getAssetOrg, dto.getAssetOrg())
                 .likeIfPresent(AssetGroup::getGroupName, dto.getGroupName())
                 .orderByAsc(AssetGroup::getCreateTime);//根据创建时间正序排
-        return this.list(wrapper);
+        List<AssetGroupRespVO> list = AssetConvert.INSTANCE.convertList(this.list(wrapper));
+        list.forEach(e->{
+            e.setAssetOrgName("资产管理部");//TODO 等补全部门
+        });
+        return list;
+    }
+
+    @Override
+    public AssetGroupRespVO getAssetGroup(String id) {
+        AssetGroup assetGroup = this.getById(id);
+        AssetGroupRespVO respVO = AssetConvert.INSTANCE.convert(assetGroup);
+        respVO.setAssetOrgName("资产管理部");//TODO 等补全部门
+        return respVO;
     }
 
 }

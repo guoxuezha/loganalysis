@@ -9,6 +9,7 @@ import com.gem.loganalysis.model.dto.asset.AssetGroupDTO;
 import com.gem.loganalysis.model.dto.asset.AssetGroupQueryDTO;
 import com.gem.loganalysis.model.entity.Asset;
 import com.gem.loganalysis.model.entity.AssetGroup;
+import com.gem.loganalysis.model.vo.asset.AssetGroupRespVO;
 
 import java.util.List;
 
@@ -30,12 +31,15 @@ public interface IAssetGroupService extends IService<AssetGroup> {
      * @param dto
      * @return
      */
-    Page<AssetGroup> getPageList(PageRequest<AssetGroupQueryDTO> dto);
+    Page<AssetGroupRespVO> getPageList(PageRequest<AssetGroupQueryDTO> dto);
 
     /**
      * 资产分组列表
      * @param dto
      * @return
      */
-    List<AssetGroup> getList(AssetGroupQueryDTO dto);
+    List<AssetGroupRespVO> getList(AssetGroupQueryDTO dto);
+
+
+    AssetGroupRespVO getAssetGroup(String id);
 }

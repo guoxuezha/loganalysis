@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gem.loganalysis.convert.AssetConvert;
 import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.Result;
+import com.gem.loganalysis.model.dto.GetDTO;
 import com.gem.loganalysis.model.dto.asset.AssetDTO;
 import com.gem.loganalysis.model.dto.asset.AssetGroupDTO;
 import com.gem.loganalysis.model.dto.asset.AssetGroupQueryDTO;
@@ -15,6 +16,7 @@ import com.gem.loganalysis.model.dto.query.LambdaQueryWrapperX;
 import com.gem.loganalysis.model.entity.Asset;
 import com.gem.loganalysis.model.entity.AssetGroup;
 import com.gem.loganalysis.model.vo.asset.AssetGroupRespVO;
+import com.gem.loganalysis.model.vo.asset.AssetRespVO;
 import com.gem.loganalysis.service.IAssetGroupService;
 import com.gem.loganalysis.service.IAssetService;
 import io.swagger.annotations.Api;
@@ -43,13 +45,13 @@ public class AssetGroupController {
     @PostMapping("/list")
     @ApiOperation("资产分组列表")
     public Result<List<AssetGroupRespVO>> list(@RequestBody AssetGroupQueryDTO dto) {
-        return Result.ok(AssetConvert.INSTANCE.convertList(assetGroupService.getList(dto)));
+        return Result.ok(assetGroupService.getList(dto));
     }
 
     @PostMapping("/pageList")
     @ApiOperation("资产分组分页")
     public Result<Page<AssetGroupRespVO>> pageList(@RequestBody PageRequest<AssetGroupQueryDTO> dto) {
-        return Result.ok(AssetConvert.INSTANCE.convertPage04(assetGroupService.getPageList(dto)));
+        return Result.ok(assetGroupService.getPageList(dto));
     }
 
     @PostMapping("/edit")
@@ -58,16 +60,26 @@ public class AssetGroupController {
         return assetGroupService.editGroup(dto);
     }
 
+    @PostMapping("/get")
+    @ApiOperation("根据ID获得单一资产分组信息")
+    public Result<AssetGroupRespVO> getAssetGroup(@RequestBody GetDTO dto) {
+        if(dto.getId()==null||dto.getId().trim().equals("")){
+            return Result.failed("请传入资产分组ID");
+        }
+        return Result.ok(assetGroupService.getAssetGroup(dto.getId()));
+    }
+
+
     @PostMapping("/orgList")
     @ApiOperation("部门列表(之后是金总提供的用户部门里的那一套，先用着这个)")
     public Result<Object> getOrgList() {
         List<Map<String,Object>> orgList = new ArrayList<>();
         Map<String,Object> map = new HashMap<>();
-        map.put("label","信息网络部");
+        map.put("label","资产管理部");
         map.put("value",1);
         orgList.add(map);
         map = new HashMap<>();
-        map.put("label","互联网部");
+        map.put("label","客户运营部");
         map.put("value",2);
         orgList.add(map);
         map = new HashMap<>();

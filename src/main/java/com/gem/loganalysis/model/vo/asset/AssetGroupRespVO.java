@@ -16,6 +16,9 @@ public class AssetGroupRespVO {
     @ApiModelProperty(value = "资产所属组织（部门）")
     private String assetOrg;
 
+    @ApiModelProperty(value = "资产所属组织（部门）名称")
+    private String assetOrgName;
+
     @ApiModelProperty(value = "资产分组编码")
     private String groupId;
 

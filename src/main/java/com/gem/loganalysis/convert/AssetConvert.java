@@ -28,6 +28,8 @@ public interface AssetConvert {
 
     Page<AssetRespVO> convertPage(Page<Asset> page);
 
+    AssetRespVO convert(Asset page);
+    AssetGroupRespVO convert(AssetGroup page);
 
 
     //逻辑资产扫描

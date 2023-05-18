@@ -22,8 +22,14 @@ public class AssetRespVO {
     @ApiModelProperty(value = "资产分类，物理资产/逻辑资产")
     private String assetClass;
 
+    @ApiModelProperty(value = "资产分类(名称)")
+    private String assetClassName;
+
     @ApiModelProperty(value = "资产类型，服务器/路由器/交换机/防火墙或者数据库/中间件/网络应用/域名等")
     private String assetType;
+
+    @ApiModelProperty(value = "资产类型(名称)")
+    private String assetTypeName;
 
     @ApiModelProperty(value = "资产描述")
     private String assetDesc;
@@ -64,17 +70,26 @@ public class AssetRespVO {
     @ApiModelProperty(value = "资产所属组织（部门）")
     private String assetOrg;
 
+    @ApiModelProperty(value = "资产所属组织（部门）名称")
+    private String assetOrgName;
+
     @ApiModelProperty(value = "资产管理人")
     private String assetManager;
 
     @ApiModelProperty(value = "资产分组")
     private String assetGroupId;
 
+    @ApiModelProperty(value = "资产分组名称")
+    private String assetGroupName;
+
     @ApiModelProperty(value = "资产标签")
     private String assetTag;
 
     @ApiModelProperty(value = "资产状态（0在役/1退役/2在线/3离线）")
     private String assetStatus;
+
+    @ApiModelProperty(value = "资产状态（0在役/1退役/2在线/3离线）")
+    private String assetStatusName;
 
     @ApiModelProperty(value = "创建时间")
     private String createTime;
@@ -87,5 +102,11 @@ public class AssetRespVO {
 
     @ApiModelProperty(value = "更新人")
     private String updateBy;
+
+    @ApiModelProperty(value = "资产安全状态（0危险/1告警/2正常/3离线）")
+    private String assetSecurityStatus;
+
+    @ApiModelProperty(value = "资产安全状态(名称)")
+    private String assetSecurityStatusName;
 
 }

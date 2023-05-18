@@ -8,6 +8,9 @@ import com.gem.loganalysis.service.IDictDataService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -25,6 +28,28 @@ public class DictDataServiceImpl extends ServiceImpl<DictDataMapper, DictData> i
     private DictDataMapper dictDataMapper;
 
 
+    @Override
+    //TODO 放入缓存 避免重复加载
+    public Map<String, List<DictData>> getDictDataMap() {
+        List<DictData> list = this.list();
+        return list.stream().collect(Collectors.groupingBy(DictData::getDictType));
+    }
 
-
+    @Override
+    public String getDictData(String dictType, String value) {
+        if(value==null||value.trim().equals("")){
+            return "";
+        }
+        Map<String, List<DictData>> dictDataMap = getDictDataMap();
+        List<DictData> dictData = dictDataMap.get(dictType);
+        if(dictData==null){
+            return "";
+        }
+        List<DictData> collect = dictData.stream().filter(e -> e.getValue().equals(value)).collect(Collectors.toList());
+        if(collect.size()>0){
+            return collect.get(0).getLabel();
+        }else{
+            return "";
+        }
+    }
 }

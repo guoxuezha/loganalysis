@@ -4,6 +4,7 @@ import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gem.loganalysis.convert.AssetConvert;
+import com.gem.loganalysis.enmu.DictType;
 import com.gem.loganalysis.mapper.AssetMapper;
 import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.Result;
@@ -11,7 +12,11 @@ import com.gem.loganalysis.model.dto.asset.AssetDTO;
 import com.gem.loganalysis.model.dto.asset.AssetQueryDTO;
 import com.gem.loganalysis.model.dto.query.LambdaQueryWrapperX;
 import com.gem.loganalysis.model.entity.Asset;
+import com.gem.loganalysis.model.entity.AssetGroup;
+import com.gem.loganalysis.model.vo.asset.AssetRespVO;
+import com.gem.loganalysis.service.IAssetGroupService;
 import com.gem.loganalysis.service.IAssetService;
+import com.gem.loganalysis.service.IDictDataService;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -30,6 +35,10 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
 
     @Resource
     private AssetMapper assetMapper;
+    @Resource
+    private IDictDataService dictDataService;
+    @Resource
+    private IAssetGroupService assetGroupService;
 
     @Override
     public Result<String> editAsset(AssetDTO dto) {
@@ -44,7 +53,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     }
 
     @Override
-    public Page<Asset> getPageList(PageRequest<AssetQueryDTO> dto) {
+    public Page<AssetRespVO> getPageList(PageRequest<AssetQueryDTO> dto) {
         Page<Asset> page = new Page<>(dto.getPageNum(), dto.getPageSize());
         AssetQueryDTO data = dto.getData();
         LambdaQueryWrapperX<Asset> wrapper = new LambdaQueryWrapperX<Asset>()
@@ -57,6 +66,37 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 .eqIfPresent(Asset::getAssetOrg, data.getAssetOrg())
                 .eqIfPresent(Asset::getAssetStatus, data.getAssetStatus())
                 .orderByDesc(Asset::getUpdateTime);
-        return this.page(page, wrapper);
+        Page<Asset> resp = this.page(page, wrapper);
+        Page<AssetRespVO> assetRespVOPage = AssetConvert.INSTANCE.convertPage(resp);
+        //转义
+        assetRespVOPage.getRecords().forEach(e->{
+            //TODO 资产的安全状态目前先全部放安全，等待之后风险部分完成再放入
+            e.setAssetSecurityStatus("2");
+            changeAssetName(e);
+        });
+        return assetRespVOPage;
+    }
+
+    @Override
+    public AssetRespVO getAsset(String id) {
+        Asset asset = this.getById(id);
+        AssetRespVO convert = AssetConvert.INSTANCE.convert(asset);
+        return changeAssetName(convert);
+    }
+
+    private AssetRespVO changeAssetName(AssetRespVO respVO){
+        respVO.setAssetClassName(dictDataService.getDictData(DictType.ASSET_CLASS.getType(),respVO.getAssetClass()));
+        respVO.setAssetStatusName(dictDataService.getDictData(DictType.ASSET_STATUS.getType(),respVO.getAssetStatus()));
+        if(respVO.getAssetType().equals("0")){//逻辑资产
+            respVO.setAssetTypeName(dictDataService.getDictData(DictType.LOGICAL_ASSET_TYPE.getType(),respVO.getAssetType()));
+        }
+        if(respVO.getAssetType().equals("0")){//物理资产
+            respVO.setAssetTypeName(dictDataService.getDictData(DictType.PHYSICAL_ASSET_TYPE.getType(),respVO.getAssetType()));
+        }
+        respVO.setAssetSecurityStatusName(dictDataService.getDictData(DictType.PHYSICAL_ASSET_STATUS.getType(),respVO.getAssetSecurityStatus()));
+        AssetGroup assetGroup = assetGroupService.getById(respVO.getAssetGroupId());
+        respVO.setAssetGroupName(assetGroup==null?"":assetGroup.getGroupName());
+        respVO.setAssetOrgName("资产管理部");//TODO 融入组织框架后放组织
+        return respVO;
     }
 }
