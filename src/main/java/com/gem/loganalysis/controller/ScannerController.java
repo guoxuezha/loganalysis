@@ -6,6 +6,7 @@ import com.gem.loganalysis.convert.AssetConvert;
 import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.Result;
 import com.gem.loganalysis.model.dto.GetDTO;
+import com.gem.loganalysis.model.dto.IpDTO;
 import com.gem.loganalysis.model.dto.IpSectionDTO;
 import com.gem.loganalysis.model.dto.asset.*;
 import com.gem.loganalysis.model.entity.Asset;
@@ -62,15 +63,39 @@ public class ScannerController {
         return Result.ok("扫描成功");
     }
 
+    @PostMapping("/scannerIpPort")
+    @ApiOperation("IP端口扫描，需提供单个IP")
+    public Result<String> scannerPort(@Valid @RequestBody IpDTO dto) {
+        String regex = "^([1-9]|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])(\\.(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])){3}$";
+        if(!Pattern.matches(regex,dto.getIp())){
+            //效验IP地址格式是否正确
+            return Result.failed("请输入正确的IP格式");
+        }
+        //TODO 改成异步 先返回扫描成功再开启扫描
+        Scanner.start(dto.getIp(),"1-65535",DateUtil.format(new Date(),"yyyyMMddHHmmss"));
+        return Result.ok("扫描成功");
+    }
+
     @PostMapping("/scannerIpSection")
     @ApiOperation("IP区段扫描")
     public Result<String> scannerIpSection(@Valid @RequestBody IpSectionDTO dto) {
-        OrgVlan orgVlan = orgVlanService.getById(dto.getOrgId());
-        if(orgVlan==null){
-            return Result.failed("该资产组织机构的Vlan配置不存在");
+        String regex = "^([1-9]|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])(\\.(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])){3}$";
+        List<VlanDTO> vlanList = dto.getVlanList();
+        if(vlanList.size()==0){
+            return Result.failed("IP区段不能为空");
+        }
+        for (VlanDTO vlanDTO : vlanList) {
+            if(!Pattern.matches(regex,vlanDTO.getBeginIp())){
+                //效验IP地址格式是否正确
+                return Result.failed("请输入正确的IP格式");
+            }
+            if(!Pattern.matches(regex,vlanDTO.getEndIp())){
+                //效验IP地址格式是否正确
+                return Result.failed("请输入正确的IP格式");
+            }
         }
         //TODO 改成异步 先返回扫描成功再开启扫描
-        IpScanner.scannerIpSection(orgVlan,DateUtil.format(new Date(),"yyyyMMddHHmmss"));
+        IpScanner.scannerIpSection(dto.getVlanList(),DateUtil.format(new Date(),"yyyyMMddHHmmss"));
         return Result.ok("扫描成功");
     }
 

@@ -50,9 +50,8 @@ public class IpScanner {
     /**
      * IP区段扫描
      */
-    public static void scannerIpSection(OrgVlan orgVlan, String scanTime){
-        List<VlanDTO> vlanDTOS = JsonUtils.parseArray(orgVlan.getVlan(), VlanDTO.class);
-        vlanDTOS.forEach(e->{
+    public static void scannerIpSection(List<VlanDTO> vlanList, String scanTime){
+        vlanList.forEach(e->{
             String ipBefore = StringUtils.substringBeforeLast(e.getBeginIp(), ".");
             String begin = StringUtils.substringAfterLast(e.getBeginIp(), ".");
             String end = StringUtils.substringAfterLast(e.getEndIp(), ".");

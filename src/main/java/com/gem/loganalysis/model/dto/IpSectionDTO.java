@@ -1,9 +1,11 @@
 package com.gem.loganalysis.model.dto;
 
+import com.gem.loganalysis.model.dto.asset.VlanDTO;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * @author GuoChao
@@ -13,8 +15,8 @@ import javax.validation.constraints.NotNull;
 @Data
 public class IpSectionDTO {
 
-    @ApiModelProperty(value = "资产所属组织(部门)",required = true)
-    @NotNull(message = "请传入资产所属组织ID")
-    private String orgId;
+    @ApiModelProperty(value = "IP区段",required = true)
+    @NotNull(message = "IP区段不能为空")
+    private List<VlanDTO> vlanList;
 
 }
