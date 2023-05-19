@@ -30,7 +30,6 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -48,7 +47,7 @@ public class LogAnalysisRuleBo {
     /**
      * 存放归并后的日志记录
      */
-    private final ConcurrentHashMap<String, MergeLog> cacheMap;
+    private final Cache<String, MergeLog> cacheMap;
 
     /**
      * 归并前的日志记录
@@ -84,7 +83,6 @@ public class LogAnalysisRuleBo {
     @Getter
     @Setter
     private BlockFile blockFile;
-
 
     @Getter
     @Setter
@@ -147,7 +145,7 @@ public class LogAnalysisRuleBo {
         this.ruleRelaId = (String) ruleMap.get("RULE_RELA_ID");
 
         this.queue = new LinkedBlockingQueue<>();
-        this.cacheMap = new ConcurrentHashMap<>();
+        this.cacheMap = Caffeine.newBuilder().maximumSize(1000).build();
         this.logCount = Caffeine.newBuilder().maximumSize(10000).build();
         this.logEventState = Caffeine.newBuilder().maximumSize(10000).build();
         this.nextMergeWindowStartTime = new Date();
@@ -252,7 +250,7 @@ public class LogAnalysisRuleBo {
     }
 
     public String getCacheInfo() {
-        return String.format("enable : %s, CACHE COUNT: %d, CACHE LENGTH: %d Byte, queue.size: %d, logCount.size: %d", enable, cacheMap.mappingCount(), ObjectSizeCalculator.getObjectSize(cacheMap), queue.size(), logCount.estimatedSize());
+        return String.format("enable : %s, CACHE COUNT: %d, CACHE LENGTH: %d Byte, queue.size: %d, logCount.size: %d", enable, cacheMap.estimatedSize(), ObjectSizeCalculator.getObjectSize(cacheMap), queue.size(), logCount.estimatedSize());
     }
 
     /**
@@ -276,10 +274,11 @@ public class LogAnalysisRuleBo {
         mergeLog.setUnionKey(unionKeyStr);
 
         // 判断该日志是否需要作为当前归并周期的第一条生成logId
-        if (cacheMap.get(unionKeyStr) == null) {
+        MergeLog ifPresent = cacheMap.getIfPresent(unionKeyStr);
+        if (ifPresent == null) {
             mergeLog.generateLogId();
         } else {
-            mergeLog.setLogId(cacheMap.get(unionKeyStr).getLogId());
+            mergeLog.setLogId(ifPresent.getLogId());
         }
 
         queue.add(mergeLog.toSimpleQueueMessageInfo());
@@ -301,8 +300,12 @@ public class LogAnalysisRuleBo {
         MergeLog eventStartLog = null;
         String sourceIp = null;
         synchronized (cacheMap) {
-            cacheMap.putIfAbsent(unionKey, mergeLog);
-            cacheMap.get(unionKey).getMergeCount().getAndIncrement();
+            cacheMap.put(unionKey, mergeLog);
+            MergeLog ifPresent = cacheMap.getIfPresent(unionKey);
+            if (ifPresent == null) {
+                return;
+            }
+            Objects.requireNonNull(ifPresent).getMergeCount().getAndIncrement();
             AtomicInteger atomicInteger = logCount.getIfPresent(unionKey);
             if (logCount.getIfPresent(unionKey) == null) {
                 logCount.put(unionKey, new AtomicInteger(0));
@@ -321,10 +324,10 @@ public class LogAnalysisRuleBo {
                 }
             }
             if (logEventState.getIfPresent(unionKey) == null && atomicInteger.get() > eventThreshold) {
-                logEventState.put(unionKey, cacheMap.get(unionKey).getLogId());
-                JSONObject jsonObject = JSONUtil.parseObj(cacheMap.get(unionKey).getMessage());
+                logEventState.put(unionKey, ifPresent.getLogId());
+                JSONObject jsonObject = JSONUtil.parseObj(ifPresent.getMessage());
                 log.info("{} 触发事件, unionKey = {}, 应执行封堵的IP为: {}", ruleRelaId, unionKey, jsonObject.get(eventKeyWord));
-                eventStartLog = cacheMap.get(unionKey);
+                eventStartLog = ifPresent;
                 sourceIp = String.valueOf(jsonObject.get(eventKeyWord));
             }
         }
@@ -402,9 +405,9 @@ public class LogAnalysisRuleBo {
             HashMap<String, Object> cacheData;
             synchronized (cacheMap) {
                 long start = DateUtil.current();
-                cacheData = new HashMap<>(cacheMap.size());
-                cacheData.putAll(cacheMap);
-                cacheMap.clear();
+                cacheData = new HashMap<>((int) cacheMap.estimatedSize());
+                cacheData.putAll(cacheMap.asMap());
+                cacheMap.cleanUp();
                 log.info("{}: 周期滚动, Cache Flush 用时: {}, cacheData.size = {}", ruleRelaId, DateUtil.current() - start, cacheData.size());
             }
             // 执行入库
