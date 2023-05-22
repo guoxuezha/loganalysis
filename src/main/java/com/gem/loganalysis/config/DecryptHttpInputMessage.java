@@ -4,7 +4,7 @@ package com.gem.loganalysis.config;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.gem.utils.crypto.AES;
+import com.gem.loganalysis.util.AESUtil;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpInputMessage;
 
@@ -33,7 +33,7 @@ public class DecryptHttpInputMessage implements HttpInputMessage {
     public InputStream getBody() throws IOException {
         String content = IoUtil.read(inputMessage.getBody(), Charset.defaultCharset());
         String param = new JSONObject(content).getStr("param");
-        return new ByteArrayInputStream(JSONUtil.toJsonStr(AES.decryptAES(param, AESKey)).getBytes());
+        return new ByteArrayInputStream(JSONUtil.toJsonStr(AESUtil.aesDecrypt(param, AESKey)).getBytes());
     }
 
     @Override

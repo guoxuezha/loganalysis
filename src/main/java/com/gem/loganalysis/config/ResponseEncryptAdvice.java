@@ -1,7 +1,7 @@
 package com.gem.loganalysis.config;
 
 import cn.hutool.json.JSONUtil;
-import com.gem.utils.crypto.AES;
+import com.gem.loganalysis.util.AESUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
@@ -34,7 +34,7 @@ public class ResponseEncryptAdvice implements ResponseBodyAdvice {
     @Override
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType, Class selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
         HashMap<String, String> newResponse = new HashMap<>(2);
-        newResponse.put("response", AES.encryptAES(JSONUtil.toJsonStr(body), AESKey));
+        newResponse.put("response", AESUtil.aesEncrypt(JSONUtil.toJsonStr(body), AESKey));
         return newResponse;
     }
 
