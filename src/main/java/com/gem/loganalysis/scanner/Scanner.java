@@ -20,9 +20,10 @@ public class Scanner {
     public static final int cpuCores = Runtime.getRuntime().availableProcessors();
     // 日志
     private static Logger logger = Logger.getLogger("Scanner");
+
     // 使用多线程扫描
-    private static ThreadPoolExecutor poolExecutor = new ThreadPoolExecutor(2*cpuCores
-            ,25*cpuCores,10,
+    private static ThreadPoolExecutor poolExecutor = new ThreadPoolExecutor(20*cpuCores
+            ,40*cpuCores,1000,
             TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(),
             Executors.defaultThreadFactory(),new ThreadPoolExecutor.AbortPolicy());
 
@@ -73,9 +74,16 @@ public class Scanner {
      * @param portStart 开始扫描的的端口
      * @param portEnd 停止扫描的端口
      */
-    public static void scanAllPort(String ip, int portStart, int portEnd,String scanTime){
+    public static void scanAllPort(String ip, int portStart, int portEnd,String scanTime)  {
         for (int port = portStart; port <= portEnd; port++){
             scan(ip,port,scanTime);
+            if(poolExecutor.getQueue().size()>2000){
+                try {
+                    Thread.sleep(5*1000);//防止阻塞队列过长内存溢出，限制开启的速率
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -85,7 +93,6 @@ public class Scanner {
      * @param port 端口
      */
     public static void scan(String ip, int port,String scanTime){
-
         // 执行扫描任务
         poolExecutor.execute(new ScanJob(new ScanObject(ip,port),ScanEngine.TCP_FULL_CONNECT_SCAN,scanTime));
 
