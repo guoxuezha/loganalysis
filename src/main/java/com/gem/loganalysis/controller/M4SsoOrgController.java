@@ -71,7 +71,7 @@ public class M4SsoOrgController {
 
     @PostMapping("/delete")
     @ApiOperation("删除组织机构")
-    public Result<String> editOrg(@Valid @RequestBody DeleteDTO dto) {
+    public Result<String> deleteOrg(@Valid @RequestBody DeleteDTO dto) {
         if(StringUtils.isBlank(dto.getId())){
             return Result.failed("请传入需要删除的组织机构的ID");
         }

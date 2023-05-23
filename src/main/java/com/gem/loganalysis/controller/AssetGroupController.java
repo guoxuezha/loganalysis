@@ -3,6 +3,7 @@ package com.gem.loganalysis.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.Result;
+import com.gem.loganalysis.model.dto.DeleteDTO;
 import com.gem.loganalysis.model.dto.GetDTO;
 import com.gem.loganalysis.model.dto.asset.AssetGroupDTO;
 import com.gem.loganalysis.model.dto.asset.AssetGroupQueryDTO;
@@ -10,6 +11,7 @@ import com.gem.loganalysis.model.vo.asset.AssetGroupRespVO;
 import com.gem.loganalysis.service.IAssetGroupService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -56,6 +59,35 @@ public class AssetGroupController {
             return Result.failed("请传入资产分组ID");
         }
         return Result.ok(assetGroupService.getAssetGroup(dto.getId()));
+    }
+
+    @PostMapping("/delete")
+    @ApiOperation("删除资产分组")
+    public Result<String> deleteGroup(@Valid @RequestBody DeleteDTO dto) {
+        if(StringUtils.isBlank(dto.getId())){
+            return Result.failed("请传入需要删除的资产组织ID");
+        }
+        return assetGroupService.removeById(dto.getId()) ? Result.ok("删除成功!") : Result.failed("删除失败!");
+    }
+
+
+    @PostMapping("/orgList")
+    @ApiOperation("部门列表(之后是金总提供的用户部门里的那一套，先用着这个)")
+    public Result<Object> getOrgList() {
+        List<Map<String, Object>> orgList = new ArrayList<>();
+        Map<String, Object> map = new HashMap<>();
+        map.put("label", "资产管理部");
+        map.put("value", 1);
+        orgList.add(map);
+        map = new HashMap<>();
+        map.put("label", "客户运营部");
+        map.put("value", 2);
+        orgList.add(map);
+        map = new HashMap<>();
+        map.put("label", "市场部");
+        map.put("value", 3);
+        orgList.add(map);
+        return Result.ok(orgList);
     }
 
 
