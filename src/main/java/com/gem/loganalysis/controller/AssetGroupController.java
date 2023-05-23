@@ -59,24 +59,4 @@ public class AssetGroupController {
     }
 
 
-    @PostMapping("/orgList")
-    @ApiOperation("部门列表(之后是金总提供的用户部门里的那一套，先用着这个)")
-    public Result<Object> getOrgList() {
-        List<Map<String, Object>> orgList = new ArrayList<>();
-        Map<String, Object> map = new HashMap<>();
-        map.put("label", "资产管理部");
-        map.put("value", 1);
-        orgList.add(map);
-        map = new HashMap<>();
-        map.put("label", "客户运营部");
-        map.put("value", 2);
-        orgList.add(map);
-        map = new HashMap<>();
-        map.put("label", "市场部");
-        map.put("value", 3);
-        orgList.add(map);
-        return Result.ok(orgList);
-    }
-
-
 }
