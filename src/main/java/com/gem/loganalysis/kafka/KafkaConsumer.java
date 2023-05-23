@@ -38,7 +38,7 @@ public class KafkaConsumer {
     @Resource
     private LogAnalysisRulePool logAnalysisRulePool;
 
-    @KafkaListener(topics = {"logrepo6"})
+    @KafkaListener(topics = {"logRepo"})
     void onMessage1(String record) {
         if (businessConfigInfo.getLogMonitorEnable()) {
             List<MergeLog> messageList = convertLogFormat(record);

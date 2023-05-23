@@ -30,5 +30,51 @@ spring:
           url: jdbc:mysql://localhost:3306/${spring.datasource.dynamic.datasource.master.name}?characterEncoding=utf8&nullCatalogMeansCurrent=true&useSSL=false&useUnicode=true&0=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Shanghai
           username: root
           password: MySqlPassword!!
+  kafka:
+    ###########【Kafka集群地址】###########
+    bootstrap-servers: 123.60.214.137:9092
 
+    ###########【初始化生产者配置】###########
+    producer:
+      retries: 0
+      acks: 1
+      # 当生产端积累的消息达到batch-size或接收到消息linger.ms后,生产者就会将消息提交给kafka
+      batch-size: 16384
+      properties:
+        linger:
+          ms: 0
+          # 自定义分区器
+          #partitioner:
+          #class: com.felix.kafka.producer.CustomizePartitioner
+      buffer-memory: 33554432
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+    ###########【初始化消费者配置】###########
+    # 消费端监听的topic不存在时，项目启动会报错(关掉)
+    listener:
+      missing-topics-fatal: false
+      # 设置批量消费
+      type: batch
+
+    consumer:
+      properties:
+        # 默认的消费组ID
+        group:
+          id: defaultConsumerGroup
+        # 消费会话超时时间(超过这个时间consumer没有发送心跳,就会触发rebalance操作)
+        session:
+          timeout:
+            ms: 120000
+        # 消费请求超时时间
+        request:
+          timeout:
+            ms: 120000
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      # 是否自动提交offset
+      enable-auto-commit: true
+      auto-offset-reset: latest
+      # 批量消费每次最多消费多少条消息
+      max-poll-records: 500
 

@@ -2,4 +2,24 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.gem.loganalysis.mapper.AssetEventMapper">
 
+    <select id="getOverviewInfo" parameterType="java.lang.String"
+            resultType="com.gem.loganalysis.model.vo.RiskOverviewRecordVO">
+        SELECT a.ASSET_ID,
+               c.ASSET_NAME,
+               c.IP_ADDRESS,
+               a.SCAN_TIME,
+               a.HANDLE_STATUS,
+               b.EVENT_ORIGIN,
+               b.ORIGIN_ID,
+               b.EVENT_TYPE,
+               b.EVENT_CLASS,
+               b.SOURCE_IP,
+               b.BEGIN_TIME,
+               b.END_TIME,
+               b.EVENT_MESSAGE
+        FROM sop_asset_risk a
+                 LEFT JOIN sop_asset_event b ON a.REF_EVENT_ID = b.EVENT_ID
+                 LEFT JOIN sop_asset c on a.ASSET_ID = c.ASSET_ID
+        WHERE b.BEGIN_TIME BETWEEN #{startTime, jdbcType=VARCHAR} AND #{endTime, jdbcType=VARCHAR}
+    </select>
 </mapper>

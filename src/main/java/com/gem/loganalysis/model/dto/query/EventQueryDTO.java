@@ -16,6 +16,11 @@ public class EventQueryDTO {
     private String assetId;
 
     /**
+     * 事件处置状态
+     */
+    private Integer handleStatus;
+
+    /**
      * 事件起源类型
      */
     private Integer eventOrigin;

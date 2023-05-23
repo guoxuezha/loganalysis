@@ -57,4 +57,8 @@ public class LogAnalysisRuleRelaDTO {
      */
     private String eventKeyword;
 
+    private String eventTypeItem;
+
+    private String eventClassItem;
+
 }

@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.dto.query.BlockRecordQueryDTO;
-import com.gem.loganalysis.model.entity.BlockOffRule;
+import com.gem.loganalysis.model.entity.BlockRule;
 
 /**
  * 封堵规则 服务类
@@ -12,7 +12,7 @@ import com.gem.loganalysis.model.entity.BlockOffRule;
  * @author GuoChao
  * @since 2023-05-03
  */
-public interface IBlockOffRuleService extends IService<BlockOffRule> {
+public interface IBlockRuleService extends IService<BlockRule> {
 
     IPage<Object> blockOffRecords(PageRequest<BlockRecordQueryDTO> dto);
 }

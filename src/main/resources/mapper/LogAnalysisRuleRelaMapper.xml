@@ -109,6 +109,8 @@
         b.EVENT_WINDOW_TIME,
         b.EVENT_THRESHOLD,
         b.EVENT_KEYWORD,
+        b.EVENT_TYPE_ITEM,
+        b.EVENT_CLASS_ITEM,
         c.RULE_TYPE,
         d.JAR_NAME,
         d.VERSION,

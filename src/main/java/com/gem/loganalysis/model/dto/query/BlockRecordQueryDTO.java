@@ -11,9 +11,24 @@ import lombok.Data;
 public class BlockRecordQueryDTO {
 
     /**
-     * 安全设备ID
+     * 记录类型(1封堵/2解封)
      */
-    private Integer equipId;
+    private Integer recordType;
+
+    /**
+     * 资产ID
+     */
+    private Integer assetId;
+
+    /**
+     * 封堵类型（0临时封堵/1永久封堵）
+     */
+    private Integer blockType;
+
+    /**
+     * 封堵模式（0自动/1手动）
+     */
+    private Integer blockMode;
 
     /**
      * 被封堵的IP地址
@@ -21,13 +36,13 @@ public class BlockRecordQueryDTO {
     private String blockOffIp;
 
     /**
-     * 封堵开始时间
+     * 开始时间
      */
-    private String blockStartTime;
+    private String startTime;
 
     /**
-     * 封堵结束时间
+     * 结束时间
      */
-    private String blockEndTime;
+    private String endTime;
 
 }

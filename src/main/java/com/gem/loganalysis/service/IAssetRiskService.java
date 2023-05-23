@@ -2,18 +2,18 @@ package com.gem.loganalysis.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.gem.loganalysis.model.dto.query.RiskOverviewQueryDTO;
-import com.gem.loganalysis.model.entity.AssetEvent;
+import com.gem.loganalysis.model.entity.AssetRisk;
 import com.gem.loganalysis.model.vo.RiskOverviewVO;
 
 /**
  * <p>
- * 资产事件记录 服务类
+ * 资产风险记录 服务类
  * </p>
  *
  * @author GuoChao
- * @since 2023-05-10
+ * @since 2023-05-23
  */
-public interface IAssetEventService extends IService<AssetEvent> {
+public interface IAssetRiskService extends IService<AssetRisk> {
 
     /**
      * 查询风险概览信息
@@ -22,4 +22,5 @@ public interface IAssetEventService extends IService<AssetEvent> {
      * @return 响应
      */
     RiskOverviewVO geOverviewInfo(RiskOverviewQueryDTO dto);
+
 }

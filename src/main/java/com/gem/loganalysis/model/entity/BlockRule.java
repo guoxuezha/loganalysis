@@ -1,10 +1,10 @@
 package com.gem.loganalysis.model.entity;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.gem.loganalysis.model.dto.edit.BlockRuleDTO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -23,45 +23,46 @@ import java.io.Serializable;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @NoArgsConstructor
-public class BlockOffRule implements Serializable {
+@TableName("sop_block_rule")
+public class BlockRule implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     /**
      * 封堵规则ID
      */
-    @TableId(value = "BLOCK_OFF_RULE_ID", type = IdType.AUTO)
-    private Integer blockOffRuleId;
+    @TableId(value = "BLOCK_RULE_ID", type = IdType.AUTO)
+    private Integer blockRuleId;
 
     /**
-     * 设备唯一编码
+     * 封堵规则描述
      */
-    @TableField("EQUIP_ID")
-    private Integer equipId;
+    @TableField("BLOCK_RULE_DESC")
+    private String blockRuleDesc;
 
     /**
-     * 日志级别
+     * 封堵类型（0临时封堵/1永久封堵）
      */
-    @TableField("SEVERITY")
-    private String severity;
+    @TableField("BLOCK_TYPE")
+    private String blockType;
 
     /**
-     * 日志生产子系统
+     * 临时封堵时长（分钟）
      */
-    @TableField("FACILITY")
-    private String facility;
+    @TableField("BLOCK_DURATION")
+    private String blockDuration;
 
     /**
-     * 来源IP字段名
+     * 启用白名单（0否1是）
      */
-    @TableField("IP_ITEM_NAME")
-    private String ipItemName;
+    @TableField("WHITE_LIST_ENABLE")
+    private String whiteListEnable;
 
     /**
-     * 封堵时长(秒)
+     * 启用黑名单（0否1是）
      */
-    @TableField("BLOCK_OFF_TIME")
-    private Long blockOffTime;
+    @TableField("BLACK_LIST_ENABLE")
+    private Long blackListEnable;
 
     /**
      * 创建时间
@@ -93,10 +94,8 @@ public class BlockOffRule implements Serializable {
     @TableField("DELETE_STATE")
     private Integer deleteState;
 
-    public BlockOffRule(BlockRuleDTO dto) {
+    public BlockRule(BlockRuleDTO dto) {
         BeanUtil.copyProperties(dto, this);
-        this.createTime = DateUtil.now();
-        this.updateTime = DateUtil.now();
     }
 
 

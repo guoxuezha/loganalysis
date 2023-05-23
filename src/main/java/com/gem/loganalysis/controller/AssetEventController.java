@@ -7,6 +7,7 @@ import com.gem.loganalysis.model.dto.GetDTO;
 import com.gem.loganalysis.model.dto.query.EventQueryDTO;
 import com.gem.loganalysis.model.dto.query.LambdaQueryWrapperX;
 import com.gem.loganalysis.model.dto.query.LogContentQueryDTO;
+import com.gem.loganalysis.model.dto.query.RiskOverviewQueryDTO;
 import com.gem.loganalysis.model.entity.AssetEvent;
 import com.gem.loganalysis.model.entity.AssetMergeLog;
 import com.gem.loganalysis.service.IAssetEventService;
@@ -31,9 +32,20 @@ import java.util.List;
 @Slf4j
 public class AssetEventController {
 
-    private IAssetEventService iAssetEventService;
+    private final IAssetEventService iAssetEventService;
 
-    private IAssetMergeLogService iAssetMergeLogService;
+    private final IAssetMergeLogService iAssetMergeLogService;
+
+    /**
+     * 总览
+     *
+     * @param dto 查询参数
+     * @return 返回对象
+     */
+    @PostMapping("/overview")
+    public Result<Object> overview(@RequestBody RiskOverviewQueryDTO dto) {
+        return Result.ok(iAssetEventService.geOverviewInfo(dto));
+    }
 
     /**
      * 条件分页查询事件
@@ -47,6 +59,7 @@ public class AssetEventController {
         EventQueryDTO data = dto.getData();
         LambdaQueryWrapperX<AssetEvent> wrapperX = new LambdaQueryWrapperX<>();
         wrapperX.eqIfPresent(AssetEvent::getAssetId, data.getAssetId())
+                .eqIfPresent(AssetEvent::getHandleStatus, data.getHandleStatus())
                 .eqIfPresent(AssetEvent::getEventOrigin, data.getEventOrigin())
                 .eqIfPresent(AssetEvent::getEventType, data.getEventType())
                 .eqIfPresent(AssetEvent::getEventClass, data.getEventClass())

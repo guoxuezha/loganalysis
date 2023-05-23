@@ -2,12 +2,12 @@ package com.gem.loganalysis.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.gem.loganalysis.mapper.BlockOffRecordMapper;
-import com.gem.loganalysis.mapper.BlockOffRuleMapper;
+import com.gem.loganalysis.mapper.BlockRecordMapper;
+import com.gem.loganalysis.mapper.BlockRuleMapper;
 import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.dto.query.BlockRecordQueryDTO;
-import com.gem.loganalysis.model.entity.BlockOffRule;
-import com.gem.loganalysis.service.IBlockOffRuleService;
+import com.gem.loganalysis.model.entity.BlockRule;
+import com.gem.loganalysis.service.IBlockRuleService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -19,10 +19,10 @@ import javax.annotation.Resource;
  * @since 2023-05-03
  */
 @Service
-public class BlockOffRuleServiceImpl extends ServiceImpl<BlockOffRuleMapper, BlockOffRule> implements IBlockOffRuleService {
+public class BlockRuleServiceImpl extends ServiceImpl<BlockRuleMapper, BlockRule> implements IBlockRuleService {
 
     @Resource
-    private BlockOffRecordMapper blockOffRecordMapper;
+    private BlockRecordMapper blockRecordMapper;
 
     @Override
     public IPage<Object> blockOffRecords(PageRequest<BlockRecordQueryDTO> dto) {

@@ -46,5 +46,15 @@ ALTER TABLE `loganalysis`.`sop_log_analysis_rule_rela`
 
 ALTER TABLE `loganalysis`.`sop_white_list`
     MODIFY COLUMN `DELETE_STATE` int NULL DEFAULT 0 COMMENT '删除标记' AFTER `UPDATE_BY`;
+```
 
+### 2023-05-23 郭超
+
+#### 日志解析规则新增字段 - 识别事件类型和级别
+```SQL
+ALTER TABLE `loganalysis`.`sop_log_analysis_rule_rela`
+    ADD COLUMN `EVENT_TYPE_ITEM` varchar(32) NULL COMMENT '事件类型字段' AFTER `EVENT_KEYWORD`;
+
+ALTER TABLE `loganalysis`.`sop_log_analysis_rule_rela`
+    ADD COLUMN `EVENT_CLASS_ITEM` varchar(32) NULL COMMENT '事件级别字段' AFTER `EVENT_TYPE_ITEM`;
 ```

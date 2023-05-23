@@ -14,11 +14,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gem.loganalysis.mapper.AssetEventMapper;
 import com.gem.loganalysis.mapper.AssetMergeLogMapper;
+import com.gem.loganalysis.mapper.AssetRiskMapper;
 import com.gem.loganalysis.mapper.LogAnalysisRuleMapper;
 import com.gem.loganalysis.model.dto.edit.LogAnalysisRuleRelaDTO;
 import com.gem.loganalysis.model.entity.Asset;
 import com.gem.loganalysis.model.entity.AssetEvent;
 import com.gem.loganalysis.model.entity.AssetMergeLog;
+import com.gem.loganalysis.model.entity.AssetRisk;
 import com.gem.loganalysis.model.vo.AssetAnalysisRuleVO;
 import com.gem.loganalysis.util.BlockFileUtil;
 import com.gem.loganalysis.util.SpringContextUtil;
@@ -67,6 +69,7 @@ public class LogAnalysisRuleBo {
      */
     private final Cache<String, String> logEventState;
     private final AssetEventMapper assetEventMapper;
+    private final AssetRiskMapper assetRiskMapper;
     private final AssetMergeLogMapper assetMergeLogMapper;
     private final LogAnalysisRuleMapper logAnalysisRuleMapper;
     /**
@@ -139,6 +142,11 @@ public class LogAnalysisRuleBo {
      * 关注的IP字段名
      */
     private String eventKeyWord;
+
+    private String eventTypeItem;
+
+    private String eventClassItem;
+
     /**
      * 封堵时长
      */
@@ -153,6 +161,7 @@ public class LogAnalysisRuleBo {
         this.logEventState = Caffeine.newBuilder().maximumSize(10000).build();
         this.nextMergeWindowStartTime = new Date();
         this.assetEventMapper = SpringContextUtil.getBean(AssetEventMapper.class);
+        this.assetRiskMapper = SpringContextUtil.getBean(AssetRiskMapper.class);
         this.assetMergeLogMapper = SpringContextUtil.getBean(AssetMergeLogMapper.class);
         this.logAnalysisRuleMapper = SpringContextUtil.getBean(LogAnalysisRuleMapper.class);
 
@@ -184,6 +193,8 @@ public class LogAnalysisRuleBo {
         this.eventWindowTime = (Integer) ruleMap.get("EVENT_WINDOW_TIME");
         this.eventThreshold = (Integer) ruleMap.get("EVENT_THRESHOLD");
         this.eventKeyWord = (String) ruleMap.get("EVENT_KEYWORD");
+        this.eventTypeItem = (String) ruleMap.get("EVENT_TYPE_ITEM");
+        this.eventClassItem = (String) ruleMap.get("EVENT_CLASS_ITEM");
 
         this.ruleType = (Integer) ruleMap.get("RULE_TYPE");
         this.itemSplitSequence = (String) ruleMap.get("ITEM_SPLIT");
@@ -219,6 +230,9 @@ public class LogAnalysisRuleBo {
         this.eventWindowTime = dto.getEventWindowTime();
         this.eventThreshold = dto.getEventThreshold();
         this.eventKeyWord = dto.getEventKeyword();
+        this.eventTypeItem = dto.getEventTypeItem();
+        this.eventClassItem = dto.getEventClassItem();
+
         // 若绑定的解析规则发生了变更,再执行关联修改
         if (!this.analysisRuleId.equals(dto.getAnalysisRuleId())) {
             AssetAnalysisRuleVO analysisRule = logAnalysisRuleMapper.getAnalysisRuleVOById(dto.getAnalysisRuleId());
@@ -300,7 +314,7 @@ public class LogAnalysisRuleBo {
      */
     private void logIncrAndStartEvent(MergeLog mergeLog, String unionKey) {
         MergeLog eventStartLog = null;
-        String sourceIp = null;
+        JSONObject jsonObject = null;
         synchronized (cacheMap) {
             MergeLog mLog = cacheMap.get(unionKey);
             if (mLog == null) {
@@ -327,14 +341,14 @@ public class LogAnalysisRuleBo {
             }
             if (StrUtil.isEmpty(logEventState.getIfPresent(unionKey)) && logCount.getIfPresent(unionKey).get() > eventThreshold) {
                 logEventState.put(unionKey, mLog.getLogId());
-                JSONObject jsonObject = JSONUtil.parseObj(mLog.getMessage());
-                log.info("{} 触发事件, unionKey = {}, 应执行封堵的IP为: {}", ruleRelaId, unionKey, jsonObject.get(eventKeyWord));
+                jsonObject = JSONUtil.parseObj(mLog.getMessage());
+                log.info("{} 触发事件, unionKey = {}, 应执行封堵的IP为: {}, 事件类型为: {}, 事件级别为: {}", ruleRelaId, unionKey,
+                        jsonObject.get(eventKeyWord), jsonObject.get(eventTypeItem), jsonObject.get(eventClassItem));
                 eventStartLog = mLog;
-                sourceIp = String.valueOf(jsonObject.get(eventKeyWord));
             }
         }
         if (eventStartLog != null) {
-            eventStart(eventStartLog, sourceIp);
+            eventStart(eventStartLog, jsonObject);
         }
     }
 
@@ -389,7 +403,9 @@ public class LogAnalysisRuleBo {
             if (between > eventWindowTime) {
                 String unionKey = message.getUnionKey();
                 queue.poll();
-                Objects.requireNonNull(logCount.getIfPresent(unionKey)).getAndDecrement();
+                if (logCount.getIfPresent(unionKey) != null) {
+                    logCount.getIfPresent(unionKey).getAndDecrement();
+                }
             } else {
                 break;
             }
@@ -398,10 +414,10 @@ public class LogAnalysisRuleBo {
         // 再判断是否存在可终止的事件
         for (Map.Entry<String, AtomicInteger> entry : logCount.asMap().entrySet()) {
             String unionKey = entry.getKey();
-            if (logEventState.getIfPresent(unionKey) != null && entry.getValue().get() < eventThreshold) {
+            if (StrUtil.isNotEmpty(logEventState.getIfPresent(unionKey)) && entry.getValue().get() < eventThreshold) {
                 log.info("{} 事件结束, unionKey = {}", ruleRelaId, unionKey);
                 eventEnd(logEventState.getIfPresent(unionKey));
-                logEventState.put(unionKey, null);
+                logEventState.put(unionKey, "");
             }
         }
     }
@@ -415,7 +431,7 @@ public class LogAnalysisRuleBo {
             HashMap<String, Object> cacheData;
             synchronized (cacheMap) {
                 long start = DateUtil.current();
-                cacheData = new HashMap<>((int) cacheMap.size());
+                cacheData = new HashMap<>(cacheMap.size());
                 cacheData.putAll(cacheMap);
                 cacheMap.clear();
                 log.info("{}: 周期滚动, Cache Flush 用时: {}, cacheData.size = {}", ruleRelaId, DateUtil.current() - start, cacheData.size());
@@ -463,12 +479,33 @@ public class LogAnalysisRuleBo {
     /**
      * 事件开始
      *
-     * @param mergeLog 原始日志记录
-     * @param sourceIp 解析到的日志内容中源端IP地址
+     * @param mergeLog   原始日志记录
+     * @param jsonObject 日志内容对象
      */
-    private void eventStart(MergeLog mergeLog, String sourceIp) {
-        AssetEvent assetEvent = AssetEvent.builder().eventId(IdUtil.fastSimpleUUID()).assetId(asset.getAssetId()).eventOrigin(1).originId(mergeLog.getLogId()).eventType(mergeLog.getFacility()).eventClass(mergeLog.getSeverity()).sourceIp(sourceIp).beginTime(DatePattern.PURE_DATETIME_FORMAT.format(new Date())).eventMessage(mergeLog.getMessage()).handleStatus(0).build();
+    private void eventStart(MergeLog mergeLog, JSONObject jsonObject) {
+        String eventId = IdUtil.fastSimpleUUID();
+        AssetEvent assetEvent = AssetEvent.builder()
+                .eventId(eventId)
+                .assetId(asset.getAssetId())
+                .eventOrigin(1)
+                .originId(mergeLog.getLogId())
+                .eventType(jsonObject.get(eventTypeItem) != null ? (String) jsonObject.get(eventTypeItem) : "未定义")
+                .eventClass(jsonObject.get(eventClassItem) != null ? (String) jsonObject.get(eventClassItem) : "未定义")
+                .sourceIp((String) jsonObject.get(eventKeyWord))
+                .beginTime(DatePattern.PURE_DATETIME_FORMAT.format(new Date()))
+                .eventMessage(mergeLog.getMessage())
+                .handleStatus(0)
+                .build();
         int insertResult = assetEventMapper.insert(assetEvent);
+        // 创建事件的同时新增风险记录
+        AssetRisk assetRisk = AssetRisk.builder()
+                .assetId(asset.getAssetId())
+                .vulnId(eventId)
+                .scanTime(DateUtil.format(new Date(), DatePattern.PURE_DATETIME_PATTERN))
+                .refEventId(eventId)
+                .statusChangeTime(DateUtil.format(new Date(), DatePattern.PURE_DATETIME_PATTERN))
+                .build();
+        assetRiskMapper.insert(assetRisk);
         if (insertResult <= 0) {
             log.warn("事件创建失败! {}", mergeLog);
         }
