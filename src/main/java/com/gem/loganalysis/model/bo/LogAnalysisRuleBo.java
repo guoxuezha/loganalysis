@@ -32,6 +32,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -49,7 +50,7 @@ public class LogAnalysisRuleBo {
     /**
      * 存放归并后的日志记录
      */
-    private final Cache<String, MergeLog> cacheMap;
+    private final ConcurrentHashMap<String, MergeLog> cacheMap;
 
     /**
      * 归并前的日志记录
@@ -147,7 +148,7 @@ public class LogAnalysisRuleBo {
         this.ruleRelaId = (String) ruleMap.get("RULE_RELA_ID");
 
         this.queue = new LinkedBlockingQueue<>();
-        this.cacheMap = Caffeine.newBuilder().maximumSize(1000).build();
+        this.cacheMap = new ConcurrentHashMap<>();
         this.logCount = Caffeine.newBuilder().maximumSize(10000).build();
         this.logEventState = Caffeine.newBuilder().maximumSize(10000).build();
         this.nextMergeWindowStartTime = new Date();
@@ -252,7 +253,7 @@ public class LogAnalysisRuleBo {
     }
 
     public String getCacheInfo() {
-        return String.format("enable : %s, CACHE COUNT: %d, CACHE LENGTH: %d Byte, queue.size: %d, logCount.size: %d", enable, cacheMap.estimatedSize(), ObjectSizeCalculator.getObjectSize(cacheMap), queue.size(), logCount.estimatedSize());
+        return String.format("enable : %s, CACHE COUNT: %d, CACHE LENGTH: %d Byte, queue.size: %d, logCount.size: %d", enable, cacheMap.size(), ObjectSizeCalculator.getObjectSize(cacheMap), queue.size(), logCount.estimatedSize());
     }
 
     /**
@@ -276,7 +277,7 @@ public class LogAnalysisRuleBo {
         mergeLog.setUnionKey(unionKeyStr);
 
         // 判断该日志是否需要作为当前归并周期的第一条生成logId
-        MergeLog ifPresent = cacheMap.getIfPresent(unionKeyStr);
+        MergeLog ifPresent = cacheMap.get(unionKeyStr);
         if (ifPresent == null) {
             mergeLog.generateLogId();
         } else {
@@ -291,7 +292,6 @@ public class LogAnalysisRuleBo {
         BlockFileUtil.writeLog(mergeLog, this);
     }
 
-
     /**
      * 将取到的日志放入缓存并累加归并次数,再判断是否触发了事件
      *
@@ -302,30 +302,30 @@ public class LogAnalysisRuleBo {
         MergeLog eventStartLog = null;
         String sourceIp = null;
         synchronized (cacheMap) {
-            MergeLog mLog = cacheMap.getIfPresent(unionKey);
+            MergeLog mLog = cacheMap.get(unionKey);
             if (mLog == null) {
                 cacheMap.put(unionKey, mergeLog);
                 mLog = mergeLog;
             }
+            // 归并周期日志出现的次数
             mLog.getMergeCount().getAndIncrement();
-            AtomicInteger atomicInteger = logCount.getIfPresent(unionKey);
+
+
             if (logCount.getIfPresent(unionKey) == null) {
                 logCount.put(unionKey, new AtomicInteger(0));
-                atomicInteger = logCount.getIfPresent(unionKey);
             }
-            assert atomicInteger != null;
-            atomicInteger.getAndIncrement();
+            logCount.getIfPresent(unionKey).getAndIncrement();
             // 若cacheFlush和eventScan均采用定时任务的方式执行,可能导致扫描到的事件涉及到的归并日志被Flush掉,从而丢失ORIGIN_ID信息的问题,故事件发生的检查应立即执行
             for (SimpleQueueMessageInfo message : queue) {
                 long between = DateUtil.between(message.getTimeStamp(), DateUtil.date(), DateUnit.MINUTE);
                 if (between > eventWindowTime) {
                     queue.poll();
-                    atomicInteger.getAndDecrement();
+                    logCount.getIfPresent(unionKey).getAndDecrement();
                 } else {
                     break;
                 }
             }
-            if (logEventState.getIfPresent(unionKey) == null && atomicInteger.get() > eventThreshold) {
+            if (StrUtil.isEmpty(logEventState.getIfPresent(unionKey)) && logCount.getIfPresent(unionKey).get() > eventThreshold) {
                 logEventState.put(unionKey, mLog.getLogId());
                 JSONObject jsonObject = JSONUtil.parseObj(mLog.getMessage());
                 log.info("{} 触发事件, unionKey = {}, 应执行封堵的IP为: {}", ruleRelaId, unionKey, jsonObject.get(eventKeyWord));
@@ -415,9 +415,9 @@ public class LogAnalysisRuleBo {
             HashMap<String, Object> cacheData;
             synchronized (cacheMap) {
                 long start = DateUtil.current();
-                cacheData = new HashMap<>((int) cacheMap.estimatedSize());
-                cacheData.putAll(cacheMap.asMap());
-                cacheMap.cleanUp();
+                cacheData = new HashMap<>((int) cacheMap.size());
+                cacheData.putAll(cacheMap);
+                cacheMap.clear();
                 log.info("{}: 周期滚动, Cache Flush 用时: {}, cacheData.size = {}", ruleRelaId, DateUtil.current() - start, cacheData.size());
             }
             // 执行入库
