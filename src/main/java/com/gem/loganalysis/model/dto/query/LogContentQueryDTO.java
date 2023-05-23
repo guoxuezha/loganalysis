@@ -1,5 +1,6 @@
 package com.gem.loganalysis.model.dto.query;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
@@ -8,6 +9,7 @@ import lombok.Data;
  * @date 2023/5/16 18:07
  */
 @Data
+@AllArgsConstructor
 public class LogContentQueryDTO {
 
     /**

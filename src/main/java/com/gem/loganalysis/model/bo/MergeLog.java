@@ -59,7 +59,7 @@ public class MergeLog {
 
     public void generateLogId() {
         logId = IdUtil.simpleUUID();
-        mergeCount = new AtomicInteger(1);
+        mergeCount = new AtomicInteger(0);
     }
 
     public LogAnalysisRuleBo.SimpleQueueMessageInfo toSimpleQueueMessageInfo() {

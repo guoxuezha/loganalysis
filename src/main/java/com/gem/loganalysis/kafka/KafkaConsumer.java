@@ -2,10 +2,12 @@ package com.gem.loganalysis.kafka;
 
 import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.json.JSONUtil;
+import com.gem.loganalysis.config.BusinessConfigInfo;
 import com.gem.loganalysis.model.bo.LogAnalysisRuleBo;
 import com.gem.loganalysis.model.bo.LogAnalysisRulePool;
 import com.gem.loganalysis.model.bo.MergeLog;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -32,21 +34,25 @@ public class KafkaConsumer {
             .setWorkQueue(new LinkedBlockingQueue<>(100))
             .build();
     @Resource
+    private BusinessConfigInfo businessConfigInfo;
+    @Resource
     private LogAnalysisRulePool logAnalysisRulePool;
 
-    //@KafkaListener(topics = {"logrepo5"})
+    @KafkaListener(topics = {"logrepo6"})
     void onMessage1(String record) {
-        List<MergeLog> messageList = convertLogFormat(record);
-        // 消费的哪个topic、partition的消息,打印出消息内容
-        //log.info("1.监听到的 messageList.size = {}", messageList.size());
-        for (MergeLog mergelog : messageList) {
-            LogAnalysisRuleBo logAnalysisRuleBoObject = logAnalysisRulePool.getLogAnalysisRuleObject(mergelog.getHost(), mergelog.getFacility(), mergelog.getSeverity());
-            if (logAnalysisRuleBoObject != null && logAnalysisRuleBoObject.isEnable()) {
-                //logAnalysisRuleObject.printOverview();
-                logAnalysisRuleBoObject.insertInCache(mergelog);
+        if (businessConfigInfo.getLogMonitorEnable()) {
+            List<MergeLog> messageList = convertLogFormat(record);
+            // 消费的哪个topic、partition的消息,打印出消息内容
+            //log.info("1.监听到的 messageList.size = {}", messageList.size());
+            for (MergeLog mergelog : messageList) {
+                LogAnalysisRuleBo logAnalysisRuleBoObject = logAnalysisRulePool.getLogAnalysisRuleObject(mergelog.getHost(), mergelog.getFacility(), mergelog.getSeverity());
+                if (logAnalysisRuleBoObject != null && logAnalysisRuleBoObject.isEnable()) {
+                    //logAnalysisRuleObject.printOverview();
+                    logAnalysisRuleBoObject.insertInCache(mergelog);
+                }
             }
+            //logAnalysisThreadPool.submit(new LogAnalysisThread(record));
         }
-        //logAnalysisThreadPool.submit(new LogAnalysisThread(record));
     }
 
     /**

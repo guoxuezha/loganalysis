@@ -1,6 +1,7 @@
 package com.gem.loganalysis.kafka;
 
 import org.apache.kafka.clients.admin.NewTopic;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -12,9 +13,9 @@ import org.springframework.context.annotation.Configuration;
 public class KafkaInitialConfiguration {
 
     // 创建一个名为testtopic的Topic并设置分区数为4，分区副本数为2
-    //@Bean
+    @Bean
     public NewTopic initialTopic() {
-        return new NewTopic("logrepo5", 2, (short) 2);
+        return new NewTopic("logrepo6", 2, (short) 2);
     }
 
     // 如果要修改分区数，只需修改配置值重启项目即可

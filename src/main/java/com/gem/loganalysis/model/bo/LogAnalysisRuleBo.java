@@ -10,6 +10,8 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gem.loganalysis.mapper.AssetEventMapper;
 import com.gem.loganalysis.mapper.AssetMergeLogMapper;
 import com.gem.loganalysis.mapper.LogAnalysisRuleMapper;
@@ -300,12 +302,12 @@ public class LogAnalysisRuleBo {
         MergeLog eventStartLog = null;
         String sourceIp = null;
         synchronized (cacheMap) {
-            cacheMap.put(unionKey, mergeLog);
-            MergeLog ifPresent = cacheMap.getIfPresent(unionKey);
-            if (ifPresent == null) {
-                return;
+            MergeLog mLog = cacheMap.getIfPresent(unionKey);
+            if (mLog == null) {
+                cacheMap.put(unionKey, mergeLog);
+                mLog = mergeLog;
             }
-            Objects.requireNonNull(ifPresent).getMergeCount().getAndIncrement();
+            mLog.getMergeCount().getAndIncrement();
             AtomicInteger atomicInteger = logCount.getIfPresent(unionKey);
             if (logCount.getIfPresent(unionKey) == null) {
                 logCount.put(unionKey, new AtomicInteger(0));
@@ -324,10 +326,10 @@ public class LogAnalysisRuleBo {
                 }
             }
             if (logEventState.getIfPresent(unionKey) == null && atomicInteger.get() > eventThreshold) {
-                logEventState.put(unionKey, ifPresent.getLogId());
-                JSONObject jsonObject = JSONUtil.parseObj(ifPresent.getMessage());
+                logEventState.put(unionKey, mLog.getLogId());
+                JSONObject jsonObject = JSONUtil.parseObj(mLog.getMessage());
                 log.info("{} 触发事件, unionKey = {}, 应执行封堵的IP为: {}", ruleRelaId, unionKey, jsonObject.get(eventKeyWord));
-                eventStartLog = ifPresent;
+                eventStartLog = mLog;
                 sourceIp = String.valueOf(jsonObject.get(eventKeyWord));
             }
         }
@@ -345,6 +347,14 @@ public class LogAnalysisRuleBo {
     private HashMap<String, Object> getMessageInfoMap(String msg) {
         HashMap<String, Object> map = new HashMap<>();
         if (this.ruleType == 1) {
+            if (StrUtil.isEmpty(itemSplitSequence) && StrUtil.isEmpty(kvSplitSequence)) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                try {
+                    return objectMapper.readValue(msg, HashMap.class);
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
             for (String kv : msg.trim().split(itemSplitSequence)) {
                 String[] split = kv.split(kvSplitSequence);
                 if (split.length == 2) {

@@ -1,4 +1,7 @@
 spring:
+  profiles:
+    active: prod
+
   mvc:
     static-path-pattern: /**
   web:
@@ -20,12 +23,6 @@ spring:
         test-on-return: false
       primary: master
       datasource:
-        master:
-          name: loganalysis
-          driver-class-name: com.mysql.cj.jdbc.Driver
-          url: jdbc:mysql://123.249.42.58:3306/${spring.datasource.dynamic.datasource.master.name}?characterEncoding=utf8&nullCatalogMeansCurrent=true&useSSL=false&useUnicode=true&0=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Shanghai
-          username: root
-          password: MySqlPassword!!
         slave:
           name: loganalysis
           driver-class-name: com.mysql.cj.jdbc.Driver
@@ -81,25 +78,8 @@ spring:
       # 批量消费每次最多消费多少条消息
       max-poll-records: 500
 
-
 mybatis-plus:
   mapper-locations: classpath:mapper/*.xml
   # 控制台打印sql语句
 #  configuration:
 #    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-
-#logging:
-#  file:
-#    name: D:/workspace/project/loganalysis/src/main/resources/log/local.log
-
-verifyUrl: http://123.249.42.58:9090/oauth/verifyToken
-
-minio:
-  #Minio服务所在地址
-  endpoint: http://123.249.94.31:5000/
-  #访问的key
-  accessKey: Jonny
-  #访问的秘钥
-  secretKey: F144724684DE8673E7B31C27A234FB76
-  #存储桶名称
-  bucketName: logrecord
