@@ -1,8 +1,10 @@
 package com.gem.loganalysis.service.impl;
 
+import cn.hutool.json.JSONUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.gem.loganalysis.config.BusinessConfigInfo;
 import com.gem.loganalysis.convert.AssetConvert;
 import com.gem.loganalysis.enmu.DictType;
 import com.gem.loganalysis.mapper.AssetMapper;
@@ -18,6 +20,8 @@ import com.gem.loganalysis.model.vo.asset.AssetRespVO;
 import com.gem.loganalysis.service.IAssetGroupService;
 import com.gem.loganalysis.service.IAssetService;
 import com.gem.loganalysis.service.IDictDataService;
+import com.gem.loganalysis.util.AESUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -40,6 +44,8 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     private IDictDataService dictDataService;
     @Resource
     private IAssetGroupService assetGroupService;
+    @Resource
+    private BusinessConfigInfo businessConfigInfo;
 
     @Override
     public Result<String> editAsset(AssetDTO dto) {
@@ -50,7 +56,11 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 return Result.failed("请输入正确的IP地址格式");
             }
         }
-        //TODO AES加密
+        //AES加密
+        if(!StringUtils.isBlank(dto.getNmPassword())){
+            String password = AESUtil.aesEncrypt(dto.getNmPassword(), businessConfigInfo.getAESKey());
+            dto.setNmPassword(password);
+        }
         return this.saveOrUpdate(AssetConvert.INSTANCE.convert(dto)) ? Result.ok("操作成功!") : Result.failed("操作失败!");
     }
 
