@@ -10,6 +10,8 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gem.loganalysis.mapper.AssetEventMapper;
 import com.gem.loganalysis.mapper.AssetMergeLogMapper;
 import com.gem.loganalysis.mapper.LogAnalysisRuleMapper;
@@ -84,7 +86,6 @@ public class LogAnalysisRuleBo {
     @Getter
     @Setter
     private BlockFile blockFile;
-
 
     @Getter
     @Setter
@@ -252,7 +253,7 @@ public class LogAnalysisRuleBo {
     }
 
     public String getCacheInfo() {
-        return String.format("enable : %s, CACHE COUNT: %d, CACHE LENGTH: %d Byte, queue.size: %d, logCount.size: %d", enable, cacheMap.mappingCount(), ObjectSizeCalculator.getObjectSize(cacheMap), queue.size(), logCount.estimatedSize());
+        return String.format("enable : %s, CACHE COUNT: %d, CACHE LENGTH: %d Byte, queue.size: %d, logCount.size: %d", enable, cacheMap.size(), ObjectSizeCalculator.getObjectSize(cacheMap), queue.size(), logCount.estimatedSize());
     }
 
     /**
@@ -276,10 +277,11 @@ public class LogAnalysisRuleBo {
         mergeLog.setUnionKey(unionKeyStr);
 
         // 判断该日志是否需要作为当前归并周期的第一条生成logId
-        if (cacheMap.get(unionKeyStr) == null) {
+        MergeLog ifPresent = cacheMap.get(unionKeyStr);
+        if (ifPresent == null) {
             mergeLog.generateLogId();
         } else {
-            mergeLog.setLogId(cacheMap.get(unionKeyStr).getLogId());
+            mergeLog.setLogId(ifPresent.getLogId());
         }
 
         queue.add(mergeLog.toSimpleQueueMessageInfo());
@@ -289,7 +291,6 @@ public class LogAnalysisRuleBo {
         // 将日志信息放入文件写入日志文件
         BlockFileUtil.writeLog(mergeLog, this);
     }
-
 
     /**
      * 将取到的日志放入缓存并累加归并次数,再判断是否触发了事件
@@ -301,30 +302,34 @@ public class LogAnalysisRuleBo {
         MergeLog eventStartLog = null;
         String sourceIp = null;
         synchronized (cacheMap) {
-            cacheMap.putIfAbsent(unionKey, mergeLog);
-            cacheMap.get(unionKey).getMergeCount().getAndIncrement();
-            AtomicInteger atomicInteger = logCount.getIfPresent(unionKey);
+            MergeLog mLog = cacheMap.get(unionKey);
+            if (mLog == null) {
+                cacheMap.put(unionKey, mergeLog);
+                mLog = mergeLog;
+            }
+            // 归并周期日志出现的次数
+            mLog.getMergeCount().getAndIncrement();
+
+
             if (logCount.getIfPresent(unionKey) == null) {
                 logCount.put(unionKey, new AtomicInteger(0));
-                atomicInteger = logCount.getIfPresent(unionKey);
             }
-            assert atomicInteger != null;
-            atomicInteger.getAndIncrement();
+            logCount.getIfPresent(unionKey).getAndIncrement();
             // 若cacheFlush和eventScan均采用定时任务的方式执行,可能导致扫描到的事件涉及到的归并日志被Flush掉,从而丢失ORIGIN_ID信息的问题,故事件发生的检查应立即执行
             for (SimpleQueueMessageInfo message : queue) {
                 long between = DateUtil.between(message.getTimeStamp(), DateUtil.date(), DateUnit.MINUTE);
                 if (between > eventWindowTime) {
                     queue.poll();
-                    atomicInteger.getAndDecrement();
+                    logCount.getIfPresent(unionKey).getAndDecrement();
                 } else {
                     break;
                 }
             }
-            if (logEventState.getIfPresent(unionKey) == null && atomicInteger.get() > eventThreshold) {
-                logEventState.put(unionKey, cacheMap.get(unionKey).getLogId());
-                JSONObject jsonObject = JSONUtil.parseObj(cacheMap.get(unionKey).getMessage());
+            if (StrUtil.isEmpty(logEventState.getIfPresent(unionKey)) && logCount.getIfPresent(unionKey).get() > eventThreshold) {
+                logEventState.put(unionKey, mLog.getLogId());
+                JSONObject jsonObject = JSONUtil.parseObj(mLog.getMessage());
                 log.info("{} 触发事件, unionKey = {}, 应执行封堵的IP为: {}", ruleRelaId, unionKey, jsonObject.get(eventKeyWord));
-                eventStartLog = cacheMap.get(unionKey);
+                eventStartLog = mLog;
                 sourceIp = String.valueOf(jsonObject.get(eventKeyWord));
             }
         }
@@ -342,6 +347,14 @@ public class LogAnalysisRuleBo {
     private HashMap<String, Object> getMessageInfoMap(String msg) {
         HashMap<String, Object> map = new HashMap<>();
         if (this.ruleType == 1) {
+            if (StrUtil.isEmpty(itemSplitSequence) && StrUtil.isEmpty(kvSplitSequence)) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                try {
+                    return objectMapper.readValue(msg, HashMap.class);
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
             for (String kv : msg.trim().split(itemSplitSequence)) {
                 String[] split = kv.split(kvSplitSequence);
                 if (split.length == 2) {
@@ -402,7 +415,7 @@ public class LogAnalysisRuleBo {
             HashMap<String, Object> cacheData;
             synchronized (cacheMap) {
                 long start = DateUtil.current();
-                cacheData = new HashMap<>(cacheMap.size());
+                cacheData = new HashMap<>((int) cacheMap.size());
                 cacheData.putAll(cacheMap);
                 cacheMap.clear();
                 log.info("{}: 周期滚动, Cache Flush 用时: {}, cacheData.size = {}", ruleRelaId, DateUtil.current() - start, cacheData.size());

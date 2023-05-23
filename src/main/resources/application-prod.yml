@@ -1,0 +1,28 @@
+verifyUrl: http://123.249.94.31:9090/oauth/verifyToken
+
+business-config:
+  authenticationEnable: true
+  responseEncryptEnable: true
+  AESKey: SKVNMEIHJLOANSKI
+  logMonitorEnable: true
+
+minio:
+  #Minio服务所在地址
+  endpoint: http://123.249.94.31:5000/
+  #访问的key
+  accessKey: Jonny
+  #访问的秘钥
+  secretKey: F144724684DE8673E7B31C27A234FB76
+  #存储桶名称
+  bucketName: logrecord
+
+spring:
+  datasource:
+    dynamic:
+      datasource:
+        master:
+          name: loganalysis
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://123.249.42.58:3306/${spring.datasource.dynamic.datasource.master.name}?characterEncoding=utf8&nullCatalogMeansCurrent=true&useSSL=false&useUnicode=true&0=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Shanghai
+          username: root
+          password: MySqlPassword!!
