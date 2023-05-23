@@ -2,8 +2,10 @@ package com.gem.loganalysis.controller;
 
 
 import cn.hutool.core.lang.tree.Tree;
+import com.gem.loganalysis.convert.M4SsoConvert;
 import com.gem.loganalysis.model.Result;
 import com.gem.loganalysis.model.dto.DeleteDTO;
+import com.gem.loganalysis.model.dto.GetDTO;
 import com.gem.loganalysis.model.dto.asset.AssetDTO;
 import com.gem.loganalysis.model.dto.edit.OrgDTO;
 import com.gem.loganalysis.model.dto.query.LambdaQueryWrapperX;
@@ -52,6 +54,13 @@ public class M4SsoOrgController {
     @ApiOperation("组织机构树形结构")
     public Result<List<OrgRespVO>> listOrg(@Valid @RequestBody OrgQueryDTO dto) {
         return Result.ok(m4SsoOrgService.OrgList(dto));
+    }
+
+    @PostMapping("/get")
+    @ApiOperation("组织机构详情")
+    public Result<OrgRespVO> getOrg(@Valid @RequestBody GetDTO dto) {
+        M4SsoOrg byId = m4SsoOrgService.getById(dto.getId());
+        return byId!=null?Result.ok(M4SsoConvert.INSTANCE.convert(byId)):Result.failed("该组织机构不存在");
     }
 
     @PostMapping("/list-simple")
