@@ -28,7 +28,7 @@ public class BlackList implements Serializable {
     /**
      * 组织机构唯一编码
      */
-    @TableId("ORG_ID")
+    @TableId(value = "ORG_ID",type =IdType.INPUT)
     private String orgId;
 
     /**

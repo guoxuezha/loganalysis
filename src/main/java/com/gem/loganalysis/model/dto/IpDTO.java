@@ -3,6 +3,7 @@ package com.gem.loganalysis.model.dto;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -14,7 +15,7 @@ import javax.validation.constraints.NotNull;
 public class IpDTO {
 
     @ApiModelProperty(value = "单个IP地址",required = true)
-    @NotNull(message = "请传入IP地址")
+    @NotBlank(message = "请传入IP地址")
     private String ip;
 
 }

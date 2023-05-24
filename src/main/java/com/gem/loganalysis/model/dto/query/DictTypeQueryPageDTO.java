@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -28,11 +29,11 @@ public class DictTypeQueryPageDTO{
     private String status;
 
     @ApiModelProperty(value = "当前页", name = "curPage", required = true, example = "1")
-    @NotNull(message = "当前页不能为空")
+    @NotBlank(message = "当前页不能为空")
     private Integer curPage;
 
     @ApiModelProperty(value = "每页数量", name = "pageSize", required = true, example = "10")
-    @NotNull(message = "每页数量不能为空")
+    @NotBlank(message = "每页数量不能为空")
     private Integer pageSize;
 
 }

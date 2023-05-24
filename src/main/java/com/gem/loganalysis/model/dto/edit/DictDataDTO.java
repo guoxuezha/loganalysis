@@ -20,18 +20,18 @@ public class DictDataDTO {
     private Integer sort;
 
     @ApiModelProperty(value = "字典标签", example = "男",required = true)
-    @NotNull(message = "字典标签不能为空")
+    @NotBlank(message = "字典标签不能为空")
     @Size(max = 100, message = "字典标签长度不能超过100个字符")
     private String label;
 
     @ApiModelProperty(value = "字典值", required = true,example = "123")
     @Size(max = 100, message = "字典键值长度不能超过100个字符")
-    @NotNull(message = "字典值不能为空")
+    @NotBlank(message = "字典值不能为空")
     private String value;
 
     @ApiModelProperty(value = "字典类型", required = true ,example = "sys_common_sex")
     @Size(max = 100, message = "字典类型长度不能超过100个字符")
-    @NotNull(message = "字典类型不能为空")
+    @NotBlank(message = "字典类型不能为空")
     private String dictType;
 
     @ApiModelProperty(value = "状态(0正常 1停用)")

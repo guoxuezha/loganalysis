@@ -13,6 +13,7 @@ import com.gem.loganalysis.model.entity.M4SsoOrg;
 import com.gem.loganalysis.model.vo.asset.AssetAccountRespVO;
 import com.gem.loganalysis.model.vo.asset.AssetRespVO;
 import com.gem.loganalysis.service.IAssetService;
+import com.gem.loganalysis.util.UserUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
@@ -76,6 +77,12 @@ public class AssetController {
             return Result.failed("请传入需要删除的资产ID");
         }
         return assetService.removeById(dto.getId()) ? Result.ok("删除成功!") : Result.failed("删除失败!");
+    }
+
+    @PostMapping("/test")
+    @ApiOperation("没啥用 测试一下一会儿删掉")
+    public Result<String> test() {
+        return Result.ok(UserUtil.getLoginUserOrgId());
     }
 
 

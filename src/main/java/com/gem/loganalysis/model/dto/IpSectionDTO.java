@@ -4,6 +4,7 @@ import com.gem.loganalysis.model.dto.asset.VlanDTO;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
@@ -16,7 +17,7 @@ import java.util.List;
 public class IpSectionDTO {
 
     @ApiModelProperty(value = "IP区段",required = true)
-    @NotNull(message = "IP区段不能为空")
+    @NotBlank(message = "IP区段不能为空")
     private List<VlanDTO> vlanList;
 
 }

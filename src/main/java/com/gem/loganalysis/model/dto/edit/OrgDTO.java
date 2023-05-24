@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @ApiModel("系统模块 - 组织部门创建/更新 DTO ")
@@ -19,15 +20,15 @@ public class OrgDTO {
     private String orgId;
 
     @ApiModelProperty(value = "组织机构名称（惯用名）,必传",required = true)
-    @NotNull(message = "组织机构名称(惯用名)不能为空")
+    @NotBlank(message = "组织机构名称(惯用名)不能为空")
     private String orgName;
 
     @ApiModelProperty(value = "组织机构全称（法定名）,必传",required = true)
-    @NotNull(message = "组织机构全称（法定名）不能为空")
+    @NotBlank(message = "组织机构全称（法定名）不能为空")
     private String orgFullname;
 
     @ApiModelProperty(value = "组织机构简称,必传",required = true)
-    @NotNull(message = "组织机构简称不能为空")
+    @NotBlank(message = "组织机构简称不能为空")
     private String orgShortname;
 
     @ApiModelProperty(value = "统一社会信用编码")

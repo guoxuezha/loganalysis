@@ -6,6 +6,8 @@ import org.apache.ibatis.reflection.MetaObject;
 
 import java.util.Objects;
 
+import static com.gem.loganalysis.util.UserUtil.getLoginUserId;
+
 /**
  * 通用参数填充实现类
  *
@@ -15,7 +17,6 @@ public class DefaultDBFieldHandler implements MetaObjectHandler {
 
     @Override
     public void insertFill(MetaObject metaObject) {
-        //TODO 等用户部分写好了之后，放入当前登录人
         if (Objects.nonNull(metaObject)) {
             // 创建时间
             Object createTime = getFieldValByName("createTime", metaObject);
@@ -25,7 +26,7 @@ public class DefaultDBFieldHandler implements MetaObjectHandler {
             // 修改人
             Object creator = getFieldValByName("createBy", metaObject);
             if (Objects.isNull(creator)) {
-                setFieldValByName("createBy","admin", metaObject);
+                setFieldValByName("createBy",getLoginUserId(), metaObject);
             }
             // 更新时间
             Object modifyTime = getFieldValByName("updateTime", metaObject);
@@ -35,7 +36,7 @@ public class DefaultDBFieldHandler implements MetaObjectHandler {
             // 修改人
             Object modifier = getFieldValByName("updateBy", metaObject);
             if (Objects.isNull(modifier)) {
-                setFieldValByName("updateBy","admin", metaObject);
+                setFieldValByName("updateBy",getLoginUserId(), metaObject);
             }
         }
     }
@@ -51,7 +52,7 @@ public class DefaultDBFieldHandler implements MetaObjectHandler {
             // 修改人
             Object modifier = getFieldValByName("updateBy", metaObject);
             if (Objects.isNull(modifier)) {
-                setFieldValByName("updateBy","admin", metaObject);
+                setFieldValByName("updateBy",getLoginUserId(), metaObject);
             }
         }
     }
