@@ -51,7 +51,6 @@ public class BlackListServiceImpl extends ServiceImpl<BlackListMapper, BlackList
                 .eqIfPresent(BlackList::getIpAddress, dto.getIpAddress())
                 .eqIfPresent(BlackList::getOrgId, dto.getOrgId()));
         if(count>0){
-            throw new ServiceException("该IP已封禁该资产，请勿重复添加");
             return Result.failed("该IP已封禁该资产，请勿重复添加");
         }
         return this.save(WhiteBlackListConvert.INSTANCE.convert(dto))
