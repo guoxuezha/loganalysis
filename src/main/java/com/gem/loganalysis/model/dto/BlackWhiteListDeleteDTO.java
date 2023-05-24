@@ -27,8 +27,8 @@ public class BlackWhiteListDeleteDTO {
     @NotBlank(message = "请传入关联资产唯一编码,*表示当前组织机构【含下属】的所有资产")
     private String assetId;
 
-    @ApiModelProperty(value = "列入黑名单的IP",required = true)
-    @NotBlank(message = "请传入列入黑名单的IP")
+    @ApiModelProperty(value = "列入黑白名单的IP",required = true)
+    @NotBlank(message = "请传入列入黑白名单的IP")
     private String ipAddress;
 
 }

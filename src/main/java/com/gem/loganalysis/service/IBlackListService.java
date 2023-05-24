@@ -1,12 +1,15 @@
 package com.gem.loganalysis.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.Result;
 import com.gem.loganalysis.model.dto.BlackWhiteListDeleteDTO;
 import com.gem.loganalysis.model.dto.edit.BlackWhiteListDTO;
 import com.gem.loganalysis.model.dto.query.BlackWhiteListQueryDTO;
 import com.gem.loganalysis.model.entity.BlackList;
 import com.gem.loganalysis.model.vo.BlackWhiteListVO;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
 
 import java.util.List;
 
@@ -24,25 +27,32 @@ public interface IBlackListService extends IService<BlackList> {
      * @param dto
      * @return
      */
-    Result<String> createBlackList(BlackWhiteListDTO dto);
+    boolean createBlackList(BlackWhiteListDTO dto);
 
     /**
      * 更新黑名单
      * @param dto
      * @return
      */
-    Result<String> updateBlackList(BlackWhiteListDTO dto);
+    boolean updateBlackList(BlackWhiteListDTO dto);
 
     /**
      * 移出黑名单
      * @param dto
      * @return
      */
-    Result<String> deleteBlackList(BlackWhiteListDeleteDTO dto);
+    boolean deleteBlackList(BlackWhiteListDeleteDTO dto);
 
     /**
      * 黑名单列表
      * @return
      */
     List<BlackWhiteListVO> blackList(BlackWhiteListQueryDTO dto);
+
+    /**
+     * 黑名单分页
+     * @param dto
+     * @return
+     */
+    PageInfo<BlackWhiteListVO> blackListPage(PageRequest<BlackWhiteListQueryDTO> dto);
 }

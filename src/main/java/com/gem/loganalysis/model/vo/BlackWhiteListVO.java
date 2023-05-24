@@ -33,7 +33,7 @@ public class BlackWhiteListVO {
     @ApiModelProperty(value = "资产IP地址")
     private String assetIp;
 
-    @ApiModelProperty(value = "列入黑名单的IP")
+    @ApiModelProperty(value = "列入黑/白名单的IP")
     private String ipAddress;
 
     @ApiModelProperty(value = "有效时间，为空时表示永久有效,14位格式")

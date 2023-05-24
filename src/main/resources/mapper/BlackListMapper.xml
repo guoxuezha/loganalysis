@@ -4,7 +4,7 @@
 
     <update id="deleteBlackList">
         UPDATE `loganalysis`.`sop_black_list`
-        SET `DELETE_STATE` = 1
+        SET `DELETE_STATE` = 1,`UPDATE_TIME` = now()
         WHERE `ORG_ID` = #{orgId}
           AND `ASSET_ID` = #{assetId}
           AND `IP_ADDRESS` = #{ipAddress}
@@ -12,7 +12,7 @@
 
     <update id="updateBlackList">
         UPDATE `loganalysis`.`sop_black_list`
-        SET `VALID_TIME` = #{validTime}
+        SET `VALID_TIME` = #{validTime},`UPDATE_TIME` = now()
         WHERE `ORG_ID` = #{orgId}
           AND `ASSET_ID` = #{assetId}
           AND `IP_ADDRESS` = #{ipAddress}

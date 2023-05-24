@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gem.loganalysis.mapper.WhiteListMapper">
+
+    <update id="deleteWhiteList">
+        UPDATE `loganalysis`.`sop_white_list`
+        SET `DELETE_STATE` = 1,`UPDATE_TIME` = now()
+        WHERE `ORG_ID` = #{orgId}
+          AND `ASSET_ID` = #{assetId}
+          AND `IP_ADDRESS` = #{ipAddress}
+    </update>
+
+    <update id="updateWhiteList">
+        UPDATE `loganalysis`.`sop_white_list`
+        SET `VALID_TIME` = #{validTime},`UPDATE_TIME` = now()
+        WHERE `ORG_ID` = #{orgId}
+          AND `ASSET_ID` = #{assetId}
+          AND `IP_ADDRESS` = #{ipAddress}
+    </update>
+
+
+    <select id="whiteList" resultType="com.gem.loganalysis.model.vo.BlackWhiteListVO">
+        SELECT
+            sop_white_list.ORG_ID AS orgId,
+            m4_sso_org.ORG_NAME AS orgName,
+            sop_white_list.ASSET_ID AS assetId,
+            sop_white_list.IP_ADDRESS AS ipAddress,
+            sop_white_list.VALID_TIME AS validTime,
+            sop_white_list.CREATE_TIME AS createTime,
+            sop_white_list.CREATE_BY AS createBy,
+            sop_white_list.UPDATE_TIME AS updateTime,
+            sop_white_list.UPDATE_BY AS updateBy,
+            sop_asset.ASSET_NAME AS assetName,
+            sop_asset.IP_ADDRESS AS assetIp
+        FROM
+               sop_white_list
+        LEFT JOIN
+            sop_asset
+        ON
+             sop_white_list.ASSET_ID = sop_asset.ASSET_ID
+        LEFT JOIN
+            m4_sso_org
+        ON
+             sop_white_list.ORG_ID = m4_sso_org.ORG_ID
+        WHERE
+             sop_white_list.DELETE_STATE = 0
+        <if test="orgId!=null and orgId.trim()!='' ">
+            AND sop_white_list.ORG_ID = #{orgId}
+        </if>
+        <if test="assetId!=null and assetId.trim()!='' ">
+            AND sop_white_list.ASSET_ID = #{assetId}
+        </if>
+        <if test="ipAddress!=null and ipAddress.trim()!='' ">
+            AND sop_white_list.IP_ADDRESS = #{ipAddress}
+        </if>
+        <if test="assetIp!=null and assetIp.trim()!='' ">
+            AND sop_asset.IP_ADDRESS = #{assetIp}
+        </if>
+        <if test="beginValidTime != null and beginValidTime.trim()!=''">AND sop_white_list.VALID_TIME <![CDATA[>=]]> #{beginValidTime}</if>
+        <if test="endValidTime != null and endValidTime.trim()!=''">AND sop_white_list.VALID_TIME <![CDATA[<=]]>#{endValidTime}</if>
+    </select>
+
+</mapper>

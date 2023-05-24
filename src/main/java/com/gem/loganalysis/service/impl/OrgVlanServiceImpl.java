@@ -47,7 +47,7 @@ public class OrgVlanServiceImpl extends ServiceImpl<OrgVlanMapper, OrgVlan> impl
         Page<OrgVlanRespVO> orgVlanRespVOPage = AssetConvert.INSTANCE.convertPage05(resp);
         List<OrgVlanRespVO> records = orgVlanRespVOPage.getRecords();
         records.forEach(e->{
-            //TODO 先写死 等有部门表了放入
+            //TODO 等优化
             if(e.getOrgId().equals("1")){
                 e.setOrgName("资产管理部");
             }else if(e.getOrgId().equals("2")){

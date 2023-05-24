@@ -29,7 +29,7 @@ public class DictDataServiceImpl extends ServiceImpl<DictDataMapper, DictData> i
 
 
     @Override
-    //TODO 放入缓存 避免重复加载
+    //TODO 放入内存 避免重复加载
     public Map<String, List<DictData>> getDictDataMap() {
         List<DictData> list = this.list();
         return list.stream().collect(Collectors.groupingBy(DictData::getDictType));
