@@ -34,4 +34,9 @@ public class BusinessConfigInfo {
      */
     private Boolean logMonitorEnable;
 
+    /**
+     * 单点登录默认packageId
+     */
+    private String adadDefaultPackage;
+
 }

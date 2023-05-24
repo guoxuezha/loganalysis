@@ -19,6 +19,8 @@ import com.gem.loganalysis.model.entity.LogAnalysisRuleRela;
 import com.gem.loganalysis.service.ILogAnalysisRuleRelaService;
 import com.gem.loganalysis.service.ILogAnalysisRuleService;
 import com.gem.loganalysis.service.impl.AssetServiceImpl;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,6 +36,7 @@ import java.util.Map;
  * @author GuoChao
  * @since 2023-05-03
  */
+@Api(tags = "日志分析规则")
 @RestController
 @RequestMapping("/logAnalysis/analysisRule")
 @AllArgsConstructor
@@ -52,6 +55,7 @@ public class LogAnalysisRuleController {
      *
      * @return 日志解析规则列表
      */
+    @ApiOperation("全查日志解析规则列表")
     @PostMapping("/list")
     public Result<Object> list() {
         return Result.ok(iLogAnalysisRuleService.list());
@@ -63,18 +67,21 @@ public class LogAnalysisRuleController {
      * @param dto 分页查询参数
      * @return 日志解析规则列表
      */
+    @ApiOperation("分页查询日志解析规则")
     @PostMapping("/pageList")
     public Result<Object> pageList(@RequestBody PageRequest<String> dto) {
         Page<LogAnalysisRule> page = new Page<>(dto.getPageNum(), dto.getPageSize());
         return Result.ok(iLogAnalysisRuleService.page(page));
     }
 
+    @ApiOperation("编辑日志解析规则")
     @PostMapping("/edit")
     public Result<Object> edit(@RequestBody LogAnalysisRuleDTO dto) {
         boolean result = iLogAnalysisRuleService.saveOrUpdate(new LogAnalysisRule(dto));
         return result ? Result.ok("编辑成功") : Result.failed("编辑失败!");
     }
 
+    @ApiOperation("删除日志解析规则")
     @PostMapping("/delete")
     public Result<Object> delete(@RequestBody DeleteDTO dto) {
         boolean deleteResult = iLogAnalysisRuleService.removeById(dto.getId());
@@ -87,6 +94,7 @@ public class LogAnalysisRuleController {
      * @param dto 分页查询参数
      * @return 日志解析规则列表
      */
+    @ApiOperation("分页查询设备的日志解析规则")
     @PostMapping("/getAnalysisRules")
     public Result<Object> getAnalysisRules(@RequestBody PageRequest<AnalysisRuleQueryDTO> dto) {
         return Result.ok(iLogAnalysisRuleRelaService.getAnalysisRules(dto));
@@ -97,6 +105,7 @@ public class LogAnalysisRuleController {
      *
      * @return 配置参数
      */
+    @ApiOperation("配置数据资产的日志解析规则")
     @PostMapping("/setAnalysisRuleRela")
     public Result<Object> setAnalysisRuleRela(@RequestBody LogAnalysisRuleRelaDTO dto) {
         LogAnalysisRuleRela ruleRela = new LogAnalysisRuleRela(dto);
@@ -131,6 +140,7 @@ public class LogAnalysisRuleController {
      * @param dto 入参
      * @return 删除结果
      */
+    @ApiOperation("删除日志解析规则映射关系")
     @PostMapping("/deleteAnalysisRuleRela")
     public Result<Object> deleteAnalysisRuleRela(@RequestBody DeleteDTO dto) {
         return iLogAnalysisRuleRelaService.removeById(dto.getId()) ? Result.ok("删除成功!") : Result.failed("删除失败!");
@@ -142,6 +152,7 @@ public class LogAnalysisRuleController {
      * @param dto 分页查询参数
      * @return 设备日志列表
      */
+    @ApiOperation("分页查询设备的日志记录")
     @PostMapping("/getLogRecordsByAsset")
     public Result<Object> getLogRecordsByAsset(@RequestBody PageRequest<String> dto) {
         return Result.ok(iLogAnalysisRuleRelaService.getLogRecordsByAsset(dto));
@@ -153,6 +164,7 @@ public class LogAnalysisRuleController {
      * @param dto 分页查询参数
      * @return 规则日志列表
      */
+    @ApiOperation("分页查询某解析规则下的日志记录")
     @PostMapping("/getLogRecordsByRuleRela")
     public Result<Object> getLogRecordsByRuleRela(@RequestBody PageRequest<String> dto) {
         return Result.ok(iLogAnalysisRuleRelaService.getLogRecordsByRuleRela(dto));
@@ -163,6 +175,7 @@ public class LogAnalysisRuleController {
      *
      * @return 日志解析对象内存占用情况
      */
+    @ApiOperation("查看日志解析规则对象概况")
     @PostMapping("/fetchFacilityCache")
     public Result<Object> fetchFacilityCache() {
         HashMap<String, Object> map = new HashMap<>(8);
@@ -171,6 +184,5 @@ public class LogAnalysisRuleController {
         }
         return Result.ok(map);
     }
-
 
 }

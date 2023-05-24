@@ -1,5 +1,6 @@
 package com.gem.loganalysis.model.dto.query;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
@@ -16,5 +17,6 @@ public class RiskOverviewQueryDTO {
      * 总览周期
      * (1-周 2-月 3-季)
      */
+    @ApiModelProperty(value = "总览周期(1-周 2-月 3-季)")
     private Integer cycle;
 }

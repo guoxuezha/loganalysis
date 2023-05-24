@@ -1,5 +1,6 @@
 package com.gem.loganalysis.model.dto.query;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
@@ -10,6 +11,7 @@ import lombok.Data;
 @Data
 public class LogFileQueryDTO {
 
+    @ApiModelProperty("桶名")
     private String fileName;
 
 }

@@ -11,6 +11,8 @@ import com.gem.loganalysis.service.IAssetMergeLogService;
 import com.gem.loganalysis.util.MinioUtil;
 import com.gem.loganalysis.util.SpringContextUtil;
 import com.gem.utils.file.MinioRW;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,6 +34,7 @@ import static com.gem.loganalysis.util.BlockFileUtil.getMultipartFile;
  * @author GuoChao
  * @since 2023-05-03
  */
+@Api(tags = "归并日志管理")
 @RestController
 @RequestMapping("/logAnalysis/mergeLog")
 @AllArgsConstructor
@@ -41,13 +44,13 @@ public class MergeLogController {
 
     private final IAssetMergeLogService iAssetMergeLogService;
 
-
     /**
      * 查询桶中日志文件列表
      *
      * @param dto 查询参数
      * @return 文件信息列表
      */
+    @ApiOperation("查询桶中日志文件列表")
     @PostMapping("/fileList")
     public Result<Object> fileList(@RequestBody LogFileQueryDTO dto) throws JSONException {
         List<String> result = new ArrayList<>();
@@ -84,10 +87,10 @@ public class MergeLogController {
      * @param dto 查询参数
      * @return 日志记录
      */
+    @ApiOperation("从文件中读取原始日志信息")
     @PostMapping("/getSourceLogInFile")
     public Result<Object> getSourceLogInFile(@RequestBody LogContentQueryDTO dto) {
         return Result.ok(iAssetMergeLogService.getSourceLog(dto));
     }
-
 
 }

@@ -27,16 +27,12 @@ public class AESUtil {
     private static final String ALGORITHM = "AES/ECB/PKCS5Padding";
 
     public static void main(String[] args) {
-        String content = "{\"pageNum\":1,\"pageSize\":10}";
+        String content = "{\"account\":\"郭超\",\"email\":\"\",\"mobile\":\"\",\"orgId\":null,\"password\":\"123456\",\"userId\":\"064bb8bd8a694b8999c4f6f9c6dcd9ed\",\"userName\":\"guochao\",\"userSex\":1}";
         String encrypt = aesEncrypt(content, KEY);
         System.out.println("加密后：" + encrypt);
 
         String response =
-                "K60XBSGOxaQZm/ppjYSJSQWN0OzRIPYCbSgY+i/KJYLquQt3CRyYY+JfkMqRfovztUqaEwMnAw2/MN2rjxn98k8Ge/mbNiFrT0NynS1m9GWDmKx5H/78gjA9Y+KtDT6n85E7BxB2dWfYVyP2uPqpfJoLe8wRdxvx/" +
-                        "KyZNVoLH4gl9jUXHLC2VnQs74fTgfH/ZvTZnEAHBpTD2LV9/4s+QwZvk/eKdJZfx3mqn5owi2vi8x+T/" +
-                        "0kJpkWfkMFTz+xkoFNHenuQiXhuuxTw+O3d4wTAaBsiHV0E8aBajxTtoc3YIW2C8JXJdaiAEUobpQ8aan3MyMjJDlAq4APQCf44UDhwm8qHeD4w++pi3Npm/O7/FRjN9o1riKjhtn27TV0n1yaX8Eo5O/" +
-                        "ouAZbpesmJENjpgEQ+Pj1QLX7yseAfc+LLe1OHv3kY47E+wBnUsvCEFiwhUZ2uCG0XGsGpM/VqTwudjmcmXizFlaCcOh2j3cHraD7f/GhBK3xY7BHKK2zIF0EVFiWSEmvxBl+W6/" +
-                        "04LV7xk6u05NhEmVcvv5dNXRnhirCUdnlcWl1SlntHi9JaF+Xrg+ZBNl3jVlyzuiJaZ6OqsfOtNHjAyB7peNuu1y+EmeDHf9urpj2QLb1mUa/u";
+                "K60XBSGOxaQZm/ppjYSJSc7Bvj4bCcuk7HRBGzlz5Y8DOr2B01hNeeRmpQy8bQZg";
         String decrypt = aesDecrypt(response, KEY);
         System.out.println("解密后：" + decrypt);
     }

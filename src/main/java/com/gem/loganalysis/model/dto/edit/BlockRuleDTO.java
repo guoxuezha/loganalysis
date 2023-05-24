@@ -13,6 +13,7 @@ public class BlockRuleDTO {
     /**
      * 封堵规则ID
      */
+
     private Integer blockOffRuleId;
 
     /**

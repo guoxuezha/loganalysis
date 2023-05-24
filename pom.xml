@@ -11,7 +11,7 @@
     </parent>
     <groupId>com.gem</groupId>
     <artifactId>loganalysis</artifactId>
-    <version>0.33</version>
+    <version>0.35</version>
     <name>logAnalysis</name>
     <packaging>jar</packaging>
     <description>Demo project for Spring Boot</description>
@@ -66,17 +66,17 @@
             <version>23.05.16.002</version>
         </dependency>
 
-        <!--<dependency>
+        <dependency>
             <groupId>com.gem</groupId>
             <artifactId>gemel-dal-pools</artifactId>
             <version>23.04.19.001</version>
-        </dependency>-->
+        </dependency>
 
-        <!--<dependency>
+        <dependency>
             <groupId>com.gem</groupId>
             <artifactId>gemadad-sso</artifactId>
             <version>0.0.2</version>
-        </dependency>-->
+        </dependency>
 
         <dependency>
             <groupId>com.baomidou</groupId>

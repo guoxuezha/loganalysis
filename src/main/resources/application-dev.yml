@@ -16,9 +16,46 @@ minio:
   #存储桶名称
   bucketName: logrecord
 
+pool:
+  poolName: "default"
+  poolType: "M4DBPool"
+  dbType: "MYSQL"
+  dbVersion: ""
+  driverName: "com.mysql.cj.jdbc.Driver"
+  jndiName: ""
+  jdbcURL: "jdbc:mysql://localhost:3306/loganalysis?useOldAliasMetadataBehavior=true&useUnicode=true&characterEncoding=UTF8&rewriteBatchedStatements=true&useCursorFetch=true&defaultFetchSize=100"
+  userName: "root"
+  password: "MySqlPassword!!"
+  schema: ""
+  initialSize: 5
+  maxActive: 5
+  maxIdle: 5
+  minIdle: 0
+  maxWait: 2
+  increaseStep: 5
+  inspectionIntervals: 60
+  maxIdleTick: 10
+  validationQuery: ""
+  fetchSize: 1000
+  sshIP: "121.42.24.63"
+  sshPort: 22
+  sshUserName: "dsm"
+  sshPassword: "C6B9D2D0AF389CEFA82927FC21AE1F1B"
+  localPort: 18922
+  dbIP: "10.128.3.53"
+  dbPort: 6079
+  sshJdbcURL: "jdbc:mysql://127.0.0.1:18922/jsedc_metadata?useUnicode=true&characterEncoding=UTF8&userCursorFetch=true"
+  testOnIdle: false
+  passwordEncrypted: false
+
 logging:
   file:
     name: D:/workspace/project/loganalysis/src/main/resources/log/local.log
+
+mybatis-plus:
+  # 控制台打印sql语句
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 spring:
   datasource:
@@ -27,7 +64,7 @@ spring:
         master:
           name: loganalysis
           driver-class-name: com.mysql.cj.jdbc.Driver
-          url: jdbc:mysql://123.249.42.58:3306/${spring.datasource.dynamic.datasource.master.name}?characterEncoding=utf8&nullCatalogMeansCurrent=true&useSSL=false&useUnicode=true&0=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Shanghai
+          url: jdbc:mysql://localhost:3306/${spring.datasource.dynamic.datasource.master.name}?characterEncoding=utf8&nullCatalogMeansCurrent=true&useSSL=false&useUnicode=true&0=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Shanghai
           username: root
           password: MySqlPassword!!
   kafka:

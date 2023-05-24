@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: dev
+    active: prod
 
   mvc:
     static-path-pattern: /**
@@ -32,3 +32,6 @@ spring:
 
 mybatis-plus:
   mapper-locations: classpath:mapper/*.xml
+
+business-config:
+  adad-default-package: 01

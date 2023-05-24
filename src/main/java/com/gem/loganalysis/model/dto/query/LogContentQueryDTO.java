@@ -1,5 +1,6 @@
 package com.gem.loganalysis.model.dto.query;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -13,18 +14,21 @@ import lombok.Data;
 public class LogContentQueryDTO {
 
     /**
-     * 日主解析规则ID
+     * 日志解析规则ID
      */
+    @ApiModelProperty("日志解析规则ID")
     private String ruleRelaId;
 
     /**
      * 日志更新日期
      */
+    @ApiModelProperty("日志更新日期")
     private String updateTime;
 
     /**
      * 归并日志ID
      */
+    @ApiModelProperty("归并日志ID")
     private String logId;
 
 }
