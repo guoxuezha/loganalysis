@@ -1,7 +1,7 @@
 package com.gem.loganalysis.controller;
 
 import com.gem.loganalysis.model.Result;
-import com.gem.loganalysis.model.dto.query.RiskOverviewQueryDTO;
+import com.gem.loganalysis.model.dto.query.OverviewQueryDTO;
 import com.gem.loganalysis.service.IAssetRiskService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -34,7 +34,7 @@ public class AssetRiskController {
      */
     @ApiOperation("风险总览")
     @PostMapping("/overview")
-    public Result<Object> overview(@RequestBody RiskOverviewQueryDTO dto) {
+    public Result<Object> overview(@RequestBody OverviewQueryDTO dto) {
         return Result.ok(iAssetRiskService.geOverviewInfo(dto));
     }
 

@@ -7,7 +7,7 @@ import com.gem.loganalysis.model.dto.GetDTO;
 import com.gem.loganalysis.model.dto.query.EventQueryDTO;
 import com.gem.loganalysis.model.dto.query.LambdaQueryWrapperX;
 import com.gem.loganalysis.model.dto.query.LogContentQueryDTO;
-import com.gem.loganalysis.model.dto.query.RiskOverviewQueryDTO;
+import com.gem.loganalysis.model.dto.query.OverviewQueryDTO;
 import com.gem.loganalysis.model.entity.AssetEvent;
 import com.gem.loganalysis.model.entity.AssetMergeLog;
 import com.gem.loganalysis.service.IAssetEventService;
@@ -49,7 +49,7 @@ public class AssetEventController {
      */
     @PostMapping("/overview")
     @ApiOperation("事件总览")
-    public Result<Object> overview(@RequestBody RiskOverviewQueryDTO dto) {
+    public Result<Object> overview(@RequestBody OverviewQueryDTO dto) {
         return Result.ok(iAssetEventService.geOverviewInfo(dto));
     }
 

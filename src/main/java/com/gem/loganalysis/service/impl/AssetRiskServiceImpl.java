@@ -8,7 +8,7 @@ import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gem.loganalysis.mapper.AssetEventMapper;
 import com.gem.loganalysis.mapper.AssetRiskMapper;
-import com.gem.loganalysis.model.dto.query.RiskOverviewQueryDTO;
+import com.gem.loganalysis.model.dto.query.OverviewQueryDTO;
 import com.gem.loganalysis.model.entity.AssetRisk;
 import com.gem.loganalysis.model.vo.RiskOverviewRecordVO;
 import com.gem.loganalysis.model.vo.RiskOverviewVO;
@@ -33,8 +33,24 @@ public class AssetRiskServiceImpl extends ServiceImpl<AssetRiskMapper, AssetRisk
     @Resource
     private AssetEventMapper assetEventMapper;
 
+    /**
+     * 根据起止日期区间生成日期列表
+     *
+     * @param startDate 起始日期
+     * @param endDate   截止日期
+     * @return 日期列表
+     */
+    public static List<String> getBetweenDateList(DateTime startDate, DateTime endDate) {
+        List<String> dateList = new ArrayList<>();
+        long l = DateUtil.betweenDay(startDate, endDate, false);
+        for (int i = 1; i <= l; i++) {
+            dateList.add(DateUtil.offset(startDate, DateField.DAY_OF_YEAR, i).toString("yyyy-MM-dd"));
+        }
+        return dateList;
+    }
+
     @Override
-    public RiskOverviewVO geOverviewInfo(RiskOverviewQueryDTO dto) {
+    public RiskOverviewVO geOverviewInfo(OverviewQueryDTO dto) {
         RiskOverviewVO result = new RiskOverviewVO();
         DateTime startTime;
         String endTime = DateUtil.format(new Date(), DatePattern.PURE_DATETIME_PATTERN);
@@ -88,7 +104,7 @@ public class AssetRiskServiceImpl extends ServiceImpl<AssetRiskMapper, AssetRisk
         for (Map.Entry<String, List<RiskOverviewRecordVO>> entry : typeRiskListMap.entrySet()) {
             List<RiskOverviewVO.RiskNumDaily> dailyNum = generateDailyList(betweenDateList);
             List<RiskOverviewRecordVO> vos = entry.getValue();
-            Map<String, List<RiskOverviewRecordVO>> dateRiskNumMap = vos.stream().collect(Collectors.groupingBy(vo -> vo.getBeginTime().substring(0,8)));
+            Map<String, List<RiskOverviewRecordVO>> dateRiskNumMap = vos.stream().collect(Collectors.groupingBy(vo -> vo.getBeginTime().substring(0, 8)));
             for (RiskOverviewVO.RiskNumDaily daily : dailyNum) {
                 List<RiskOverviewRecordVO> list = dateRiskNumMap.get(daily.getDate().replaceAll("-", ""));
                 daily.setNum(CollUtil.isNotEmpty(list) ? list.size() : 0);
@@ -98,22 +114,6 @@ public class AssetRiskServiceImpl extends ServiceImpl<AssetRiskMapper, AssetRisk
         return result;
     }
 
-    /**
-     * 根据起止日期区间生成日期列表
-     *
-     * @param startDate 起始日期
-     * @param endDate   截止日期
-     * @return 日期列表
-     */
-    private List<String> getBetweenDateList(DateTime startDate, DateTime endDate) {
-        List<String> dateList = new ArrayList<>();
-        long l = DateUtil.betweenDay(startDate, endDate, false);
-        for (int i = 1; i <= l; i++) {
-            dateList.add(DateUtil.offset(startDate, DateField.DAY_OF_YEAR, i).toString("yyyy-MM-dd"));
-        }
-        return dateList;
-    }
-
     private List<RiskOverviewVO.RiskNumDaily> generateDailyList(List<String> dateList) {
         List<RiskOverviewVO.RiskNumDaily> list = new ArrayList<>(dateList.size());
         for (String date : dateList) {
@@ -121,5 +121,6 @@ public class AssetRiskServiceImpl extends ServiceImpl<AssetRiskMapper, AssetRisk
         }
         return list;
     }
+
 
 }

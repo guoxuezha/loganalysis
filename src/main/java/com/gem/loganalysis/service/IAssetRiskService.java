@@ -1,7 +1,7 @@
 package com.gem.loganalysis.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.gem.loganalysis.model.dto.query.RiskOverviewQueryDTO;
+import com.gem.loganalysis.model.dto.query.OverviewQueryDTO;
 import com.gem.loganalysis.model.entity.AssetRisk;
 import com.gem.loganalysis.model.vo.RiskOverviewVO;
 
@@ -21,6 +21,6 @@ public interface IAssetRiskService extends IService<AssetRisk> {
      * @param dto 查询入参
      * @return 响应
      */
-    RiskOverviewVO geOverviewInfo(RiskOverviewQueryDTO dto);
+    RiskOverviewVO geOverviewInfo(OverviewQueryDTO dto);
 
 }

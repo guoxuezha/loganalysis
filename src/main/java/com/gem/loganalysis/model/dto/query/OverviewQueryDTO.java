@@ -11,12 +11,13 @@ import lombok.Data;
  * @date 2023/5/23 10:44
  */
 @Data
-public class RiskOverviewQueryDTO {
+public class OverviewQueryDTO {
 
     /**
      * 总览周期
      * (1-周 2-月 3-季)
      */
-    @ApiModelProperty(value = "总览周期(1-周 2-月 3-季)")
+    @ApiModelProperty(value = "总览周期(0-日 1-周 2-月 3-季)")
     private Integer cycle;
+
 }
