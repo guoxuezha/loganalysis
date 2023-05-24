@@ -52,6 +52,13 @@ public class LambdaQueryWrapperX<T> extends LambdaQueryWrapper<T> {
         return this;
     }
 
+    public LambdaQueryWrapperX<T> neIfPresent(SFunction<T, ?> column, String val) {
+        if (StringUtils.hasText(val)) {
+            return (LambdaQueryWrapperX<T>) super.ne(column, val);
+        }
+        return this;
+    }
+
     public LambdaQueryWrapperX<T> neIfPresent(SFunction<T, ?> column, Object val) {
         if (val != null) {
             return (LambdaQueryWrapperX<T>) super.ne(column, val);
@@ -66,8 +73,22 @@ public class LambdaQueryWrapperX<T> extends LambdaQueryWrapper<T> {
         return this;
     }
 
+    public LambdaQueryWrapperX<T> gtIfPresent(SFunction<T, ?> column, String val) {
+        if (StringUtils.hasText(val)) {
+            return (LambdaQueryWrapperX<T>) super.gt(column, val);
+        }
+        return this;
+    }
+
     public LambdaQueryWrapperX<T> geIfPresent(SFunction<T, ?> column, Object val) {
         if (val != null) {
+            return (LambdaQueryWrapperX<T>) super.ge(column, val);
+        }
+        return this;
+    }
+
+    public LambdaQueryWrapperX<T> geIfPresent(SFunction<T, ?> column, String val) {
+        if (StringUtils.hasText(val)) {
             return (LambdaQueryWrapperX<T>) super.ge(column, val);
         }
         return this;
@@ -80,8 +101,22 @@ public class LambdaQueryWrapperX<T> extends LambdaQueryWrapper<T> {
         return this;
     }
 
+    public LambdaQueryWrapperX<T> ltIfPresent(SFunction<T, ?> column, String val) {
+        if (StringUtils.hasText(val)) {
+            return (LambdaQueryWrapperX<T>) super.lt(column, val);
+        }
+        return this;
+    }
+
     public LambdaQueryWrapperX<T> leIfPresent(SFunction<T, ?> column, Object val) {
         if (val != null) {
+            return (LambdaQueryWrapperX<T>) super.le(column, val);
+        }
+        return this;
+    }
+
+    public LambdaQueryWrapperX<T> leIfPresent(SFunction<T, ?> column, String val) {
+        if (StringUtils.hasText(val)) {
             return (LambdaQueryWrapperX<T>) super.le(column, val);
         }
         return this;

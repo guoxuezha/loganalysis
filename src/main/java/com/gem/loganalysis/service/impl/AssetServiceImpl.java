@@ -44,8 +44,6 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     private IDictDataService dictDataService;
     @Resource
     private IAssetGroupService assetGroupService;
-    @Resource
-    private BusinessConfigInfo businessConfigInfo;
 
     @Override
     public Result<String> editAsset(AssetDTO dto) {
@@ -56,11 +54,11 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 return Result.failed("请输入正确的IP地址格式");
             }
         }
-        //AES加密
+/*        //前端已加密 后端无需AES加密
         if(!StringUtils.isBlank(dto.getNmPassword())){
             String password = AESUtil.aesEncrypt(dto.getNmPassword(), businessConfigInfo.getAESKey());
             dto.setNmPassword(password);
-        }
+        }*/
         return this.saveOrUpdate(AssetConvert.INSTANCE.convert(dto)) ? Result.ok("操作成功!") : Result.failed("操作失败!");
     }
 
