@@ -25,7 +25,7 @@ import java.util.List;
  */
 @Api(tags = "字典类型")
 @RestController
-@RequestMapping("/dictType")
+@RequestMapping("/sop/dictType")
 @AllArgsConstructor
 public class DictType2Controller {
 

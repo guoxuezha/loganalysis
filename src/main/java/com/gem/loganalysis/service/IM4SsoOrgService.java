@@ -9,6 +9,7 @@ import com.gem.loganalysis.model.vo.OrgRespVO;
 import com.gem.loganalysis.model.vo.TreeRespVO;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -19,6 +20,23 @@ import java.util.List;
  * @since 2023-05-23
  */
 public interface IM4SsoOrgService extends IService<M4SsoOrg> {
+
+
+
+    /**
+     * 初始化组织机构缓存
+     */
+    void initLocalCache();
+
+    /**
+     * 组织机构ID和NAME转移
+     */
+    String changeOrgName(String orgId);
+
+    /**
+     * 缓存中获取组织机构MAP(非树形)
+     */
+    Map<String, M4SsoOrg> getListByCache();
 
     /**
      * 新增/编辑组织机构

@@ -79,11 +79,5 @@ public class AssetController {
         return assetService.removeById(dto.getId()) ? Result.ok("删除成功!") : Result.failed("删除失败!");
     }
 
-    @PostMapping("/test")
-    @ApiOperation("没啥用 测试一下一会儿删掉")
-    public Result<String> test() {
-        return Result.ok(UserUtil.getLoginUserOrgId());
-    }
-
 
 }

@@ -37,7 +37,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/system/dict-type")
-@Api(tags = "系统配置 - 数据字典类型")
+@Api(tags = "系统配置 - 数据字典类型(老 已弃用)")
 public class DictTypeController {
 
     @Resource

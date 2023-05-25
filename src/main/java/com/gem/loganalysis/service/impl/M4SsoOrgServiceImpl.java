@@ -1,10 +1,6 @@
 package com.gem.loganalysis.service.impl;
 
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.lang.tree.Tree;
-import cn.hutool.core.lang.tree.TreeNodeConfig;
-import cn.hutool.core.lang.tree.TreeUtil;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gem.loganalysis.convert.M4SsoConvert;
 import com.gem.loganalysis.mapper.M4SsoOrgMapper;
@@ -14,13 +10,12 @@ import com.gem.loganalysis.model.entity.M4SsoOrg;
 import com.gem.loganalysis.model.vo.OrgRespVO;
 import com.gem.loganalysis.model.vo.TreeRespVO;
 import com.gem.loganalysis.service.IM4SsoOrgService;
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import javax.annotation.PostConstruct;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -34,11 +29,46 @@ import java.util.stream.Collectors;
 @Service
 public class M4SsoOrgServiceImpl extends ServiceImpl<M4SsoOrgMapper, M4SsoOrg> implements IM4SsoOrgService {
 
+    @Getter
+    //部门缓存
+    private volatile Map<String, M4SsoOrg> orgCache;
+
+    @Override
+    @PostConstruct
+    public void initLocalCache() {
+        // 第一步：查询数据
+        List<M4SsoOrg> list = this.list();
+        // 第二步：构建缓存
+        orgCache = new HashMap<>();
+        list.forEach(e->{
+            orgCache.put(e.getOrgId(),e);
+        });
+    }
+
+    @Override
+    public String changeOrgName(String orgId) {
+        if(StringUtils.isBlank(orgId)){
+            return "";
+        }
+        M4SsoOrg m4SsoOrg = orgCache.get(orgId);
+        if(m4SsoOrg==null){
+            return "";
+        }else {
+            return m4SsoOrg.getOrgName();
+        }
+    }
+
+    @Override
+    public Map<String, M4SsoOrg> getListByCache() {
+        return orgCache;
+    }
+
 
     @Override
     public boolean editOrg(OrgDTO dto) {
         M4SsoOrg convert = M4SsoConvert.INSTANCE.convert(dto);
         convert.setUpdateTime(DateUtil.format(new Date(),"yyyyMMddHHmmss"));
+        initLocalCache();
         return this.saveOrUpdate(convert);
     }
 

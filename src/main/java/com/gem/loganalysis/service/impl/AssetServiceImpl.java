@@ -20,6 +20,7 @@ import com.gem.loganalysis.model.vo.asset.AssetRespVO;
 import com.gem.loganalysis.service.IAssetGroupService;
 import com.gem.loganalysis.service.IAssetService;
 import com.gem.loganalysis.service.IDictDataService;
+import com.gem.loganalysis.service.IM4SsoOrgService;
 import com.gem.loganalysis.util.AESUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -44,6 +45,8 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     private IDictDataService dictDataService;
     @Resource
     private IAssetGroupService assetGroupService;
+    @Resource
+    private IM4SsoOrgService orgService;
 
     @Override
     public Result<String> editAsset(AssetDTO dto) {
@@ -106,16 +109,16 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     private AssetRespVO changeAssetName(AssetRespVO respVO){
         respVO.setAssetClassName(dictDataService.getDictData(DictType.ASSET_CLASS.getType(),respVO.getAssetClass()));
         respVO.setAssetStatusName(dictDataService.getDictData(DictType.ASSET_STATUS.getType(),respVO.getAssetStatus()));
-        if(respVO.getAssetType().equals("0")){//逻辑资产
+        if(respVO.getAssetClass().equals("0")){//逻辑资产
             respVO.setAssetTypeName(dictDataService.getDictData(DictType.LOGICAL_ASSET_TYPE.getType(),respVO.getAssetType()));
         }
-        if(respVO.getAssetType().equals("1")){//物理资产
+        if(respVO.getAssetClass().equals("1")){//物理资产
             respVO.setAssetTypeName(dictDataService.getDictData(DictType.PHYSICAL_ASSET_TYPE.getType(),respVO.getAssetType()));
         }
         respVO.setAssetSecurityStatusName(dictDataService.getDictData(DictType.PHYSICAL_ASSET_STATUS.getType(),respVO.getAssetSecurityStatus()));
         AssetGroup assetGroup = assetGroupService.getById(respVO.getAssetGroupId());
         respVO.setAssetGroupName(assetGroup==null?"":assetGroup.getGroupName());
-        respVO.setAssetOrgName("资产管理部");//TODO 融入组织框架后放组织
+        respVO.setAssetOrgName(orgService.changeOrgName(respVO.getAssetOrg()));
         return respVO;
     }
 }

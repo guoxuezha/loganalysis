@@ -40,7 +40,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/system/dict-data")
-@Api(tags = "系统配置 - 数据字典数据")
+@Api(tags = "系统配置 - 数据字典数据(老 已弃用)")
 public class DictDataController {
     @Resource
     private IDictDataService dictDataService;

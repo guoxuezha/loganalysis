@@ -26,7 +26,7 @@ import java.util.List;
  */
 @Api(tags = "字典数据")
 @RestController
-@RequestMapping("/dictItem")
+@RequestMapping("/sop/dictItem")
 @AllArgsConstructor
 public class DictItemController {
 
@@ -111,7 +111,7 @@ public class DictItemController {
 
     @ApiOperation("/获取开启状态的所有数据结构并排序,主要用于前端缓存")
     @PostMapping(value = "/getSimple")
-    public Result<Object> getSimpleDictItem() {
+    public Result<List<DictItemRespVO>> getSimpleDictItem() {
         return Result.ok(dictItemService.getSimpleDictItem());
     }
 

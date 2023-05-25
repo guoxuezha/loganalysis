@@ -56,8 +56,16 @@
         <if test="assetIp!=null and assetIp.trim()!='' ">
             AND sop_asset.IP_ADDRESS = #{assetIp}
         </if>
-        <if test="beginValidTime != null and beginValidTime.trim()!=''">AND sop_black_list.VALID_TIME <![CDATA[>=]]> #{beginValidTime}</if>
-        <if test="endValidTime != null and endValidTime.trim()!=''">AND sop_black_list.VALID_TIME <![CDATA[<=]]>#{endValidTime}</if>
+        <if test="beginValidTime != null and beginValidTime.trim()!=''">
+          AND (sop_black_list.VALID_TIME <![CDATA[>=]]> #{beginValidTime}
+                   OR  sop_black_list.VALID_TIME = ''
+                   OR sop_black_list.VALID_TIME IS NULL)
+        </if>
+        <if test="endValidTime != null and endValidTime.trim()!=''">
+          AND DATE_FORMAT(sop_black_list.CREATE_TIME,'%Y%m%d%H%i%s') <![CDATA[<=]]>#{endValidTime}
+        </if>
+        ORDER BY
+        updateTime DESC
     </select>
 
 </mapper>
