@@ -1,6 +1,8 @@
 package com.gem.loganalysis.model.entity;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -32,7 +34,7 @@ public class BlockRule implements Serializable {
      * 封堵规则ID
      */
     @TableId(value = "BLOCK_RULE_ID", type = IdType.AUTO)
-    private Integer blockRuleId;
+    private String blockRuleId;
 
     /**
      * 封堵规则描述
@@ -44,25 +46,25 @@ public class BlockRule implements Serializable {
      * 封堵类型（0临时封堵/1永久封堵）
      */
     @TableField("BLOCK_TYPE")
-    private String blockType;
+    private Integer blockType;
 
     /**
      * 临时封堵时长（分钟）
      */
     @TableField("BLOCK_DURATION")
-    private String blockDuration;
+    private Integer blockDuration;
 
     /**
      * 启用白名单（0否1是）
      */
     @TableField("WHITE_LIST_ENABLE")
-    private String whiteListEnable;
+    private Integer whiteListEnable;
 
     /**
      * 启用黑名单（0否1是）
      */
     @TableField("BLACK_LIST_ENABLE")
-    private Long blackListEnable;
+    private Integer blackListEnable;
 
     /**
      * 创建时间
@@ -96,6 +98,11 @@ public class BlockRule implements Serializable {
 
     public BlockRule(BlockRuleDTO dto) {
         BeanUtil.copyProperties(dto, this);
+        if (StrUtil.isNotEmpty(dto.getBlockRuleId())) {
+            this.updateTime = DateUtil.today();
+        } else {
+            this.createTime = DateUtil.today();
+        }
     }
 
 

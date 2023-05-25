@@ -1,5 +1,6 @@
 package com.gem.loganalysis.model.dto.edit;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
@@ -10,35 +11,22 @@ import lombok.Data;
 @Data
 public class BlockRuleDTO {
 
-    /**
-     * 封堵规则ID
-     */
+    @ApiModelProperty("封堵规则ID")
+    private String blockRuleId;
 
-    private Integer blockOffRuleId;
+    @ApiModelProperty("规则描述")
+    private String blockRuleDesc;
 
-    /**
-     * 设备唯一编码
-     */
-    private String equipId;
+    @ApiModelProperty("封堵类型（0临时/1永久）")
+    private Integer blockType;
 
-    /**
-     * 日志级别
-     */
-    private String severity;
+    @ApiModelProperty("封堵时长（分钟）")
+    private Integer BLOCK_DURATION;
 
-    /**
-     * 日志生产子系统
-     */
-    private String facility;
+    @ApiModelProperty("启用白名单（0否1是）")
+    private Integer whiteListEnable;
 
-    /**
-     * 来源IP字段名
-     */
-    private String ipItemName;
-
-    /**
-     * 封堵时长(秒)
-     */
-    private Long blockOffTime;
+    @ApiModelProperty("启用黑名单（0否1是）")
+    private Integer blackListEnable;
 
 }

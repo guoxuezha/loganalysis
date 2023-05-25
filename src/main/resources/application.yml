@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: dev
+    active: prod
 
   mvc:
     static-path-pattern: /**
@@ -35,3 +35,4 @@ mybatis-plus:
 
 business-config:
   adad-default-package: 01
+  logBlockFileRetentionDays: 7

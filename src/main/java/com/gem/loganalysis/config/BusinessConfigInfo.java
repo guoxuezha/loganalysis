@@ -39,4 +39,9 @@ public class BusinessConfigInfo {
      */
     private String adadDefaultPackage;
 
+    /**
+     * 原始日志文件保留天数
+     */
+    private Integer logBlockFileRetentionDays;
+
 }
