@@ -4,7 +4,7 @@ business-config:
   authenticationEnable: false
   responseEncryptEnable: false
   AESKey: SKVNMEIHJLOANSKI
-  logMonitorEnable: false
+  logMonitorEnable: true
 
 minio:
   #Minio服务所在地址

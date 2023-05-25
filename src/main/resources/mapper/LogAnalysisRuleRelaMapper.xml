@@ -124,7 +124,7 @@
         WHERE a.ASSET_STATUS = 2
         AND a.DELETE_STATE = 0
         AND b.DELETE_STATE = 0
-        AND c.DELETE_STATE = 0
+        /*AND c.DELETE_STATE = 0*/
         <if test="ip != null and ip != ''">
             AND a.IP_ADDRESS = #{ip, jdbcType=VARCHAR}
         </if>
