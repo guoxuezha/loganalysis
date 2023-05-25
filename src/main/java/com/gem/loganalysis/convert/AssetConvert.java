@@ -28,7 +28,7 @@ public interface AssetConvert {
     List<Asset> convertList01(List<AssetDTO> list);
     Page<AssetRespVO> convertPage(Page<Asset> page);
     List<AssetRespVO> convertList10(List<Asset> list);
-
+    List<AssetOverviewVO.NewAssetList> convertList11(List<AssetRespVO> list);
     AssetRespVO convert(Asset page);
     AssetGroupRespVO convert(AssetGroup page);
 
@@ -39,6 +39,7 @@ public interface AssetConvert {
     //IP资产扫描
     Page<PhysicalAssetScannerRespVO> convertPage03(Page<PhysicalAssetTemp> page);
     List<PhysicalAssetScannerRespVO> convertList03(List<PhysicalAssetTemp> list);
+    List<AssetOverviewVO.NewAssetScanList> convertList06(List<PhysicalAssetTemp> list);
     //资产分组分页
     List<AssetGroupRespVO> convertList(List<AssetGroup> list);
     Page<AssetGroupRespVO> convertPage04(Page<AssetGroup> page);

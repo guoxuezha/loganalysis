@@ -42,7 +42,7 @@ public interface IAssetService extends IService<Asset> {
      * 资产总览
      * @return
      */
-    AssetOverviewVO geOverviewInfo();
+    AssetOverviewVO getOverviewInfo();
 
     List<AssetRespVO> getAssetList(AssetQueryDTO dto);
 }

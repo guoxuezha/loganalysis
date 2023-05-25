@@ -3,6 +3,7 @@ package com.gem.loganalysis.model.dto.asset;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 @ApiModel("资产模块 - 物理资产扫描 DTO ")
 @Data

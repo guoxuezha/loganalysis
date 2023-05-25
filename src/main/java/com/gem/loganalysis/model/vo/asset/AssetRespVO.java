@@ -109,4 +109,7 @@ public class AssetRespVO {
     @ApiModelProperty(value = "资产安全状态(名称)")
     private String assetSecurityStatusName;
 
+    @ApiModelProperty(value = "分数")
+    private Integer score;
+
 }

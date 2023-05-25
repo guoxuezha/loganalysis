@@ -8,8 +8,10 @@ import com.gem.loganalysis.model.dto.DeleteDTO;
 import com.gem.loganalysis.model.dto.GetDTO;
 import com.gem.loganalysis.model.dto.asset.AssetDTO;
 import com.gem.loganalysis.model.dto.asset.AssetQueryDTO;
+import com.gem.loganalysis.model.dto.asset.AssetUpdateDTO;
 import com.gem.loganalysis.model.dto.query.LambdaQueryWrapperX;
 import com.gem.loganalysis.model.dto.query.OverviewQueryDTO;
+import com.gem.loganalysis.model.entity.Asset;
 import com.gem.loganalysis.model.entity.M4SsoOrg;
 import com.gem.loganalysis.model.vo.asset.AssetAccountRespVO;
 import com.gem.loganalysis.model.vo.asset.AssetOverviewVO;
@@ -90,7 +92,50 @@ public class AssetController {
     @PostMapping("/overview")
     @ApiOperation("资产总览")
     public Result<AssetOverviewVO> overview() {
-        return Result.ok(assetService.geOverviewInfo());
+        return Result.ok(assetService.getOverviewInfo());
+    }
+
+    @PostMapping("/addAssetTag")
+    @ApiOperation("添加标签")
+    public Result<String> addAssetTag(@Valid @RequestBody AssetUpdateDTO dto) {
+        if(StringUtils.isBlank(dto.getAssetTag())){
+            return Result.failed("请传入需要添加的资产标签");
+        }
+        Asset asset = assetService.getById(dto.getAssetId());
+        if(asset==null){
+            return Result.failed("该资产不存在");
+        }
+        asset.setAssetTag(StringUtils.isBlank(asset.getAssetTag())
+                ?dto.getAssetTag():asset.getAssetTag()+","+dto.getAssetTag());
+        return assetService.updateById(asset)?Result.ok("添加成功"):Result.failed("修改失败");
+    }
+
+    @PostMapping("/updateAssetManager")
+    @ApiOperation("更换负责人")
+    public Result<String> updateAssetManager(@Valid @RequestBody AssetUpdateDTO dto) {
+        if(StringUtils.isBlank(dto.getAssetManager())){
+            return Result.failed("请传入需要更换的负责人");
+        }
+        Asset asset = assetService.getById(dto.getAssetId());
+        if(asset==null){
+            return Result.failed("该资产不存在");
+        }
+        asset.setAssetManager(dto.getAssetManager());
+        return assetService.updateById(asset)?Result.ok("更换成功"):Result.failed("更换失败");
+    }
+
+    @PostMapping("/updateGroupId")
+    @ApiOperation("修改分组")
+    public Result<String> updateGroupId(@Valid @RequestBody AssetUpdateDTO dto) {
+        if(StringUtils.isBlank(dto.getAssetGroupId())){
+            return Result.failed("请传入更改后的分组ID");
+        }
+        Asset asset = assetService.getById(dto.getAssetId());
+        if(asset==null){
+            return Result.failed("该资产不存在");
+        }
+        asset.setAssetGroupId(dto.getAssetGroupId());
+        return assetService.updateById(asset)?Result.ok("修改成功"):Result.failed("修改失败");
     }
 
 

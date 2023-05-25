@@ -13,7 +13,6 @@ import lombok.Data;
 @Data
 public class AssetAccountRespVO {
 
-
     @ApiModelProperty(value = "网管账号")
     private String nmAccount;
 

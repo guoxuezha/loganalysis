@@ -17,7 +17,7 @@ import java.util.List;
 public class IpSectionDTO {
 
     @ApiModelProperty(value = "IP区段",required = true)
-    @NotBlank(message = "IP区段不能为空")
+    @NotNull(message = "IP区段不能为空")
     private List<VlanDTO> vlanList;
 
 }
