@@ -471,7 +471,6 @@ public class LogAnalysisRuleBo {
         assetMergeLog.setLogId(mergeLog.getLogId());
         assetMergeLog.setRuleRelaId(ruleRelaId);
         assetMergeLog.setUnionKey(key);
-        assetMergeLog.setLogPeriod(0);
         assetMergeLog.setEventCount(mergeLog.getMergeCount().get());
         assetMergeLog.setUpdateTime(DateUtil.format(new Date(), DatePattern.PURE_DATETIME_FORMAT));
         assetMergeLog.setMessage(mergeLog.getMessage());
@@ -485,6 +484,9 @@ public class LogAnalysisRuleBo {
     }
 
     private int getLogPeriodOfDay() {
+        if (this.mergeWindowTime == 0) {
+            return 0;
+        }
         int minute = DateUtil.hour(new Date(), true) * 60 + DateUtil.minute(new Date());
         return (minute / this.mergeWindowTime) + 1;
     }
@@ -503,7 +505,7 @@ public class LogAnalysisRuleBo {
                 .eventOrigin(1)
                 .originId(mergeLog.getLogId())
                 .eventType(jsonObject.get(eventTypeItem) != null ? (String) jsonObject.get(eventTypeItem) : "未定义")
-                .eventClass(jsonObject.get(eventClassItem) != null ? (String) jsonObject.get(eventClassItem) : "未定义")
+                .eventClass(jsonObject.get(eventClassItem) != null ? String.valueOf(jsonObject.get(eventClassItem)) : "未定义")
                 .sourceIp((String) jsonObject.get(eventKeyWord))
                 .beginTime(DatePattern.PURE_DATETIME_FORMAT.format(new Date()))
                 .eventMessage(mergeLog.getMessage())
