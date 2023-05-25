@@ -1,6 +1,8 @@
 package com.gem.loganalysis.controller;
 
 
+import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.Result;
@@ -51,7 +53,15 @@ public class BlockRuleController {
     @PostMapping("/edit")
     @ApiOperation("编辑封堵规则")
     public Result<String> edit(@RequestBody BlockRuleDTO dto) {
-        boolean result = iBlockRuleService.saveOrUpdate(new BlockRule(dto));
+        boolean insert = StrUtil.isEmpty(dto.getBlockRuleId());
+        BlockRule blockRule = new BlockRule(dto);
+        boolean result;
+        if (insert) {
+            blockRule.setBlockRuleId(IdUtil.fastSimpleUUID());
+            result = iBlockRuleService.save(blockRule);
+        } else {
+            result = iBlockRuleService.updateById(blockRule);
+        }
         return result ? Result.ok("编辑成功!") : Result.failed("编辑失败!");
     }
 

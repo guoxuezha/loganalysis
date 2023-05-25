@@ -91,20 +91,21 @@ public class LogEventListener {
         if (CollUtil.isNotEmpty(dataSet)) {
             for (HashMap<String, String> map : dataSet) {
                 // 如果事件类型关联的封堵规则为空,则新增一条闲置记录,并修改事件状态为"忽略"
+                int handleStatus;
                 if (StrUtil.isEmpty(map.get("BLOCK_RULE_ID"))) {
-                    int i = dao.execCommand(BaseConstant.DEFAULT_POOL_NAME,
+                    dao.execCommand(BaseConstant.DEFAULT_POOL_NAME,
                             String.format("INSERT IGNORE INTO SOP_EVENT_TYPE(EVENT_TYPE, EVENT_CLASS, BLOCK_RULE_ID) VALUE('%s','%s','%s')",
                                     map.get("EVENT_TYPE"), map.get("EVENT_CLASS"), ""));
-                    if (i >= 0) {
-                        String updateSql = "UPDATE SOP_ASSET_EVENT SET HANDLE_STATUS = '3' WHERE EVENT_ID = '" + map.get("EVENT_ID") + "' LIMIT 1";
-                        dao.execCommand(BaseConstant.DEFAULT_POOL_NAME, updateSql);
-                    }
+                    handleStatus = 3;
                 } else {
                     // 否则根据对应的封堵规则执行封堵
                     log.info("事件类型:{}, 事件级别:{}, 对IP: {} 进行 {}, 封堵时长为: {} 分钟",
                             map.get("EVENT_TYPE"), map.get("EVENT_CLASS"), map.get("SOURCE_IP"),
                             "0".equals(map.get("BLOCK_TYPE")) ? "临时封堵" : "永久封堵", "0".equals(map.get("BLOCK_TYPE")) ? map.get("BLOCK_DURATION") : "∞");
+                    handleStatus = 1;
                 }
+                String updateSql = "UPDATE SOP_ASSET_EVENT SET HANDLE_STATUS = " + handleStatus + " WHERE EVENT_ID = '" + map.get("EVENT_ID") + "' LIMIT 1";
+                dao.execCommand(BaseConstant.DEFAULT_POOL_NAME, updateSql);
             }
         }
     }
@@ -133,10 +134,6 @@ public class LogEventListener {
                 }
             }
         }
-    }
-
-    public void uploadAndDeleteBlockFile() {
-
     }
 
 }

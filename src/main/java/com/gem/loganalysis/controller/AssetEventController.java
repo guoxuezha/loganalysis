@@ -15,6 +15,7 @@ import com.gem.loganalysis.model.dto.query.OverviewQueryDTO;
 import com.gem.loganalysis.model.entity.AssetEvent;
 import com.gem.loganalysis.model.entity.AssetMergeLog;
 import com.gem.loganalysis.model.entity.EventType;
+import com.gem.loganalysis.model.vo.EventOverviewVO;
 import com.gem.loganalysis.service.IAssetEventService;
 import com.gem.loganalysis.service.IAssetMergeLogService;
 import com.gem.loganalysis.service.IEventTypeService;
@@ -57,13 +58,13 @@ public class AssetEventController {
      */
     @PostMapping("/assetEvent/overview")
     @ApiOperation("事件总览")
-    public Result<Object> overview(@RequestBody OverviewQueryDTO dto) {
+    public Result<EventOverviewVO> overview(@RequestBody OverviewQueryDTO dto) {
         return Result.ok(iAssetEventService.geOverviewInfo(dto));
     }
 
     @PostMapping("/eventType/pageList")
     @ApiOperation("分页查询事件类型")
-    public Result<Object> eventTypePageList(@RequestBody PageRequest<Object> dto) {
+    public Result<Page<EventType>> eventTypePageList(@RequestBody PageRequest<Object> dto) {
         Page<EventType> page = new Page<>(dto.getPageNum(), dto.getPageSize());
         return Result.ok(iEventTypeService.page(page));
     }
@@ -101,7 +102,7 @@ public class AssetEventController {
      */
     @PostMapping("/assetEvent/pageList")
     @ApiOperation("条件分页查询事件")
-    public Result<Object> eventPageList(@RequestBody PageRequest<EventQueryDTO> dto) {
+    public Result<Page<AssetEvent>> eventPageList(@RequestBody PageRequest<EventQueryDTO> dto) {
         Page<AssetEvent> page = new Page<>(dto.getPageNum(), dto.getPageSize());
         EventQueryDTO data = dto.getData();
         LambdaQueryWrapperX<AssetEvent> wrapperX = new LambdaQueryWrapperX<>();
@@ -124,7 +125,7 @@ public class AssetEventController {
      */
     @PostMapping("/assetEvent/getOriginLog")
     @ApiOperation("查询触发事件的归并日志信息")
-    public Result<Object> getOriginLog(@RequestBody GetDTO dto) {
+    public Result<AssetMergeLog> getOriginLog(@RequestBody GetDTO dto) {
         return Result.ok(iAssetMergeLogService.getById(dto.getId()));
     }
 
@@ -136,7 +137,7 @@ public class AssetEventController {
      */
     @PostMapping("/assetEvent/getSourceLog")
     @ApiOperation("查询与事件相关的原始日志信息")
-    public Result<Object> getSourceLog(@RequestBody GetDTO dto) {
+    public Result<List<String>> getSourceLog(@RequestBody GetDTO dto) {
         AssetMergeLog mergeLog = iAssetMergeLogService.getById(dto.getId());
         List<String> result = iAssetMergeLogService.getSourceLog(new LogContentQueryDTO(mergeLog.getRuleRelaId(), mergeLog.getUpdateTime(), mergeLog.getLogId()));
         return Result.ok(result);

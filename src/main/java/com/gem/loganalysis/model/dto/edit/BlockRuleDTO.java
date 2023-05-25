@@ -21,7 +21,7 @@ public class BlockRuleDTO {
     private Integer blockType;
 
     @ApiModelProperty("封堵时长（分钟）")
-    private Integer BLOCK_DURATION;
+    private Integer blockDuration;
 
     @ApiModelProperty("启用白名单（0否1是）")
     private Integer whiteListEnable;
