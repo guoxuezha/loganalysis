@@ -16,6 +16,7 @@ import com.gem.loganalysis.model.dto.query.LambdaQueryWrapperX;
 import com.gem.loganalysis.model.entity.Asset;
 import com.gem.loganalysis.model.entity.AssetGroup;
 import com.gem.loganalysis.model.vo.asset.AssetAccountRespVO;
+import com.gem.loganalysis.model.vo.asset.AssetOverviewVO;
 import com.gem.loganalysis.model.vo.asset.AssetRespVO;
 import com.gem.loganalysis.service.IAssetGroupService;
 import com.gem.loganalysis.service.IAssetService;
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -90,6 +92,32 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         return assetRespVOPage;
     }
 
+
+    @Override
+    public List<AssetRespVO> getAssetList(AssetQueryDTO dto) {
+        LambdaQueryWrapperX<Asset> wrapper = new LambdaQueryWrapperX<Asset>()
+                .likeIfPresent(Asset::getAssetName, dto.getAssetName())
+                .eqIfPresent(Asset::getAssetClass, dto.getAssetClass())
+                .eqIfPresent(Asset::getAssetType, dto.getAssetType())
+                .eqIfPresent(Asset::getIpAddress, dto.getIpAddress())
+                .eqIfPresent(Asset::getAssetManager, dto.getAssetManager())
+                .eqIfPresent(Asset::getAssetGroupId, dto.getAssetGroupId())
+                .eqIfPresent(Asset::getAssetOrg, dto.getAssetOrg())
+                .eqIfPresent(Asset::getAssetStatus, dto.getAssetStatus())
+                .orderByDesc(Asset::getUpdateTime);
+        List<Asset> resp = this.list(wrapper);
+        List<AssetRespVO> assetRespVOPage = AssetConvert.INSTANCE.convertList10(resp);
+        //转义
+        assetRespVOPage.forEach(e->{
+            //TODO 资产的安全状态目前先全部放安全，等待之后风险部分完成再放入
+            e.setAssetSecurityStatus("2");
+            changeAssetName(e);
+        });
+        return assetRespVOPage;
+    }
+
+
+
     @Override
     public AssetRespVO getAsset(String id) {
         Asset asset = this.getById(id);
@@ -104,6 +132,11 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         account.setNmAccount(asset.getNmAccount());
         account.setNmPassword(asset.getNmPassword());
         return account;
+    }
+
+    @Override
+    public AssetOverviewVO geOverviewInfo() {
+        return null;
     }
 
     private AssetRespVO changeAssetName(AssetRespVO respVO){

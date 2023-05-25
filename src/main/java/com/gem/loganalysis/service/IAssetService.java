@@ -8,7 +8,10 @@ import com.gem.loganalysis.model.dto.asset.AssetDTO;
 import com.gem.loganalysis.model.dto.asset.AssetQueryDTO;
 import com.gem.loganalysis.model.entity.Asset;
 import com.gem.loganalysis.model.vo.asset.AssetAccountRespVO;
+import com.gem.loganalysis.model.vo.asset.AssetOverviewVO;
 import com.gem.loganalysis.model.vo.asset.AssetRespVO;
+
+import java.util.List;
 
 /**
  * 安全管理资产 Service 接口
@@ -34,4 +37,12 @@ public interface IAssetService extends IService<Asset> {
     AssetRespVO getAsset(String id);
 
     AssetAccountRespVO getAssetAccount(String id);
+
+    /**
+     * 资产总览
+     * @return
+     */
+    AssetOverviewVO geOverviewInfo();
+
+    List<AssetRespVO> getAssetList(AssetQueryDTO dto);
 }

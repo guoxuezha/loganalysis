@@ -27,6 +27,7 @@ public interface AssetConvert {
     AssetGroup convert(AssetGroupDTO bean);
     List<Asset> convertList01(List<AssetDTO> list);
     Page<AssetRespVO> convertPage(Page<Asset> page);
+    List<AssetRespVO> convertList10(List<Asset> list);
 
     AssetRespVO convert(Asset page);
     AssetGroupRespVO convert(AssetGroup page);

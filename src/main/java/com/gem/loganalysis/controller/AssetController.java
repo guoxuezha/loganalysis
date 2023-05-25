@@ -9,8 +9,10 @@ import com.gem.loganalysis.model.dto.GetDTO;
 import com.gem.loganalysis.model.dto.asset.AssetDTO;
 import com.gem.loganalysis.model.dto.asset.AssetQueryDTO;
 import com.gem.loganalysis.model.dto.query.LambdaQueryWrapperX;
+import com.gem.loganalysis.model.dto.query.OverviewQueryDTO;
 import com.gem.loganalysis.model.entity.M4SsoOrg;
 import com.gem.loganalysis.model.vo.asset.AssetAccountRespVO;
+import com.gem.loganalysis.model.vo.asset.AssetOverviewVO;
 import com.gem.loganalysis.model.vo.asset.AssetRespVO;
 import com.gem.loganalysis.service.IAssetService;
 import com.gem.loganalysis.util.UserUtil;
@@ -52,6 +54,12 @@ public class AssetController {
         return Result.ok(assetService.getPageList(dto));
     }
 
+    @PostMapping("/list")
+    @ApiOperation("查询安全管理资产列表")
+    public Result<List<AssetRespVO>> pageList(@RequestBody AssetQueryDTO dto) {
+        return Result.ok(assetService.getAssetList(dto));
+    }
+
     @PostMapping("/get")
     @ApiOperation("根据ID获得单一资产信息")
     public Result<AssetRespVO> getAsset(@RequestBody GetDTO dto) {
@@ -77,6 +85,12 @@ public class AssetController {
             return Result.failed("请传入需要删除的资产ID");
         }
         return assetService.removeById(dto.getId()) ? Result.ok("删除成功!") : Result.failed("删除失败!");
+    }
+
+    @PostMapping("/overview")
+    @ApiOperation("资产总览")
+    public Result<AssetOverviewVO> overview() {
+        return Result.ok(assetService.geOverviewInfo());
     }
 
 

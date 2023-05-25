@@ -75,10 +75,10 @@ public class M4SsoOrgController {
         if(StringUtils.isBlank(dto.getId())){
             return Result.failed("请传入需要删除的组织机构的ID");
         }
-        List<M4SsoOrg> list = m4SsoOrgService.list(new LambdaQueryWrapperX<M4SsoOrg>().eq(M4SsoOrg::getParentOrg, dto.getId()));
+/*        List<M4SsoOrg> list = m4SsoOrgService.list(new LambdaQueryWrapperX<M4SsoOrg>().eq(M4SsoOrg::getParentOrg, dto.getId()));
         if(list.size()!=0){
             return Result.failed("该组织机构下还有子节点,请先删除子节点");
-        }
+        }*/
         return m4SsoOrgService.removeById(dto.getId()) ? Result.ok("删除成功!") : Result.failed("删除失败!");
     }
 
