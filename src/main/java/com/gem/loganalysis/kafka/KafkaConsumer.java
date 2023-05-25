@@ -42,12 +42,9 @@ public class KafkaConsumer {
     void onMessage1(String record) {
         if (businessConfigInfo.getLogMonitorEnable()) {
             List<MergeLog> messageList = convertLogFormat(record);
-            // 消费的哪个topic、partition的消息,打印出消息内容
-            //log.info("1.监听到的 messageList.size = {}", messageList.size());
             for (MergeLog mergelog : messageList) {
                 LogAnalysisRuleBo logAnalysisRuleBoObject = logAnalysisRulePool.getLogAnalysisRuleObject(mergelog.getHost(), mergelog.getFacility(), mergelog.getSeverity());
                 if (logAnalysisRuleBoObject != null && logAnalysisRuleBoObject.isEnable()) {
-                    //logAnalysisRuleObject.printOverview();
                     logAnalysisRuleBoObject.insertInCache(mergelog);
                 }
             }

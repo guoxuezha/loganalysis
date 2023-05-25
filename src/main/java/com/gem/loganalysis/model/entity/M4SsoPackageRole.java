@@ -32,13 +32,13 @@ public class M4SsoPackageRole implements Serializable {
     /**
      * 业务包编码
      */
-    @TableId("PACKAGE_ID")
+    @TableField("PACKAGE_ID")
     private String packageId;
 
     /**
      * 角色编码
      */
-    @TableField("ROLE_ID")
+    @TableId("ROLE_ID")
     private String roleId;
 
     /**

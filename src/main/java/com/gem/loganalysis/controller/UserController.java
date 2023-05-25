@@ -18,6 +18,7 @@ import com.gem.loganalysis.model.dto.query.UserQueryDTO;
 import com.gem.loganalysis.model.entity.M4SsoPackageRole;
 import com.gem.loganalysis.model.entity.M4SsoUser;
 import com.gem.loganalysis.model.entity.M4SsoUserRole;
+import com.gem.loganalysis.model.vo.UserInfoVO;
 import com.gem.loganalysis.service.IM4SsoPackageRoleService;
 import com.gem.loganalysis.service.IM4SsoUserRoleService;
 import com.gem.loganalysis.service.IM4SsoUserService;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author GuoChao
@@ -64,17 +66,24 @@ public class UserController {
 
     @ApiOperation("用户列表(分页)")
     @PostMapping("/user/pageList")
-    public Result<Object> userPageList(@RequestBody PageRequest<UserQueryDTO> dto) {
-        Page<M4SsoUser> page = new Page<>(dto.getPageNum(), dto.getPageSize());
+    public Result<Page<UserInfoVO>> userPageList(@RequestBody PageRequest<UserQueryDTO> dto) {
+        Page<UserInfoVO> result = new Page<>(dto.getPageNum(), dto.getPageSize());
         LambdaQueryWrapperX<M4SsoUser> wrapperX = new LambdaQueryWrapperX<>();
         UserQueryDTO data = dto.getData();
         wrapperX.eqIfPresent(M4SsoUser::getAccount, data.getAccount()).eqIfPresent(M4SsoUser::getOrgId, data.getOrgId()).eqIfPresent(M4SsoUser::getMobile, data.getMobile()).eqIfPresent(M4SsoUser::getEmail, data.getEmail());
-        return Result.ok(im4SsoUserService.page(page, wrapperX));
+        Page<M4SsoUser> userPage = im4SsoUserService.page(new Page<>(dto.getPageNum(), dto.getPageSize()), wrapperX);
+        result.setTotal(userPage.getTotal());
+        List<UserInfoVO> records = new ArrayList<>();
+        for (M4SsoUser record : userPage.getRecords()) {
+            records.add(new UserInfoVO(record));
+        }
+        result.setRecords(records);
+        return Result.ok(result);
     }
 
     @ApiOperation("编辑用户")
     @PostMapping("/user/edit")
-    public Result<Object> userEdit(@RequestBody UserDTO dto) {
+    public Result<String> userEdit(@RequestBody UserDTO dto) {
         boolean insert = false;
         if (StrUtil.isEmpty(dto.getUserId())) {
             insert = true;
@@ -95,14 +104,14 @@ public class UserController {
 
     @ApiOperation("删除用户")
     @PostMapping("/user/delete")
-    public Result<Object> userDelete(@RequestBody DeleteDTO dto) {
+    public Result<String> userDelete(@RequestBody DeleteDTO dto) {
         boolean result = im4SsoUserService.removeById(dto.getId());
         return result ? Result.ok("删除成功!") : Result.failed("删除失败!");
     }
 
     @ApiOperation("角色列表(分页)")
     @PostMapping("/role/pageList")
-    public Result<Object> rolePageList(@RequestBody PageRequest<String> dto) {
+    public Result<Page<M4SsoPackageRole>> rolePageList(@RequestBody PageRequest<String> dto) {
         Page<M4SsoPackageRole> page = new Page<>(dto.getPageNum(), dto.getPageSize());
         LambdaQueryWrapperX<M4SsoPackageRole> wrapperX = new LambdaQueryWrapperX<>();
         wrapperX.eqIfPresent(M4SsoPackageRole::getRoleName, dto.getData());
@@ -111,21 +120,31 @@ public class UserController {
 
     @ApiOperation("编辑角色")
     @PostMapping("/role/edit")
-    public Result<Object> roleEdit(@RequestBody RoleDTO dto) {
-        boolean result = im4SsoPackageRoleService.saveOrUpdate(new M4SsoPackageRole(dto));
+    public Result<String> roleEdit(@RequestBody RoleDTO dto) {
+        boolean result;
+        boolean insert = StrUtil.isEmpty(dto.getRoleId());
+        M4SsoPackageRole packageRole = new M4SsoPackageRole(dto);
+        if (insert) {
+            result = im4SsoPackageRoleService.save(packageRole);
+        } else {
+            LambdaQueryWrapper<M4SsoPackageRole> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(M4SsoPackageRole::getRoleId, dto.getRoleId())
+                    .eq(M4SsoPackageRole::getPackageId, "01");
+            result = im4SsoPackageRoleService.update(packageRole, wrapper);
+        }
         return result ? Result.ok("编辑成功!") : Result.failed("编辑失败!");
     }
 
     @ApiOperation("删除角色")
     @PostMapping("/role/delete")
-    public Result<Object> roleDelete(@RequestBody DeleteDTO dto) {
+    public Result<String> roleDelete(@RequestBody DeleteDTO dto) {
         boolean result = im4SsoPackageRoleService.removeById(dto.getId());
         return result ? Result.ok("删除成功!") : Result.failed("删除失败!");
     }
 
     @ApiOperation("为用户分配角色")
     @PostMapping("/user/allocationRole")
-    public Result<Object> allocationRole(@RequestBody RoleAllocationDTO dto) {
+    public Result<String> allocationRole(@RequestBody RoleAllocationDTO dto) {
         LambdaQueryWrapper<M4SsoUserRole> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(M4SsoUserRole::getUserId, dto.getUserId());
         im4SsoUserRoleService.remove(wrapper);

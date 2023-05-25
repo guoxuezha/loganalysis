@@ -37,7 +37,7 @@ public class M4SsoUser implements Serializable {
      * 用户唯一编码
      */
     @TableId("USER_ID")
-    @ApiModelProperty("")
+    @ApiModelProperty("用户唯一编码")
     private String userId;
 
     /**

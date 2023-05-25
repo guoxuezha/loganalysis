@@ -196,12 +196,14 @@ public class LogAnalysisRuleBo {
         this.eventTypeItem = (String) ruleMap.get("EVENT_TYPE_ITEM");
         this.eventClassItem = (String) ruleMap.get("EVENT_CLASS_ITEM");
 
-        this.ruleType = (Integer) ruleMap.get("RULE_TYPE");
-        this.itemSplitSequence = (String) ruleMap.get("ITEM_SPLIT");
-        this.kvSplitSequence = (String) ruleMap.get("KV_SPLIT");
-        this.jarName = (String) ruleMap.get("JAR_NAME");
-        this.version = (String) ruleMap.get("VERSION");
-        this.methodName = (String) ruleMap.get("METHOD_NAME");
+        if (ruleMap.get("RULE_TYPE") != null) {
+            this.ruleType = (Integer) ruleMap.get("RULE_TYPE");
+            this.itemSplitSequence = (String) ruleMap.get("ITEM_SPLIT");
+            this.kvSplitSequence = (String) ruleMap.get("KV_SPLIT");
+            this.jarName = (String) ruleMap.get("JAR_NAME");
+            this.version = (String) ruleMap.get("VERSION");
+            this.methodName = (String) ruleMap.get("METHOD_NAME");
+        }
 
         this.blockFileDay = DateUtil.format(new Date(), DatePattern.PURE_DATE_PATTERN);
         String fileName = ruleRelaId + blockFileDay;
@@ -281,13 +283,18 @@ public class LogAnalysisRuleBo {
 
         // 拼接构造业务联合主键
         StringBuilder unionKey = new StringBuilder();
-        for (String mergeKey : this.mergeItemList) {
-            unionKey.append(map.get(mergeKey)).append("~");
+        String unionKeyStr;
+        if (CollUtil.isNotEmpty(this.mergeItemList)) {
+            for (String mergeKey : this.mergeItemList) {
+                unionKey.append(map.get(mergeKey)).append("~");
+            }
+            if (unionKey.length() > 0) {
+                unionKey.delete(unionKey.length() - 1, unionKey.length());
+            }
+            unionKeyStr = unionKey.toString();
+        } else {
+            unionKeyStr = IdUtil.fastSimpleUUID();
         }
-        if (unionKey.length() > 0) {
-            unionKey.delete(unionKey.length() - 1, unionKey.length());
-        }
-        String unionKeyStr = unionKey.toString();
         mergeLog.setUnionKey(unionKeyStr);
 
         // 判断该日志是否需要作为当前归并周期的第一条生成logId
@@ -360,7 +367,13 @@ public class LogAnalysisRuleBo {
      */
     private HashMap<String, Object> getMessageInfoMap(String msg) {
         HashMap<String, Object> map = new HashMap<>();
-        if (this.ruleType == 1) {
+        if (this.ruleType == null) {
+            try {
+                map = new ObjectMapper().readValue(msg, HashMap.class);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        } else if (this.ruleType == 1) {
             if (StrUtil.isEmpty(itemSplitSequence) && StrUtil.isEmpty(kvSplitSequence)) {
                 ObjectMapper objectMapper = new ObjectMapper();
                 try {
