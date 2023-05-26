@@ -5,7 +5,6 @@ import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gem.gemada.dal.db.pools.DAO;
 import com.gem.loganalysis.mapper.AssetEventMapper;
@@ -64,7 +63,6 @@ public class AssetEventServiceImpl extends ServiceImpl<AssetEventMapper, AssetEv
                 break;
         }
         StringBuilder querySql = new StringBuilder("SELECT A.*, ASSET_NAME FROM SOP_ASSET_EVENT A LEFT JOIN SOP_ASSET B ON A.ASSET_ID = B.ASSET_ID WHERE TRUE ");
-        LambdaQueryWrapper<AssetEvent> wrapper = new LambdaQueryWrapper<>();
         if (startTime == null) {
             querySql.append("AND LEFT(A.BEGIN_TIME,8) = '").append(DateUtil.format(new Date(), DatePattern.PURE_DATE_PATTERN)).append("'");
         } else {
@@ -86,7 +84,7 @@ public class AssetEventServiceImpl extends ServiceImpl<AssetEventMapper, AssetEv
     }
 
     private List<EventOverviewVO.TypeNum> dailyDataPadding(DateTime startDate, Map<String, List<AssetEventVO>> typeRiskListMap) {
-        List<String> betweenDateList = getBetweenDateList(startDate, new DateTime());
+        List<String> betweenDateList = getBetweenDateList(startDate != null ? startDate : new DateTime(), new DateTime());
         List<EventOverviewVO.TypeNum> result = new ArrayList<>(betweenDateList.size());
         for (String date : betweenDateList) {
             List<AssetEventVO> voList = typeRiskListMap.get(date.replaceAll("-", ""));

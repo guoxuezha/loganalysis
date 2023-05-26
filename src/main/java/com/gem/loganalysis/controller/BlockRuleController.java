@@ -1,12 +1,18 @@
 package com.gem.loganalysis.controller;
 
 
+import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.Result;
+import com.gem.loganalysis.model.dto.DeleteDTO;
+import com.gem.loganalysis.model.dto.edit.BlockRuleDTO;
 import com.gem.loganalysis.model.dto.query.BlockRecordQueryDTO;
+import com.gem.loganalysis.model.dto.query.BlockRuleQueryDTO;
 import com.gem.loganalysis.model.dto.query.LambdaQueryWrapperX;
 import com.gem.loganalysis.model.entity.BlockRecord;
+import com.gem.loganalysis.model.entity.BlockRule;
 import com.gem.loganalysis.service.IBlockRecordService;
 import com.gem.loganalysis.service.IBlockRuleService;
 import io.swagger.annotations.Api;
@@ -35,12 +41,37 @@ public class BlockRuleController {
 
     private final IBlockRecordService iBlockRecordService;
 
-    /**
-     * 分页查询封堵记录
-     *
-     * @param dto 分页查询参数
-     * @return 封堵记录列表
-     */
+    @PostMapping("/pageList")
+    @ApiOperation("分页查询封堵规则")
+    public Result<Page<BlockRule>> pageList(@RequestBody PageRequest<BlockRuleQueryDTO> dto) {
+        Page<BlockRule> page = new Page<>(dto.getPageNum(), dto.getPageSize());
+        LambdaQueryWrapperX<BlockRule> wrapperX = new LambdaQueryWrapperX<>();
+        wrapperX.eqIfPresent(BlockRule::getBlockType, dto.getData().getBlockType());
+        return Result.ok(iBlockRuleService.page(page, wrapperX));
+    }
+
+    @PostMapping("/edit")
+    @ApiOperation("编辑封堵规则")
+    public Result<String> edit(@RequestBody BlockRuleDTO dto) {
+        boolean insert = StrUtil.isEmpty(dto.getBlockRuleId());
+        BlockRule blockRule = new BlockRule(dto);
+        boolean result;
+        if (insert) {
+            blockRule.setBlockRuleId(IdUtil.fastSimpleUUID());
+            result = iBlockRuleService.save(blockRule);
+        } else {
+            result = iBlockRuleService.updateById(blockRule);
+        }
+        return result ? Result.ok("编辑成功!") : Result.failed("编辑失败!");
+    }
+
+    @PostMapping("/delete")
+    @ApiOperation("删除封堵规则")
+    public Result<String> delete(@RequestBody DeleteDTO dto) {
+        boolean result = iBlockRuleService.removeById(dto.getId());
+        return result ? Result.ok("删除成功!") : Result.failed("删除失败!");
+    }
+
     @ApiOperation("分页查询封堵记录")
     @PostMapping("/blockOffRecords")
     public Result<Object> blockOffRecords(@RequestBody PageRequest<BlockRecordQueryDTO> dto) {

@@ -2,12 +2,11 @@ package com.gem.loganalysis.model.entity;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.gem.loganalysis.model.dto.edit.BlockRuleDTO;
+import com.gem.loganalysis.model.dto.edit.EventTypeInsertDTO;
+import com.gem.loganalysis.model.dto.edit.EventTypeUpdateDTO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -16,55 +15,39 @@ import lombok.experimental.Accessors;
 import java.io.Serializable;
 
 /**
- * 封堵规则
+ * <p>
+ * 事件类型
+ * </p>
  *
  * @author GuoChao
- * @since 2023-05-03
+ * @since 2023-05-25
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
+@TableName("sop_event_type")
 @NoArgsConstructor
-@TableName("sop_block_rule")
-public class BlockRule implements Serializable {
+public class EventType implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     /**
-     * 封堵规则ID
+     * 事件类型
      */
-    @TableId(value = "BLOCK_RULE_ID", type = IdType.AUTO)
+    @TableId("EVENT_TYPE")
+    private String eventType;
+
+    /**
+     * 事件等级
+     */
+    @TableField("EVENT_CLASS")
+    private String eventClass;
+
+    /**
+     * 封堵规则编码
+     */
+    @TableField("BLOCK_RULE_ID")
     private String blockRuleId;
-
-    /**
-     * 封堵规则描述
-     */
-    @TableField("BLOCK_RULE_DESC")
-    private String blockRuleDesc;
-
-    /**
-     * 封堵类型（0临时封堵/1永久封堵）
-     */
-    @TableField("BLOCK_TYPE")
-    private Integer blockType;
-
-    /**
-     * 临时封堵时长（分钟）
-     */
-    @TableField("BLOCK_DURATION")
-    private Integer blockDuration;
-
-    /**
-     * 启用白名单（0否1是）
-     */
-    @TableField("WHITE_LIST_ENABLE")
-    private Integer whiteListEnable;
-
-    /**
-     * 启用黑名单（0否1是）
-     */
-    @TableField("BLACK_LIST_ENABLE")
-    private Integer blackListEnable;
 
     /**
      * 创建时间
@@ -96,13 +79,14 @@ public class BlockRule implements Serializable {
     @TableField("DELETE_STATE")
     private Integer deleteState;
 
-    public BlockRule(BlockRuleDTO dto) {
+    public EventType(EventTypeInsertDTO dto) {
         BeanUtil.copyProperties(dto, this);
-        if (StrUtil.isNotEmpty(dto.getBlockRuleId())) {
-            this.updateTime = DateUtil.today();
-        } else {
-            this.createTime = DateUtil.today();
-        }
+        this.createTime = DateUtil.now();
+    }
+
+    public EventType(EventTypeUpdateDTO dto) {
+        BeanUtil.copyProperties(dto, this);
+        this.updateTime = DateUtil.now();
     }
 
 

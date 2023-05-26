@@ -42,6 +42,12 @@ public class BlockFileUtil {
         analysisRuleBo.getBlockFile().writeData(mergeLog.getLogId(), JSONUtil.toJsonStr(mergeLog));
     }
 
+    /**
+     * 把File转为MultipartFile对象
+     *
+     * @param file file
+     * @return
+     */
     public static MultipartFile getMultipartFile(File file) {
         FileInputStream fileInputStream;
         MultipartFile multipartFile = null;
@@ -55,7 +61,7 @@ public class BlockFileUtil {
     }
 
     public static String getBlockFileRootPath() {
-        return System.getProperty("user.dir") + "\\";
+        return System.getProperty("user.dir") + "\\blockFile\\";
         /*try {
             return new ClassPathResource("").getFile().getAbsolutePath() + "\\blockFile\\";
         } catch (IOException e) {

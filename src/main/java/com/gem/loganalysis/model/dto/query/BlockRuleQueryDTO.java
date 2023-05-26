@@ -1,5 +1,6 @@
 package com.gem.loganalysis.model.dto.query;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
@@ -11,18 +12,9 @@ import lombok.Data;
 public class BlockRuleQueryDTO {
 
     /**
-     * 设备唯一编码
+     * 封堵类型（0临时封堵/1永久封堵）
      */
-    private Integer equipId;
-
-    /**
-     * 日志级别
-     */
-    private String severity;
-
-    /**
-     * 日志生产子系统
-     */
-    private String facility;
+    @ApiModelProperty("封堵类型（0临时封堵/1永久封堵）")
+    private Integer blockType;
 
 }
