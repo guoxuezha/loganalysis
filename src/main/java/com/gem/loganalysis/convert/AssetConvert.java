@@ -32,6 +32,12 @@ public interface AssetConvert {
     AssetRespVO convert(Asset page);
     AssetGroupRespVO convert(AssetGroup page);
 
+    //资产导出
+    List<PhysicalAssetExcelVO> convertList14(List<AssetRespVO> list);
+    List<LogicalAssetExcelVO> convertList15(List<AssetRespVO> list);
+    //资产导入
+    List<Asset> convertList16(List<PhysicalAssetExcelVO> list);
+    List<Asset> convertList17(List<LogicalAssetExcelVO> list);
 
     //逻辑资产扫描
     Page<LogicalAssetScannerRespVO> convertPage02(Page<LogicalAssetTemp> page);

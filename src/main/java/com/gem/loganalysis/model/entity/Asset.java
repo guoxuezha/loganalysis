@@ -67,6 +67,10 @@ public class Asset implements Serializable {
      */
     private String softwareVersion;
     /**
+     * MIB版本
+     */
+    private String mibVersion;
+    /**
      * IP地址
      */
     private String ipAddress;

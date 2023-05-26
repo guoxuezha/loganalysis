@@ -42,6 +42,9 @@ public class AssetDTO {
     @ApiModelProperty(value = "软件版本")
     private String softwareVersion;
 
+    @ApiModelProperty(value = "MIB版本")
+    private String mibVersion;
+
     @ApiModelProperty(value = "IP地址")
     private String ipAddress;
 

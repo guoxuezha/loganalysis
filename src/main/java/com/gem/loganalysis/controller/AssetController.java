@@ -1,7 +1,11 @@
 package com.gem.loganalysis.controller;
 
+import cn.hutool.core.collection.CollUtil;
+import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gem.loganalysis.convert.AssetConvert;
+import com.gem.loganalysis.enmu.AssetClass;
+import com.gem.loganalysis.exception.ServiceException;
 import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.Result;
 import com.gem.loganalysis.model.dto.DeleteDTO;
@@ -13,20 +17,25 @@ import com.gem.loganalysis.model.dto.query.LambdaQueryWrapperX;
 import com.gem.loganalysis.model.dto.query.OverviewQueryDTO;
 import com.gem.loganalysis.model.entity.Asset;
 import com.gem.loganalysis.model.entity.M4SsoOrg;
-import com.gem.loganalysis.model.vo.asset.AssetAccountRespVO;
-import com.gem.loganalysis.model.vo.asset.AssetOverviewVO;
-import com.gem.loganalysis.model.vo.asset.AssetRespVO;
+import com.gem.loganalysis.model.vo.ImportRespVO;
+import com.gem.loganalysis.model.vo.asset.*;
 import com.gem.loganalysis.service.IAssetService;
+import com.gem.loganalysis.util.ExcelUtils;
 import com.gem.loganalysis.util.UserUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.springframework.validation.annotation.Validated;
 import io.swagger.annotations.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Api(tags = "资产模块 - 安全管理资产")
 @RestController
@@ -136,6 +145,77 @@ public class AssetController {
         asset.setAssetGroupId(dto.getAssetGroupId());
         return assetService.updateById(asset)?Result.ok("修改成功"):Result.failed("修改失败");
     }
+
+
+
+    @PostMapping("/physical-import-template")
+    @ApiOperation("物理资产导入模板")
+    public void importPhysicalTemplate(HttpServletResponse response) throws IOException {
+        // 输出
+        ExcelUtils.write(response, "物理资产导入模板.xlsx", "物理资产", PhysicalAssetExcelVO.class, null);
+    }
+
+    @PostMapping("/logical-import-export")
+    @ApiOperation("逻辑资产导入模板")
+    public void importLogicalTemplate(HttpServletResponse response) throws IOException {
+        // 输出
+        ExcelUtils.write(response, "逻辑资产导入模板.xlsx", "逻辑资产", LogicalAssetExcelVO.class, null);
+    }
+
+    @PostMapping("/export-physical")
+    @ApiOperation("导出物理资产")
+    public void exportPhysical(HttpServletResponse response) throws IOException {
+        List<AssetRespVO> assetList = assetService.getAssetList(new AssetQueryDTO().setAssetClass(AssetClass.PHYSICAL.getId()));
+        // 输出
+        ExcelUtils.write(response, "物理资产列表.xlsx", "物理资产"
+                , PhysicalAssetExcelVO.class, AssetConvert.INSTANCE.convertList14(assetList));
+    }
+
+    @PostMapping("/export-logical")
+    @ApiOperation("导出逻辑资产")
+    public void exportLogical(HttpServletResponse response) throws IOException {
+        List<AssetRespVO> assetList = assetService.getAssetList(new AssetQueryDTO().setAssetClass(AssetClass.LOGICAL.getId()));
+        // 输出
+        ExcelUtils.write(response, "逻辑资产列表.xlsx", "逻辑资产"
+                , LogicalAssetExcelVO.class, AssetConvert.INSTANCE.convertList15(assetList));
+    }
+
+    @PostMapping("/import-physical")
+    @ApiOperation("导入物理资产")
+    @ApiImplicitParam(name = "file", value = "Excel 文件", required = true)
+    public Result<ImportRespVO> importPhysicalExcel(@RequestParam("file") MultipartFile file) throws Exception {
+        List<PhysicalAssetExcelVO> list = ExcelUtils.read(file, PhysicalAssetExcelVO.class);
+        if (CollUtil.isEmpty(list)) {
+            throw new ServiceException("导入的资产数据不能为空");
+        }
+        List<Asset> assets = AssetConvert.INSTANCE.convertList16(list);
+        assets.forEach(e->{
+            e.setAssetClass(AssetClass.PHYSICAL.getId());
+        });
+        assetService.saveBatch(assets);
+        ImportRespVO importRespVO = new ImportRespVO();
+        importRespVO.setSuccessNames(list.stream().map(PhysicalAssetExcelVO::getAssetName).collect(Collectors.toList()));
+        return Result.ok(importRespVO);
+    }
+
+    @PostMapping("/import-logical")
+    @ApiOperation("导入逻辑资产")
+    @ApiImplicitParam(name = "file", value = "Excel 文件", required = true)
+    public Result<ImportRespVO> importLogicalExcel(@RequestParam("file") MultipartFile file) throws Exception {
+        List<LogicalAssetExcelVO> list = ExcelUtils.read(file, LogicalAssetExcelVO.class);
+        if (CollUtil.isEmpty(list)) {
+            throw new ServiceException("导入的资产数据不能为空");
+        }
+        List<Asset> assets = AssetConvert.INSTANCE.convertList17(list);
+        assets.forEach(e->{
+            e.setAssetClass(AssetClass.LOGICAL.getId());
+        });
+        assetService.saveBatch(assets);
+        ImportRespVO importRespVO = new ImportRespVO();
+        importRespVO.setSuccessNames(list.stream().map(LogicalAssetExcelVO::getAssetName).collect(Collectors.toList()));
+        return Result.ok(importRespVO);
+    }
+
 
 
 }
