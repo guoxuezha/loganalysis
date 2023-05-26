@@ -199,7 +199,34 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         assetOverviewVO.setIpPortTop5(port);
         //资产趋势
         List<AssetOverviewVO.AssetTrendsList> assetTrendsListList = new ArrayList<>();
+        List<String> recentlyDateList = getRecentlyDateList(6);
+        assetOverviewVO.setDateList(recentlyDateList);
         //物理资产趋势
+        Map<String, Long> physicalMap = getAssetTrendsMap(assetList, "1");
+        AssetOverviewVO.AssetTrendsList physicalList = new AssetOverviewVO.AssetTrendsList();
+        physicalList.setAssetClass("物理资产");
+        List<Integer> physicalDataList = new ArrayList<>();
+        for (Map.Entry<String, Long> entry : physicalMap.entrySet()) {
+            physicalDataList.add(entry.getValue().intValue());
+        }
+        physicalList.setList(physicalDataList);
+        assetTrendsListList.add(physicalList);
+        //逻辑资产趋势
+        Map<String, Long> logicalMap = getAssetTrendsMap(assetList, "0");
+        AssetOverviewVO.AssetTrendsList logicalList = new AssetOverviewVO.AssetTrendsList();
+        logicalList.setAssetClass("逻辑资产");
+        List<Integer> logicalDataList = new ArrayList<>();
+        for (Map.Entry<String, Long> entry : logicalMap.entrySet()) {
+            logicalDataList.add(entry.getValue().intValue());
+        }
+        logicalList.setList(logicalDataList);
+        assetTrendsListList.add(logicalList);
+
+
+
+
+
+ /*       //物理资产趋势
         Map<String, Long> physicalMap = getAssetTrendsMap(assetList, "1");
         AssetOverviewVO.AssetTrendsList physicalList = new AssetOverviewVO.AssetTrendsList();
         physicalList.setAssetClass("物理资产");
@@ -220,7 +247,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                     .setDate(entry.getKey()).setNum(entry.getValue().intValue()));
         }
         logicalList.setList(logicalDataList);
-        assetTrendsListList.add(logicalList);
+        assetTrendsListList.add(logicalList);*/
 
         assetOverviewVO.setAssetTrendsList(assetTrendsListList);
         return assetOverviewVO;

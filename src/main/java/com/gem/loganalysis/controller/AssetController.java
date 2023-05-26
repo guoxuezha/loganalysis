@@ -105,8 +105,7 @@ public class AssetController {
         if(asset==null){
             return Result.failed("该资产不存在");
         }
-        asset.setAssetTag(StringUtils.isBlank(asset.getAssetTag())
-                ?dto.getAssetTag():asset.getAssetTag()+","+dto.getAssetTag());
+        asset.setAssetTag(dto.getAssetTag());
         return assetService.updateById(asset)?Result.ok("添加成功"):Result.failed("修改失败");
     }
 

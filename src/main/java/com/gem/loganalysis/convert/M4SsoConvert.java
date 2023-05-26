@@ -59,8 +59,8 @@ public interface M4SsoConvert {
             // 获得父节点
             OrgRespVO parentNode = treeNodeMap.get(childNode.getParentOrg());
             if (parentNode == null) {
-                LoggerFactory.getLogger(getClass()).error("[buildRouterTree][resource({}) 找不到父资源({})]",
-                        childNode.getOrgId(), childNode.getParentOrg());
+             /*   LoggerFactory.getLogger(getClass()).error("[buildRouterTree][resource({}) 找不到父资源({})]",
+                        childNode.getOrgId(), childNode.getParentOrg());*/
                 return;
             }
             // 将自己添加到父节点中
@@ -96,8 +96,8 @@ public interface M4SsoConvert {
             // 获得父节点
             TreeRespVO parentNode = treeNodeMap.get(childNode.getParentId());
             if (parentNode == null) {
-                LoggerFactory.getLogger(getClass()).error("[buildRouterTree][resource({}) 找不到父资源({})]",
-                        childNode.getValue(), childNode.getParentId());
+/*                LoggerFactory.getLogger(getClass()).error("[buildRouterTree][resource({}) 找不到父资源({})]",
+                        childNode.getValue(), childNode.getParentId());*/
                 return;
             }
             // 将自己添加到父节点中

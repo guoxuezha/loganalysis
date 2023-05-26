@@ -35,12 +35,12 @@ public class ScanJob implements Runnable {
         ScanObject scan = ScanEngine.scan(object, scanType);
         if(scan.getOpen()!=null&&scan.getOpen()){
             this.logicalAssetTempService = GetBeanUtil.getApplicationContext().getBean(ILogicalAssetTempService.class);
-            boolean save = logicalAssetTempService.save(new LogicalAssetTemp().setScanTime(scanTime)
+           /* boolean save = logicalAssetTempService.save(new LogicalAssetTemp().setScanTime(scanTime)
                     .setAssetOrg("资产管理部")//TODO 目前还没有部门 之后从登录人获取部门
                     .setIpAddress(object.getIp())
                     .setEnablePort(object.getPort())
                     .setAssetType(object.getService())
-                    .setAssetInfo(object.getBanner()));
+                    .setAssetInfo(object.getBanner()));*/
         }
     }
 }

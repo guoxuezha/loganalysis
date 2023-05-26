@@ -33,6 +33,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import static com.gem.loganalysis.util.UserUtil.getLoginUserOrgId;
+
 @Api(tags = "资产模块 - 资产扫描")
 @RestController
 @RequestMapping("/sop/scanner")
@@ -95,7 +97,7 @@ public class ScannerController {
             }
         }
         //TODO 改成异步 先返回扫描成功再开启扫描
-        IpScanner.scannerIpSection(dto.getVlanList(),DateUtil.format(new Date(),"yyyyMMddHHmmss"));
+        IpScanner.scannerIpSection(dto.getVlanList(),DateUtil.format(new Date(),"yyyyMMddHHmmss"),getLoginUserOrgId());
         return Result.ok("扫描成功");
     }
 

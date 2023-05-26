@@ -95,6 +95,16 @@ public class Scanner {
     public static void scan(String ip, int port,String scanTime){
         // 执行扫描任务
         poolExecutor.execute(new ScanJob(new ScanObject(ip,port),ScanEngine.TCP_FULL_CONNECT_SCAN,scanTime));
+    }
 
+
+    /**
+     * 对ip:port进行扫描
+     * @param ip ip地址
+     * @param port 端口
+     */
+    public static void scan123(String ip, int port,String scanTime){
+        // 执行扫描任务
+        poolExecutor.execute(new ScanJob(new ScanObject(ip,port),ScanEngine.TCP_FULL_CONNECT_SCAN,scanTime));
     }
 }

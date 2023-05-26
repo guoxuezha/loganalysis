@@ -56,6 +56,9 @@ public class AssetOverviewVO {
     @ApiModelProperty(value = "资产趋势")
     private List<AssetTrendsList> assetTrendsList;
 
+    @ApiModelProperty(value = "资产趋势日期数组")
+    private List<String> dateList;
+
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
@@ -96,7 +99,7 @@ public class AssetOverviewVO {
         private String assetClass;
 
         @ApiModelProperty(value = "资产趋势列表详情")
-        private List<AssetOverviewVO.AssetTrendsNum> list;
+        private List<Integer> list;
     }
 
     @Data
