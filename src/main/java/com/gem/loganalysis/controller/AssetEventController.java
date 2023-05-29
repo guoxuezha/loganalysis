@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.Result;
-import com.gem.loganalysis.model.dto.DeleteDTO;
 import com.gem.loganalysis.model.dto.GetDTO;
 import com.gem.loganalysis.model.dto.edit.EventTypeInsertDTO;
 import com.gem.loganalysis.model.dto.edit.EventTypeUpdateDTO;
@@ -64,9 +63,11 @@ public class AssetEventController {
 
     @PostMapping("/eventType/pageList")
     @ApiOperation("分页查询事件类型")
-    public Result<Page<EventType>> eventTypePageList(@RequestBody PageRequest<Object> dto) {
+    public Result<Page<EventType>> eventTypePageList(@RequestBody PageRequest<String> dto) {
         Page<EventType> page = new Page<>(dto.getPageNum(), dto.getPageSize());
-        return Result.ok(iEventTypeService.page(page));
+        LambdaQueryWrapperX<EventType> wrapperX = new LambdaQueryWrapperX<>();
+        wrapperX.eqIfPresent(EventType::getBlockRuleId, dto.getData());
+        return Result.ok(iEventTypeService.page(page, wrapperX));
     }
 
     @PostMapping("/eventType/insert")
@@ -89,8 +90,12 @@ public class AssetEventController {
 
     @PostMapping("/eventType/delete")
     @ApiOperation("删除事件类型")
-    public Result<String> delete(@RequestBody DeleteDTO dto) {
-        boolean result = iEventTypeService.removeById(dto.getId());
+    public Result<String> delete(@RequestBody EventTypeInsertDTO dto) {
+        LambdaQueryWrapper<EventType> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(EventType::getEventType, dto.getEventType())
+                .eq(EventType::getEventClass, dto.getEventClass())
+                .eq(EventType::getBlockRuleId, dto.getBlockRuleId());
+        boolean result = iEventTypeService.remove(wrapper);
         return result ? Result.ok("删除成功!") : Result.failed("删除失败!");
     }
 

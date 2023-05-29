@@ -5,6 +5,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 /**
+ * 业务配置信息
+ *
  * @author GuoChao
  * @version 1.0
  * @date 2023/5/22 16:41
