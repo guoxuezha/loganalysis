@@ -24,7 +24,6 @@ import java.util.Locale;
  * @since 2023-05-12
  */
 @Service
-@DS("slave")
 public class LogicalAssetTempServiceImpl extends ServiceImpl<LogicalAssetTempMapper, LogicalAssetTemp> implements ILogicalAssetTempService {
 
     @Override

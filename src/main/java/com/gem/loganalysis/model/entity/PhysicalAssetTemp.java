@@ -21,7 +21,7 @@ import java.io.Serializable;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("SOP_PHYSICAL_ASSET_TEMP")
+@TableName("sop_physical_asset_temp")
 public class PhysicalAssetTemp implements Serializable {
 
     private static final long serialVersionUID = 1L;

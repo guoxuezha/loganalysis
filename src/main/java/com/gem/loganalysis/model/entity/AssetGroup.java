@@ -12,7 +12,7 @@ import java.io.Serializable;
  *
  * @author czw
  */
-@TableName("SOP_ASSET_GROUP")
+@TableName("sop_asset_group")
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @Data

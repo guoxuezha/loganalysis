@@ -29,7 +29,6 @@ import java.util.List;
  */
 @Service
 @Validated
-@DS("slave")
 public class AssetGroupServiceImpl extends ServiceImpl<AssetGroupMapper, AssetGroup> implements IAssetGroupService {
 
     @Resource

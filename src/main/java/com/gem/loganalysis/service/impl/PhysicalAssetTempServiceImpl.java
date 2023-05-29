@@ -26,7 +26,6 @@ import java.util.List;
  * @since 2023-05-12
  */
 @Service
-@DS("slave")
 public class PhysicalAssetTempServiceImpl extends ServiceImpl<PhysicalAssetTempMapper, PhysicalAssetTemp> implements IPhysicalAssetTempService {
 
 

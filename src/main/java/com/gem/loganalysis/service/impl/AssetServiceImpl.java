@@ -46,7 +46,6 @@ import java.util.stream.Stream;
  */
 @Service
 @Validated
-@DS("slave")
 public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements IAssetService {
 
     @Resource

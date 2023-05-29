@@ -12,7 +12,7 @@ import java.io.Serializable;
  *
  * @author czw
  */
-@TableName("SOP_ORG_VLAN")
+@TableName("sop_org_vlan")
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @Data
