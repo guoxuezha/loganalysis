@@ -11,13 +11,13 @@ import lombok.Data;
 @Data
 public class EventTypeInsertDTO {
 
-    @ApiModelProperty("事件类型")
+    @ApiModelProperty(value = "事件类型",required = true)
     private String eventType;
 
-    @ApiModelProperty("事件等级")
+    @ApiModelProperty(value = "事件等级",required = true)
     private String eventClass;
 
-    @ApiModelProperty("封堵规则编码")
+    @ApiModelProperty(value = "封堵规则编码",required = true)
     private String blockRuleId;
 
 }

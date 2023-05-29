@@ -59,9 +59,14 @@ public class ManagerStartup implements CommandLineRunner {
         pool.dbPort = poolParameter.getDbPort();
         pool.sshJdbcURL = poolParameter.getSshJdbcURL();
 
+        // DAL数据库连接池初始化
         ConnectionPools instance = ConnectionPools.getInstance();
         instance.createRepositoryConnPool(pool);
 //        instance.createConnPools();
+
+        // Gem-utils 调度器启动
+//        Schedule.getInstance().start();
+
     }
 
     @Bean

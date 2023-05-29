@@ -3,7 +3,6 @@ package com.gem.loganalysis.model.entity;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.gem.loganalysis.model.dto.edit.EventTypeInsertDTO;
 import com.gem.loganalysis.model.dto.edit.EventTypeUpdateDTO;
@@ -34,7 +33,7 @@ public class EventType implements Serializable {
     /**
      * 事件类型
      */
-    @TableId("EVENT_TYPE")
+    @TableField("EVENT_TYPE")
     private String eventType;
 
     /**

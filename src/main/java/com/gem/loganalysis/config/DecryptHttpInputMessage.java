@@ -14,6 +14,8 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 
 /**
+ * 入参解密辅助对象
+ *
  * @author GuoChao
  * @version 1.0
  * @date 2023/5/22 10:06
