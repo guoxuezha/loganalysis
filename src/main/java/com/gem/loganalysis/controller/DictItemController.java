@@ -84,7 +84,6 @@ public class DictItemController {
         }
     }
 
-
     @ApiOperation("/根据字典类型ID查询字典数据多级详细")
     @PostMapping(value = "/get")
     public Result<List<DictItemRespVO>> getDictItem(@Valid @RequestBody GetDTO dto) {
@@ -97,8 +96,8 @@ public class DictItemController {
     }
 
     @PostMapping("/list")
-    @ApiOperation(value = "获得单层数据", notes = "条件查询单层数据，非树形结构")
-    public Result<List<DictItem> > listDictItems(@Valid @RequestBody DictItemQueryDTO reqVO) {
+    @ApiOperation(value = "从缓存获取数据字典树形结构")
+    public Result<List<DictItemRespVO>> listDictItems(@Valid @RequestBody DictItemQueryDTO reqVO) {
         return Result.ok(dictItemService.getDictItemList(reqVO));
     }
 
@@ -108,11 +107,5 @@ public class DictItemController {
         return Result.ok(dictItemService.changeStatus(dto.getId()));
     }
 
-
-    @ApiOperation("/获取开启状态的所有数据结构并排序,主要用于前端缓存")
-    @PostMapping(value = "/getSimple")
-    public Result<List<DictItemRespVO>> getSimpleDictItem() {
-        return Result.ok(dictItemService.getSimpleDictItem());
-    }
 
 }

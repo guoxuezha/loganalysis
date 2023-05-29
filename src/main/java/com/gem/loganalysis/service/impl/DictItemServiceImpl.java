@@ -2,23 +2,26 @@ package com.gem.loganalysis.service.impl;
 
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.gem.loganalysis.convert.DictConvert;
 import com.gem.loganalysis.mapper.DictItemMapper;
 import com.gem.loganalysis.mapper.DictType2Mapper;
 import com.gem.loganalysis.model.dto.query.DictItemQueryDTO;
+import com.gem.loganalysis.model.entity.DictData;
 import com.gem.loganalysis.model.entity.DictItem;
 import com.gem.loganalysis.model.entity.DictType2;
 import com.gem.loganalysis.model.vo.DictItemRespVO;
+import com.gem.loganalysis.model.vo.asset.AssetTypeRespVO;
 import com.gem.loganalysis.service.DictItemService;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
+import javax.annotation.PostConstruct;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 字典数据服务实现层
@@ -35,6 +38,10 @@ public class DictItemServiceImpl implements DictItemService {
 
     private final DictItemMapper dictItemMapper;
 
+    @Getter
+    //资产类型缓存
+    private volatile List<DictItem> dictItemCache;
+
     /**
      * 排序 dictType > sort
      */
@@ -42,6 +49,13 @@ public class DictItemServiceImpl implements DictItemService {
             .comparing(DictItem::getTypeId)
             .thenComparingInt(DictItem::getSort);
 
+
+    @Override
+    @PostConstruct
+    public void initLocalCache() {
+        //构建所有数据的缓存
+        dictItemCache = dictItemMapper.selectList(null);
+    }
 
     @Override
     public String checkCreateOrUpdate(DictItem reqVO) {
@@ -98,6 +112,7 @@ public class DictItemServiceImpl implements DictItemService {
         // 插入字典类型
         DictType2 dictType = dictTypeMapper.selectById(reqVO.getTypeId());
         reqVO.setCode(dictType.getCode());
+        initLocalCache();
         return dictItemMapper.insert(reqVO);
     }
 
@@ -107,6 +122,7 @@ public class DictItemServiceImpl implements DictItemService {
         DictType2 dictType = dictTypeMapper.selectById(reqVO.getTypeId());
         reqVO.setUpdateTime(DateUtil.format(new Date(), "yyyy-MM-dd"));
         reqVO.setCode(dictType.getCode());
+        initLocalCache();
         return dictItemMapper.updateById(reqVO);
     }
 
@@ -127,6 +143,7 @@ public class DictItemServiceImpl implements DictItemService {
 
     @Override
     public int deleteDictItem(String id) {
+        initLocalCache();
         return dictItemMapper.deleteById(id);
     }
 
@@ -142,38 +159,21 @@ public class DictItemServiceImpl implements DictItemService {
 
     @Override
     public List<DictItemRespVO> getDictItem(String id) {
-        List<DictItemRespVO> dictItemRespVOS = new ArrayList<>();
         List<DictItem> dictItem = dictItemMapper.selectList(new LambdaQueryWrapper<DictItem>()
-                .eq(DictItem::getTypeId, id).isNull(DictItem::getParentId).orderByAsc(DictItem::getSort));
-        dictItem.forEach(e->{
-            DictItemRespVO dictItemRespVO = new DictItemRespVO();
-            BeanUtils.copyProperties(e,dictItemRespVO);
-            //没有写转换类，只能笨笨的用BeanUtils然后循环,可优化
-            List<DictItem> dictSonItem = dictItemMapper.selectList(new LambdaQueryWrapper<DictItem>()
-                    .eq(DictItem::getParentId, e.getId()).orderByAsc(DictItem::getSort));
-            if(dictSonItem!=null&&dictSonItem.size()!=0){
-                List<DictItemRespVO> dictItemSonRespVOS = new ArrayList<>();
-                dictSonItem.forEach(son->{
-                    DictItemRespVO dictItemSonRespVO = new DictItemRespVO();
-                    BeanUtils.copyProperties(son,dictItemSonRespVO);
-                    dictItemSonRespVOS.add(dictItemSonRespVO);
-                });
-                dictItemRespVO.setChildren(dictItemSonRespVOS);
-            }
-            dictItemRespVOS.add(dictItemRespVO);
-        });
-        return dictItemRespVOS;
+                .eq(DictItem::getTypeId, id).orderByAsc(DictItem::getSort));
+        return DictConvert.INSTANCE.buildDictTree(dictItem);
     }
 
     @Override
-    public List<DictItem> getDictItemList(DictItemQueryDTO reqVO) {
-        LambdaQueryWrapper<DictItem> lqw = new LambdaQueryWrapper<DictItem>()
-                .like(StringUtils.isNotBlank(reqVO.getCode()), DictItem::getCode, reqVO.getCode())
-                .eq(StringUtils.isNotBlank(reqVO.getStatus()), DictItem::getStatus, reqVO.getStatus())
-                .eq(reqVO.getParentId()!=null, DictItem::getParentId, reqVO.getParentId())
-                .eq(reqVO.getTypeId()!=null, DictItem::getTypeId, reqVO.getTypeId())
-                .orderByAsc(DictItem::getSort);
-        return dictItemMapper.selectList(lqw);
+    public List<DictItemRespVO> getDictItemList(DictItemQueryDTO reqVO) {
+        List<DictItem> list = new ArrayList<>();
+        if(!StringUtils.isBlank(reqVO.getCode())){
+            list = dictItemCache.stream().filter(e -> e.getCode().equals(reqVO.getCode()) && e.getStatus() == 0).collect(Collectors.toList());
+        }else{
+            list = dictItemCache.stream().filter(e -> e.getStatus() == 0).collect(Collectors.toList());
+
+        }
+        return DictConvert.INSTANCE.buildDictTree(list);
     }
 
     @Override
@@ -193,33 +193,50 @@ public class DictItemServiceImpl implements DictItemService {
             dictItemMapper.updateById(dictItem);
             return "开启成功";
         }
+        initLocalCache();
         return "操作失败";
     }
 
     @Override
-    public List<DictItemRespVO> getSimpleDictItem() {
-        List<DictItemRespVO> dictItemRespVOS = new ArrayList<>();
-        List<DictItem> dictItem = dictItemMapper.selectList(new LambdaQueryWrapper<DictItem>()
-                .eq(DictItem::getStatus, 0).isNull(DictItem::getParentId));
-        dictItem.sort(COMPARATOR_TYPE_AND_SORT);
-        dictItem.forEach(e->{
-            DictItemRespVO dictItemRespVO = new DictItemRespVO();
-            BeanUtils.copyProperties(e,dictItemRespVO);
-            //没有写转换类，只能笨笨的用BeanUtils然后循环,可优化
-            List<DictItem> dictSonItem = dictItemMapper.selectList(new LambdaQueryWrapper<DictItem>()
-                    .eq(DictItem::getParentId, e.getId()).eq(DictItem::getStatus, 0));
-            if(dictSonItem!=null&&dictSonItem.size()!=0){
-                List<DictItemRespVO> dictItemSonRespVOS = new ArrayList<>();
-                dictSonItem.forEach(son->{
-                    DictItemRespVO dictItemSonRespVO = new DictItemRespVO();
-                    BeanUtils.copyProperties(son,dictItemSonRespVO);
-                    dictItemSonRespVOS.add(dictItemSonRespVO);
-                });
-                dictItemRespVO.setChildren(dictItemSonRespVOS);
-            }
-            dictItemRespVOS.add(dictItemRespVO);
-        });
-        return dictItemRespVOS;
+    public Map<String, List<DictItem>> getDictItemMap() {
+        return dictItemCache.stream().collect(Collectors.groupingBy(DictItem::getCode));
+    }
+
+
+    @Override
+    public String getDictData(String code, String value) {
+        if(StringUtils.isBlank(code) ||StringUtils.isBlank(value)){
+            return "";
+        }
+        Map<String, List<DictItem>> dictDataMap = getDictItemMap();
+        List<DictItem> dictData = dictDataMap.get(code);
+        if(dictData==null){
+            return "";
+        }
+        List<DictItem> collect = dictData.stream().filter(e -> e.getValue().equals(value)&&e.getLevel()==0).collect(Collectors.toList());
+        if(collect.size()>0){
+            return collect.get(0).getText();
+        }else{
+            return "";
+        }
+    }
+
+    @Override
+    public String getChildDictData(String code, String value, Integer parentId) {
+        if(StringUtils.isBlank(code) ||StringUtils.isBlank(value)||parentId==null){
+            return "";
+        }
+        Map<String, List<DictItem>> dictDataMap = getDictItemMap();
+        List<DictItem> dictData = dictDataMap.get(code);
+        if(dictData==null){
+            return "";
+        }
+        List<DictItem> collect = dictData.stream().filter(e -> e.getParentId().equals(parentId) &&e.getValue().equals(value)&&e.getLevel()==0).collect(Collectors.toList());
+        if(collect.size()>0){
+            return collect.get(0).getText();
+        }else{
+            return "";
+        }
     }
 
 

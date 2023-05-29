@@ -5,11 +5,15 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gem.loganalysis.config.BusinessConfigInfo;
 import com.gem.loganalysis.convert.AssetConvert;
+import com.gem.loganalysis.enmu.AssetClass;
 import com.gem.loganalysis.enmu.DictType;
+import com.gem.loganalysis.exception.ServiceException;
 import com.gem.loganalysis.mapper.AssetMapper;
 import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.Result;
@@ -19,11 +23,11 @@ import com.gem.loganalysis.model.dto.asset.PhysicalAssetQueryDTO;
 import com.gem.loganalysis.model.dto.query.LambdaQueryWrapperX;
 import com.gem.loganalysis.model.entity.Asset;
 import com.gem.loganalysis.model.entity.AssetGroup;
+import com.gem.loganalysis.model.entity.M4SsoUser;
 import com.gem.loganalysis.model.entity.PhysicalAssetTemp;
 import com.gem.loganalysis.model.vo.AssetEventVO;
-import com.gem.loganalysis.model.vo.asset.AssetAccountRespVO;
-import com.gem.loganalysis.model.vo.asset.AssetOverviewVO;
-import com.gem.loganalysis.model.vo.asset.AssetRespVO;
+import com.gem.loganalysis.model.vo.ImportRespVO;
+import com.gem.loganalysis.model.vo.asset.*;
 import com.gem.loganalysis.service.*;
 import com.gem.loganalysis.util.AESUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -39,6 +43,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.gem.loganalysis.util.UserUtil.getLoginUserOrgId;
+
 /**
  * 安全管理资产 Service 实现类
  *
@@ -51,13 +57,20 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     @Resource
     private AssetMapper assetMapper;
     @Resource
-    private IDictDataService dictDataService;
+    private DictItemService dictItemService;
     @Resource
     private IAssetGroupService assetGroupService;
     @Resource
     private IM4SsoOrgService orgService;
     @Resource
     private IPhysicalAssetTempService physicalAssetTempService;
+    @Resource
+    private IAssetTypeService assetTypeService;
+    @Resource
+    private IM4SsoUserService userService;
+    @Resource
+    private BusinessConfigInfo businessConfigInfo;
+
 
     @Override
     public Result<String> editAsset(AssetDTO dto) {
@@ -131,6 +144,122 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             e.setScore(randomNum);
         });
         return assetRespVOPage;
+    }
+
+    @Override
+    public ImportRespVO importLogicalExcel(List<LogicalAssetExcelVO> list) {
+        String regex = "^([1-9]|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])(\\.(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])){3}$";
+        ImportRespVO respVO = ImportRespVO.builder().successNames(new ArrayList<>())
+                .failNames(new LinkedHashMap<>()).build();
+        list.forEach(e->{
+            try {
+                if(StringUtils.isBlank(e.getAssetName())){
+                    throw new ServiceException("导入的资产名称不能为空");
+                }
+                if(StringUtils.isBlank(e.getAssetType())){
+                    throw new ServiceException("导入的资产类型不能为空");
+                }
+                if(StringUtils.isBlank(e.getIpAddress())){
+                    throw new ServiceException("导入的IP地址为空");
+                }
+                if(!Pattern.matches(regex,e.getIpAddress())){
+                    //效验IP地址格式是否正确
+                    throw new ServiceException("请输入正确的IP格式");
+                }
+                if(!StringUtils.isBlank(e.getServicePort())&&!e.getServicePort().matches("\\d+")){
+                    throw new ServiceException("请确保服务端口号为纯数字");
+                }
+                Asset asset = AssetConvert.INSTANCE.convert(e);
+                asset.setAssetClass(AssetClass.LOGICAL.getId());
+                asset.setAssetType(assetTypeService.getAssetTypeId(e.getAssetType()));
+                if(assetTypeService.getAssetTypeId(e.getAssetType())==null){
+                    throw new ServiceException("请导入资产类型配置中存在的资产类型，若不存在请先添加");
+                }
+                if(!StringUtils.isBlank(e.getAssetManager())){
+                    M4SsoUser user = userService.getOne(new LambdaQueryWrapper<M4SsoUser>().eq(M4SsoUser::getUserName, e.getAssetManager()).last("LIMIT 1"));
+                    if(user==null){
+                        throw new ServiceException("您导入的资产管理人系统中不存在，请先添加用户");
+                    }
+                    asset.setAssetManager(user.getUserId());
+                }
+                asset.setAssetOrg(getLoginUserOrgId());
+                assetMapper.insert(asset);
+                respVO.getSuccessNames().add(e.getAssetName());
+            }catch (Exception ex){
+                respVO.getFailNames().put(e.getAssetName()!=null?e.getAssetName():"空资产名", ex.getMessage());
+            }
+        });
+        return respVO;
+    }
+
+    @Override
+    public ImportRespVO importPhysicalExcel(List<PhysicalAssetExcelVO> list) {
+        String regex = "^([1-9]|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])(\\.(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])){3}$";
+        ImportRespVO respVO = ImportRespVO.builder().successNames(new ArrayList<>())
+                .failNames(new LinkedHashMap<>()).build();
+        list.forEach(e->{
+            try {
+                if(StringUtils.isBlank(e.getAssetName())){
+                    throw new ServiceException("导入的资产名称不能为空");
+                }
+                if(StringUtils.isBlank(e.getAssetType())){
+                    throw new ServiceException("导入的资产类型不能为空");
+                }
+                if(StringUtils.isBlank(e.getIpAddress())){
+                    throw new ServiceException("导入的IP地址为空");
+                }
+                if(StringUtils.isBlank(e.getNmPort())){
+                    throw new ServiceException("导入的网管端口不能为空");
+                }
+                if(StringUtils.isBlank(e.getNmProcotol())){
+                    throw new ServiceException("导入的网管协议不能为空");
+                }
+                if(StringUtils.isBlank(e.getNmAccount())){
+                    throw new ServiceException("导入的网管账号不能为空");
+                }
+                if(StringUtils.isBlank(e.getNmPassword())){
+                    throw new ServiceException("导入的网管密码不能为空");
+                }
+                if(!Pattern.matches(regex,e.getIpAddress())){
+                    //效验IP地址格式是否正确
+                    throw new ServiceException("请输入正确的IP格式");
+                }
+                if(!StringUtils.isBlank(e.getServicePort())&&!e.getServicePort().matches("\\d+")){
+                    throw new ServiceException("请确保服务端口号为纯数字");
+                }
+                if(!StringUtils.isBlank(e.getNmPort())&&!e.getNmPort().matches("\\d+")){
+                    throw new ServiceException("请确保网管端口号为纯数字");
+                }
+                if(StringUtils.isBlank(e.getAssetName())){
+                    throw new ServiceException("导入的资产名称不能为空");
+                }
+
+                Asset asset = AssetConvert.INSTANCE.convert(e);
+                asset.setAssetClass(AssetClass.PHYSICAL.getId());
+                asset.setAssetType(assetTypeService.getAssetTypeId(e.getAssetType()));
+                if(assetTypeService.getAssetTypeId(e.getAssetType())==null){
+                    throw new ServiceException("请导入资产类型配置中存在的资产类型，若不存在请先添加");
+                }
+                if(!StringUtils.isBlank(e.getAssetManager())){
+                    M4SsoUser user = userService.getOne(new LambdaQueryWrapper<M4SsoUser>().eq(M4SsoUser::getUserName, e.getAssetManager()).last("LIMIT 1"));
+                    if(user==null){
+                        throw new ServiceException("您导入的资产管理人系统中不存在，请先添加用户");
+                    }
+                    asset.setAssetManager(user.getUserId());
+                }
+                //对于密码加密,不需要可注释
+                if(!StringUtils.isBlank(e.getNmPassword())){
+                    String password = AESUtil.aesEncrypt(e.getNmPassword(), businessConfigInfo.getAESKey());
+                    asset.setNmPassword(password);
+                }
+                asset.setAssetOrg(getLoginUserOrgId());
+                assetMapper.insert(asset);
+                respVO.getSuccessNames().add(e.getAssetName());
+            }catch (Exception ex){
+                respVO.getFailNames().put(e.getAssetName()!=null?e.getAssetName():"空资产名", ex.getMessage());
+            }
+        });
+        return respVO;
     }
 
     @Override
@@ -221,33 +350,6 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         logicalList.setList(logicalDataList);
         assetTrendsListList.add(logicalList);
 
-
-
-
-
- /*       //物理资产趋势
-        Map<String, Long> physicalMap = getAssetTrendsMap(assetList, "1");
-        AssetOverviewVO.AssetTrendsList physicalList = new AssetOverviewVO.AssetTrendsList();
-        physicalList.setAssetClass("物理资产");
-        List<AssetOverviewVO.AssetTrendsNum> physicalDataList = new ArrayList<>();
-        for (Map.Entry<String, Long> entry : physicalMap.entrySet()) {
-            physicalDataList.add(new AssetOverviewVO.AssetTrendsNum()
-                    .setDate(entry.getKey()).setNum(entry.getValue().intValue()));
-        }
-        physicalList.setList(physicalDataList);
-        assetTrendsListList.add(physicalList);
-        //逻辑资产趋势
-        Map<String, Long> logicalMap = getAssetTrendsMap(assetList, "0");
-        AssetOverviewVO.AssetTrendsList logicalList = new AssetOverviewVO.AssetTrendsList();
-        logicalList.setAssetClass("逻辑资产");
-        List<AssetOverviewVO.AssetTrendsNum> logicalDataList = new ArrayList<>();
-        for (Map.Entry<String, Long> entry : logicalMap.entrySet()) {
-            logicalDataList.add(new AssetOverviewVO.AssetTrendsNum()
-                    .setDate(entry.getKey()).setNum(entry.getValue().intValue()));
-        }
-        logicalList.setList(logicalDataList);
-        assetTrendsListList.add(logicalList);*/
-
         assetOverviewVO.setAssetTrendsList(assetTrendsListList);
         return assetOverviewVO;
     }
@@ -295,22 +397,25 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     }
 
 
-
-
-
     private AssetRespVO changeAssetName(AssetRespVO respVO){
-        respVO.setAssetClassName(dictDataService.getDictData(DictType.ASSET_CLASS.getType(),respVO.getAssetClass()));
-        respVO.setAssetStatusName(dictDataService.getDictData(DictType.ASSET_STATUS.getType(),respVO.getAssetStatus()));
-        if(respVO.getAssetClass().equals("0")){//逻辑资产
-            respVO.setAssetTypeName(dictDataService.getDictData(DictType.LOGICAL_ASSET_TYPE.getType(),respVO.getAssetType()));
+        respVO.setAssetClassName(dictItemService.getDictData(DictType.ASSET_CLASS.getType(),respVO.getAssetClass()));
+        respVO.setAssetStatusName(dictItemService.getDictData(DictType.ASSET_STATUS.getType(),respVO.getAssetStatus()));
+        if(respVO.getAssetClass().equals(AssetClass.LOGICAL.getId())){//逻辑资产
+            respVO.setAssetTypeName(dictItemService.getDictData(DictType.LOGICAL_ASSET_TYPE.getType(),respVO.getAssetType()));
         }
-        if(respVO.getAssetClass().equals("1")){//物理资产
-            respVO.setAssetTypeName(dictDataService.getDictData(DictType.PHYSICAL_ASSET_TYPE.getType(),respVO.getAssetType()));
+        if(respVO.getAssetClass().equals(AssetClass.PHYSICAL.getId())){//物理资产
+            respVO.setAssetTypeName(assetTypeService.getAssetTypeName(Integer.valueOf(respVO.getAssetType())));
         }
-        respVO.setAssetSecurityStatusName(dictDataService.getDictData(DictType.PHYSICAL_ASSET_STATUS.getType(),respVO.getAssetSecurityStatus()));
+        respVO.setAssetSecurityStatusName(dictItemService.getDictData(DictType.ASSET_SECURITY_STATUS.getType(),respVO.getAssetSecurityStatus()));
         AssetGroup assetGroup = assetGroupService.getById(respVO.getAssetGroupId());
         respVO.setAssetGroupName(assetGroup==null?"":assetGroup.getGroupName());
         respVO.setAssetOrgName(orgService.changeOrgName(respVO.getAssetOrg()));
+        if(!StringUtils.isBlank(respVO.getAssetManager())){
+            M4SsoUser user = userService.getOne(new LambdaQueryWrapper<M4SsoUser>().eq(M4SsoUser::getUserId, respVO.getAssetManager()).last("LIMIT 1"));
+            if(user!=null){
+                respVO.setAssetManagerName(user.getUserName());
+            }
+        }
         return respVO;
     }
 }

@@ -16,6 +16,7 @@ import com.gem.loganalysis.model.entity.Asset;
 import com.gem.loganalysis.model.entity.AssetGroup;
 import com.gem.loganalysis.model.vo.asset.AssetGroupRespVO;
 import com.gem.loganalysis.service.IAssetGroupService;
+import com.gem.loganalysis.service.IM4SsoOrgService;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -33,6 +34,8 @@ public class AssetGroupServiceImpl extends ServiceImpl<AssetGroupMapper, AssetGr
 
     @Resource
     private AssetGroupMapper assetGroupMapper;
+    @Resource
+    private IM4SsoOrgService orgService;
 
     @Override
     public Result<String> editGroup(AssetGroupDTO dto) {
@@ -49,7 +52,7 @@ public class AssetGroupServiceImpl extends ServiceImpl<AssetGroupMapper, AssetGr
                 .orderByAsc(AssetGroup::getCreateTime);//根据创建时间正序排
         Page<AssetGroupRespVO> resp = AssetConvert.INSTANCE.convertPage04(this.page(page, wrapper));
         resp.getRecords().forEach(e->{
-            e.setAssetOrgName("资产管理部");//TODO 等补全部门
+            e.setAssetOrgName(orgService.changeOrgName(e.getAssetOrg()));
         });
         return resp;
     }
@@ -62,7 +65,7 @@ public class AssetGroupServiceImpl extends ServiceImpl<AssetGroupMapper, AssetGr
                 .orderByAsc(AssetGroup::getCreateTime);//根据创建时间正序排
         List<AssetGroupRespVO> list = AssetConvert.INSTANCE.convertList(this.list(wrapper));
         list.forEach(e->{
-            e.setAssetOrgName("资产管理部");//TODO 等补全部门
+            e.setAssetOrgName(orgService.changeOrgName(e.getAssetOrg()));
         });
         return list;
     }
@@ -71,7 +74,7 @@ public class AssetGroupServiceImpl extends ServiceImpl<AssetGroupMapper, AssetGr
     public AssetGroupRespVO getAssetGroup(String id) {
         AssetGroup assetGroup = this.getById(id);
         AssetGroupRespVO respVO = AssetConvert.INSTANCE.convert(assetGroup);
-        respVO.setAssetOrgName("资产管理部");//TODO 等补全部门
+        respVO.setAssetOrgName(orgService.changeOrgName(respVO.getAssetOrg()));
         return respVO;
     }
 

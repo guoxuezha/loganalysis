@@ -46,7 +46,7 @@ public interface M4SsoConvert {
     /**
      * 构建组织部门列表
      *
-     * @param menuList 组织部门列表
+     * @param orgList 组织部门列表
      * @return 组织部门树
      */
     default List<OrgRespVO> buildOrgTree(List<M4SsoOrg> orgList) {
@@ -83,7 +83,7 @@ public interface M4SsoConvert {
     /**
      * 构建组织部门简单下拉列表
      *
-     * @param menuList 组织部门列表
+     * @param orgList 组织部门列表
      * @return 组织部门树
      */
     default List<TreeRespVO> buildOrgTree01(List<M4SsoOrg> orgList) {

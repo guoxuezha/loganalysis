@@ -7,9 +7,8 @@ import com.gem.loganalysis.model.Result;
 import com.gem.loganalysis.model.dto.asset.AssetDTO;
 import com.gem.loganalysis.model.dto.asset.AssetQueryDTO;
 import com.gem.loganalysis.model.entity.Asset;
-import com.gem.loganalysis.model.vo.asset.AssetAccountRespVO;
-import com.gem.loganalysis.model.vo.asset.AssetOverviewVO;
-import com.gem.loganalysis.model.vo.asset.AssetRespVO;
+import com.gem.loganalysis.model.vo.ImportRespVO;
+import com.gem.loganalysis.model.vo.asset.*;
 
 import java.util.List;
 
@@ -45,4 +44,18 @@ public interface IAssetService extends IService<Asset> {
     AssetOverviewVO getOverviewInfo();
 
     List<AssetRespVO> getAssetList(AssetQueryDTO dto);
+
+    /**
+     * 导入逻辑资产
+     * @param list
+     * @return
+     */
+    ImportRespVO importLogicalExcel(List<LogicalAssetExcelVO> list);
+
+    /**
+     * 导入物理资产
+     * @param list
+     * @return
+     */
+    ImportRespVO importPhysicalExcel(List<PhysicalAssetExcelVO> list);
 }

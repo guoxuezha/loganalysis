@@ -70,6 +70,18 @@ public class BlackListServiceImpl extends ServiceImpl<BlackListMapper, BlackList
         if(count>0){
             throw new ServiceException("该IP已加入该资产的黑名单，请勿重复添加");
         }
+
+        //若用户在白名单,解除该用户的白名单
+        List<WhiteList> whiteLists = whiteListMapper.selectList(new LambdaQueryWrapperX<WhiteList>()
+                .eqIfPresent(WhiteList::getAssetId, dto.getAssetId())
+                .eqIfPresent(WhiteList::getIpAddress, dto.getIpAddress())
+                .eqIfPresent(WhiteList::getOrgId, dto.getOrgId()));
+        if(whiteLists.size()>0){
+            whiteLists.forEach(e->{
+                whiteListMapper.deleteWhiteList(new BlackWhiteListDeleteDTO()
+                        .setAssetId(dto.getAssetId()).setIpAddress(dto.getIpAddress()).setOrgId(dto.getOrgId()));
+            });
+        }
         return this.save(WhiteBlackListConvert.INSTANCE.convert(dto));
     }
 

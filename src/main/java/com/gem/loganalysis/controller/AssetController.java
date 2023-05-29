@@ -1,7 +1,6 @@
 package com.gem.loganalysis.controller;
 
 import cn.hutool.core.collection.CollUtil;
-import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gem.loganalysis.convert.AssetConvert;
 import com.gem.loganalysis.enmu.AssetClass;
@@ -13,15 +12,11 @@ import com.gem.loganalysis.model.dto.GetDTO;
 import com.gem.loganalysis.model.dto.asset.AssetDTO;
 import com.gem.loganalysis.model.dto.asset.AssetQueryDTO;
 import com.gem.loganalysis.model.dto.asset.AssetUpdateDTO;
-import com.gem.loganalysis.model.dto.query.LambdaQueryWrapperX;
-import com.gem.loganalysis.model.dto.query.OverviewQueryDTO;
 import com.gem.loganalysis.model.entity.Asset;
-import com.gem.loganalysis.model.entity.M4SsoOrg;
 import com.gem.loganalysis.model.vo.ImportRespVO;
 import com.gem.loganalysis.model.vo.asset.*;
 import com.gem.loganalysis.service.IAssetService;
 import com.gem.loganalysis.util.ExcelUtils;
-import com.gem.loganalysis.util.UserUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
@@ -146,8 +141,6 @@ public class AssetController {
         return assetService.updateById(asset)?Result.ok("修改成功"):Result.failed("修改失败");
     }
 
-
-
     @PostMapping("/physical-import-template")
     @ApiOperation("物理资产导入模板")
     public void importPhysicalTemplate(HttpServletResponse response) throws IOException {
@@ -188,14 +181,7 @@ public class AssetController {
         if (CollUtil.isEmpty(list)) {
             throw new ServiceException("导入的资产数据不能为空");
         }
-        List<Asset> assets = AssetConvert.INSTANCE.convertList16(list);
-        assets.forEach(e->{
-            e.setAssetClass(AssetClass.PHYSICAL.getId());
-        });
-        assetService.saveBatch(assets);
-        ImportRespVO importRespVO = new ImportRespVO();
-        importRespVO.setSuccessNames(list.stream().map(PhysicalAssetExcelVO::getAssetName).collect(Collectors.toList()));
-        return Result.ok(importRespVO);
+        return Result.ok(assetService.importPhysicalExcel(list));
     }
 
     @PostMapping("/import-logical")
@@ -206,14 +192,7 @@ public class AssetController {
         if (CollUtil.isEmpty(list)) {
             throw new ServiceException("导入的资产数据不能为空");
         }
-        List<Asset> assets = AssetConvert.INSTANCE.convertList17(list);
-        assets.forEach(e->{
-            e.setAssetClass(AssetClass.LOGICAL.getId());
-        });
-        assetService.saveBatch(assets);
-        ImportRespVO importRespVO = new ImportRespVO();
-        importRespVO.setSuccessNames(list.stream().map(LogicalAssetExcelVO::getAssetName).collect(Collectors.toList()));
-        return Result.ok(importRespVO);
+        return Result.ok(assetService.importLogicalExcel(list));
     }
 
 

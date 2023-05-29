@@ -2,10 +2,12 @@ package com.gem.loganalysis.service;
 
 
 import com.gem.loganalysis.model.dto.query.DictItemQueryDTO;
+import com.gem.loganalysis.model.entity.DictData;
 import com.gem.loganalysis.model.entity.DictItem;
 import com.gem.loganalysis.model.vo.DictItemRespVO;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 字典数据服务层
@@ -14,6 +16,12 @@ import java.util.List;
  * @since 2023-02-27
  */
 public interface DictItemService {
+
+
+    /**
+     * 初始化数据字典缓存
+     */
+    void initLocalCache();
 
     /**
      * 字典数据创建检验
@@ -69,7 +77,7 @@ public interface DictItemService {
      * @param reqVO
      * @return
      */
-    List<DictItem> getDictItemList(DictItemQueryDTO reqVO);
+    List<DictItemRespVO> getDictItemList(DictItemQueryDTO reqVO);
 
     /**
      * 开启/关闭数据字典
@@ -79,8 +87,26 @@ public interface DictItemService {
     String changeStatus(String id);
 
     /**
-     * 获取开启状态的所有数据结构并排序,主要用于前端缓存
+     * 获得数据字典根据名称分类的MAP
      * @return
      */
-    List<DictItemRespVO> getSimpleDictItem();
+    Map<String, List<DictItem>> getDictItemMap();
+
+    /**
+     * 获得第一层数据字典的中文
+     * @param dictType
+     * @param value
+     * @return
+     */
+    String getDictData(String code,String value);
+
+    /**
+     * 获得非首层的数据字典的中文
+     * @param dictType
+     * @param value
+     * @return
+     */
+    String getChildDictData(String code,String value,Integer parentId);
+
+
 }

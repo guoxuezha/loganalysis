@@ -26,11 +26,6 @@ public class DictItem {
     @ApiModelProperty(value = "字典项排序")
     private Integer sort;
 
-    /**
-     * 字典类型(需冗余存储)
-     *
-     * 冗余 {@link DictType#getCode()}
-     */
     @ApiModelProperty(value = "字典编码")
     private String code;
 

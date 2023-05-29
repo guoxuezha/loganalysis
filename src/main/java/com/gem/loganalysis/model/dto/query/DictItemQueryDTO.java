@@ -18,14 +18,14 @@ public class DictItemQueryDTO{
 
     @ApiModelProperty(value = "字典编码")
     private String code;
-
+/*
     @ApiModelProperty(value = "字典类型ID")
-    private Integer typeId;
+    private Integer typeId;*/
 
-    @ApiModelProperty(value = "状态（0正常 1停用）")
-    private String status;
-
+/*    @ApiModelProperty(value = "状态（0正常 1停用）")
+    private String status;*/
+/*
     @ApiModelProperty(value = "上级ID")
-    private Integer parentId;
+    private Integer parentId;*/
 
 }

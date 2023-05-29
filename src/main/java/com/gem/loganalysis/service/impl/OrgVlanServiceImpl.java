@@ -15,6 +15,7 @@ import com.gem.loganalysis.model.entity.LogicalAssetTemp;
 import com.gem.loganalysis.model.entity.OrgVlan;
 import com.gem.loganalysis.model.vo.asset.OrgVlanRespVO;
 import com.gem.loganalysis.service.ILogicalAssetTempService;
+import com.gem.loganalysis.service.IM4SsoOrgService;
 import com.gem.loganalysis.service.IOrgVlanService;
 import com.gem.loganalysis.util.JsonUtils;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,8 @@ import java.util.List;
 public class OrgVlanServiceImpl extends ServiceImpl<OrgVlanMapper, OrgVlan> implements IOrgVlanService {
     @Resource
     private OrgVlanMapper orgVlanMapper;
+    @Resource
+    private IM4SsoOrgService orgService;
 
 
     @Override
@@ -46,12 +49,7 @@ public class OrgVlanServiceImpl extends ServiceImpl<OrgVlanMapper, OrgVlan> impl
         Page<OrgVlanRespVO> orgVlanRespVOPage = AssetConvert.INSTANCE.convertPage05(resp);
         List<OrgVlanRespVO> records = orgVlanRespVOPage.getRecords();
         records.forEach(e->{
-            //TODO 等优化
-            if(e.getOrgId().equals("1")){
-                e.setOrgName("资产管理部");
-            }else if(e.getOrgId().equals("2")){
-                e.setOrgName("客户运营部");
-            }
+            e.setOrgName(orgService.changeOrgName(e.getOrgId()));
             e.setVlanList(JsonUtils.parseArray(e.getVlan(),VlanDTO.class));
         });
         return orgVlanRespVOPage;
@@ -70,12 +68,7 @@ public class OrgVlanServiceImpl extends ServiceImpl<OrgVlanMapper, OrgVlan> impl
         List<OrgVlan> list = this.list(wrapper);
         List<OrgVlanRespVO> orgVlanRespVOPage = AssetConvert.INSTANCE.convertList05(list);
         orgVlanRespVOPage.forEach(e->{
-            //TODO 先写死 等有部门表了放入
-            if(e.getOrgId().equals("1")){
-                e.setOrgName("资产管理部");
-            }else if(e.getOrgId().equals("2")){
-                e.setOrgName("客户运营部");
-            }
+            e.setOrgName(orgService.changeOrgName(e.getOrgId()));
             e.setVlanList(JsonUtils.parseArray(e.getVlan(),VlanDTO.class));
         });
         return orgVlanRespVOPage;

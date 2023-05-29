@@ -24,6 +24,7 @@ public interface IDictDataService extends IService<DictData> {
      */
     Map<String, List<DictData>> getDictDataMap();
 
+
     /**
      * 获得数据字典的中文
      * @param dictType

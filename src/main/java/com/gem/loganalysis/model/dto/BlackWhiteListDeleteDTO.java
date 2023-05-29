@@ -3,6 +3,7 @@ package com.gem.loganalysis.model.dto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -17,6 +18,7 @@ import javax.validation.constraints.NotNull;
  */
 @Data
 @ApiModel("安全管理 - 黑白名单删除 DTO ")
+@Accessors(chain = true)//链式
 public class BlackWhiteListDeleteDTO {
 
     @ApiModelProperty(value = "组织机构唯一编码",required = true)

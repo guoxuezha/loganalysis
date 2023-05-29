@@ -33,7 +33,7 @@ public class Scanner {
      * @param ips 输入的待扫描ip列表
      * @param ports 输入的待扫描端口
      */
-    public static void start(String ips, String ports,String scanTime) {
+    public static void start(String ips, String ports,String scanTime,String orgId) {
         // 解析端口
         String[] portArray = ports.split("-");
         int portStart = Integer.parseInt(portArray[0]);
@@ -44,7 +44,7 @@ public class Scanner {
             String[] ipList = ips.split(",");
             logger.info("[-] IP list: " + ipList.toString());
             for (String ip : ipList) {
-                scanAllPort(ip,portStart,portEnd,scanTime);
+                scanAllPort(ip,portStart,portEnd,scanTime,orgId);
             }
         }else if (ips.indexOf('/') != -1){
             String[] ipArray = ips.split("/");
@@ -53,7 +53,7 @@ public class Scanner {
             String[] ipSplit = ipAddress.split(".");
 
         }else {
-            scanAllPort(ips,portStart,portEnd,scanTime);
+            scanAllPort(ips,portStart,portEnd,scanTime,orgId);
         }
         try{
             while(true){
@@ -74,9 +74,9 @@ public class Scanner {
      * @param portStart 开始扫描的的端口
      * @param portEnd 停止扫描的端口
      */
-    public static void scanAllPort(String ip, int portStart, int portEnd,String scanTime)  {
+    public static void scanAllPort(String ip, int portStart, int portEnd,String scanTime,String orgId)  {
         for (int port = portStart; port <= portEnd; port++){
-            scan(ip,port,scanTime);
+            scan(ip,port,scanTime,orgId);
             if(poolExecutor.getQueue().size()>2000){
                 try {
                     Thread.sleep(5*1000);//防止阻塞队列过长内存溢出，限制开启的速率
@@ -92,19 +92,10 @@ public class Scanner {
      * @param ip ip地址
      * @param port 端口
      */
-    public static void scan(String ip, int port,String scanTime){
+    public static void scan(String ip, int port,String scanTime,String orgId){
         // 执行扫描任务
-        poolExecutor.execute(new ScanJob(new ScanObject(ip,port),ScanEngine.TCP_FULL_CONNECT_SCAN,scanTime));
+        poolExecutor.execute(new ScanJob(new ScanObject(ip,port),ScanEngine.TCP_FULL_CONNECT_SCAN,scanTime,orgId));
     }
 
 
-    /**
-     * 对ip:port进行扫描
-     * @param ip ip地址
-     * @param port 端口
-     */
-    public static void scan123(String ip, int port,String scanTime){
-        // 执行扫描任务
-        poolExecutor.execute(new ScanJob(new ScanObject(ip,port),ScanEngine.TCP_FULL_CONNECT_SCAN,scanTime));
-    }
 }

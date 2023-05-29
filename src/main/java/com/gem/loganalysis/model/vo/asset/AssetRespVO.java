@@ -76,8 +76,11 @@ public class AssetRespVO {
     @ApiModelProperty(value = "资产所属组织（部门）名称")
     private String assetOrgName;
 
-    @ApiModelProperty(value = "资产管理人")
+    @ApiModelProperty(value = "资产管理人ID")
     private String assetManager;
+
+    @ApiModelProperty(value = "资产管理人名称")
+    private String assetManagerName;
 
     @ApiModelProperty(value = "资产分组")
     private String assetGroupId;
