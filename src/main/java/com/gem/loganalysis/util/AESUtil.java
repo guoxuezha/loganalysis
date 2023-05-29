@@ -32,7 +32,7 @@ public class AESUtil {
         System.out.println("加密后：" + encrypt);
 
         String response =
-                "K60XBSGOxaQZm/ppjYSJSc7Bvj4bCcuk7HRBGzlz5Y8DOr2B01hNeeRmpQy8bQZg";
+                "K60XBSGOxaQZm&ppjYSJSc7Bvj4bCcuk7HRBGzlz5Y8DOr2B01hNeeRmpQy8bQZg";
         String decrypt = aesDecrypt(response, KEY);
         System.out.println("解密后：" + decrypt);
     }
@@ -77,7 +77,7 @@ public class AESUtil {
      * @return 编码后的base 64 code
      */
     public static String base64Encode(byte[] bytes) {
-        return Base64.encode(bytes);
+        return Base64.encode(bytes).replaceAll("/", "&");
     }
 
     /**
@@ -88,7 +88,10 @@ public class AESUtil {
      * @throws Exception
      */
     public static byte[] base64Decode(String base64Code) throws Exception {
-        return StrUtil.isEmpty(base64Code) ? null : new BASE64Decoder().decodeBuffer(base64Code);
+        if (StrUtil.isEmpty(base64Code)) {
+            return null;
+        }
+        return StrUtil.isEmpty(base64Code) ? null : new BASE64Decoder().decodeBuffer(base64Code.replaceAll("&", "/"));
     }
 
 
