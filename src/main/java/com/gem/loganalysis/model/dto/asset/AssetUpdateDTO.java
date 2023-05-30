@@ -17,6 +17,9 @@ public class AssetUpdateDTO {
     @ApiModelProperty(value = "资产管理人")
     private String assetManager;
 
+    @ApiModelProperty(value = "组织部门")
+    private String assetOrg;
+
     @ApiModelProperty(value = "资产分组")
     private String assetGroupId;
 

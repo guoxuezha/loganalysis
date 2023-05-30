@@ -1,11 +1,13 @@
 package com.gem.loganalysis.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gem.loganalysis.convert.AssetConvert;
+import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.Result;
 import com.gem.loganalysis.model.dto.DeleteDTO;
-import com.gem.loganalysis.model.dto.asset.AssetTypeDTO;
-import com.gem.loganalysis.model.dto.asset.LogicalAssetDiscoveryRuleDTO;
-import com.gem.loganalysis.model.dto.asset.PhysicalAssetDiscoveryRuleDTO;
+import com.gem.loganalysis.model.dto.asset.*;
+import com.gem.loganalysis.model.dto.query.LambdaQueryWrapperX;
+import com.gem.loganalysis.model.entity.AssetEvent;
 import com.gem.loganalysis.model.entity.LogicalAssetDiscoveryRule;
 import com.gem.loganalysis.model.entity.PhysicalAssetDiscoveryRule;
 import com.gem.loganalysis.model.vo.asset.LogicalAssetDiscoveryRuleVO;
@@ -34,8 +36,6 @@ public class AssetDiscoveryRuleController {
     private ILogicalAssetDiscoveryService logicalAssetDiscoveryService;
     @Resource
     private IPhysicalAssetDiscoveryService physicalAssetDiscoveryService;
-
-
 
 
     @PostMapping("/editPhysicalRule")
@@ -67,16 +67,52 @@ public class AssetDiscoveryRuleController {
 
     @PostMapping("/physicalRuleList")
     @ApiOperation("物理资产规则列表")
-    public Result<List<PhysicalAssetDiscoveryRuleVO>> physicalRuleList(@RequestBody PhysicalAssetDiscoveryRuleDTO dto) {
-        List<PhysicalAssetDiscoveryRule> list = physicalAssetDiscoveryService.list();
+    public Result<List<PhysicalAssetDiscoveryRuleVO>> physicalRuleList(@RequestBody PhysicalDiscoveryQueryDTO dto) {
+        LambdaQueryWrapperX<PhysicalAssetDiscoveryRule> wrapperX = new LambdaQueryWrapperX<PhysicalAssetDiscoveryRule>()
+                .likeIfPresent(PhysicalAssetDiscoveryRule::getCommunity,dto.getCommunity()) //community
+                .likeIfPresent(PhysicalAssetDiscoveryRule::getOid,dto.getOid()) //oid
+                .orderByDesc(PhysicalAssetDiscoveryRule::getUpdateTime);
+        List<PhysicalAssetDiscoveryRule> list = physicalAssetDiscoveryService.list(wrapperX);
         return Result.ok(AssetConvert.INSTANCE.convertList18(list));
     }
 
     @PostMapping("/logicalRuleList")
     @ApiOperation("逻辑资产规则列表")
-    public Result<List<LogicalAssetDiscoveryRuleVO>> logicalRuleList(@RequestBody LogicalAssetDiscoveryRuleDTO dto) {
-        List<LogicalAssetDiscoveryRule> list = logicalAssetDiscoveryService.list();
+    public Result<List<LogicalAssetDiscoveryRuleVO>> logicalRuleList(@RequestBody LogicalDiscoveryQueryDTO dto) {
+        LambdaQueryWrapperX<LogicalAssetDiscoveryRule> wrapperX = new LambdaQueryWrapperX<LogicalAssetDiscoveryRule>()
+                .likeIfPresent(LogicalAssetDiscoveryRule::getAssetType,dto.getAssetType()) //资产类型
+                .eqIfPresent(LogicalAssetDiscoveryRule::getNetworkProtocol,dto.getNetworkProtocol()) //网络协议
+                .eqIfPresent(LogicalAssetDiscoveryRule::getPort,dto.getPort()) //端口号
+                .orderByDesc(LogicalAssetDiscoveryRule::getUpdateTime);
+        List<LogicalAssetDiscoveryRule> list = logicalAssetDiscoveryService.list(wrapperX);
         return Result.ok(AssetConvert.INSTANCE.convertList19(list));
+    }
+
+    @PostMapping("/physicalRulePage")
+    @ApiOperation("物理资产规则分页")
+    public Result<Page<PhysicalAssetDiscoveryRuleVO>> physicalRuleList(@RequestBody PageRequest<PhysicalDiscoveryQueryDTO> dto) {
+        Page<PhysicalAssetDiscoveryRule> page = new Page<>(dto.getPageNum(), dto.getPageSize());
+        PhysicalDiscoveryQueryDTO data = dto.getData();
+        LambdaQueryWrapperX<PhysicalAssetDiscoveryRule> wrapperX = new LambdaQueryWrapperX<PhysicalAssetDiscoveryRule>()
+                .likeIfPresent(PhysicalAssetDiscoveryRule::getCommunity,data.getCommunity()) //community
+                .likeIfPresent(PhysicalAssetDiscoveryRule::getOid,data.getOid()) //oid
+                .orderByDesc(PhysicalAssetDiscoveryRule::getUpdateTime);
+        Page<PhysicalAssetDiscoveryRule> result = physicalAssetDiscoveryService.page(page, wrapperX);
+        return Result.ok(AssetConvert.INSTANCE.convertPage06(result));
+    }
+
+    @PostMapping("/logicalRulePage")
+    @ApiOperation("逻辑资产规则分页")
+    public Result<Page<LogicalAssetDiscoveryRuleVO>> logicalRuleList(@RequestBody PageRequest<LogicalDiscoveryQueryDTO> dto) {
+        Page<LogicalAssetDiscoveryRule> page = new Page<>(dto.getPageNum(), dto.getPageSize());
+        LogicalDiscoveryQueryDTO data = dto.getData();
+        LambdaQueryWrapperX<LogicalAssetDiscoveryRule> wrapperX = new LambdaQueryWrapperX<LogicalAssetDiscoveryRule>()
+                .likeIfPresent(LogicalAssetDiscoveryRule::getAssetType,data.getAssetType()) //资产类型
+                .eqIfPresent(LogicalAssetDiscoveryRule::getNetworkProtocol,data.getNetworkProtocol()) //网络协议
+                .eqIfPresent(LogicalAssetDiscoveryRule::getPort,data.getPort()) //端口号
+                .orderByDesc(LogicalAssetDiscoveryRule::getUpdateTime);
+        Page<LogicalAssetDiscoveryRule> result = logicalAssetDiscoveryService.page(page, wrapperX);
+        return Result.ok(AssetConvert.INSTANCE.convertPage07(result));
     }
 
 

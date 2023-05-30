@@ -90,7 +90,9 @@ public interface AssetConvert {
     @Mapping(target = "oidList", expression = "java(mapJsonToList(bean.getOid()))")
     PhysicalAssetDiscoveryRuleVO convert(PhysicalAssetDiscoveryRule bean);
     List<PhysicalAssetDiscoveryRuleVO> convertList18(List<PhysicalAssetDiscoveryRule> list);
+    Page<PhysicalAssetDiscoveryRuleVO> convertPage06(Page<PhysicalAssetDiscoveryRule> list);
     //逻辑资产扫描规则
     LogicalAssetDiscoveryRule convert(LogicalAssetDiscoveryRuleDTO bean);
     List<LogicalAssetDiscoveryRuleVO> convertList19(List<LogicalAssetDiscoveryRule> list);
+    Page<LogicalAssetDiscoveryRuleVO> convertPage07(Page<LogicalAssetDiscoveryRule> list);
 }

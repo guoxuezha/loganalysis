@@ -133,11 +133,15 @@ public class AssetController {
         if(StringUtils.isBlank(dto.getAssetGroupId())){
             return Result.failed("请传入更改后的分组ID");
         }
+        if(StringUtils.isBlank(dto.getAssetOrg())){
+            return Result.failed("请传入组织部门ID");
+        }
         Asset asset = assetService.getById(dto.getAssetId());
         if(asset==null){
             return Result.failed("该资产不存在");
         }
         asset.setAssetGroupId(dto.getAssetGroupId());
+        asset.setAssetOrg(dto.getAssetOrg());
         return assetService.updateById(asset)?Result.ok("修改成功"):Result.failed("修改失败");
     }
 
