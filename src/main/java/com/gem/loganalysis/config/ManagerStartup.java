@@ -3,6 +3,7 @@ package com.gem.loganalysis.config;
 import com.gem.gemada.dal.db.pools.ConnectionPools;
 import com.gem.gemada.dal.db.pools.DAO;
 import com.gem.gemada.dal.db.pools.PoolParameters;
+import com.gem.loganalysis.snmpmonitor.SNMPMonitorServer;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -66,6 +67,8 @@ public class ManagerStartup implements CommandLineRunner {
 
         // Gem-utils 调度器启动
 //        Schedule.getInstance().start();
+
+        SNMPMonitorServer.getInstance().createThreadPool();
 
     }
 

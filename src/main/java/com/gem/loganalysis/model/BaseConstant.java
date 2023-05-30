@@ -7,5 +7,6 @@ package com.gem.loganalysis.model;
  */
 public interface BaseConstant {
 
-    String DEFAULT_POOL_NAME = "default";
+    String DEFAULT_POOL_NAME = "sop";
+
 }

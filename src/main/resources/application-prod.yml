@@ -17,7 +17,7 @@ minio:
   bucketName: logrecord
 
 pool:
-  poolName: "default"
+  poolName: "sop"
   poolType: "M4DBPool"
   dbType: "MYSQL"
   dbVersion: ""
