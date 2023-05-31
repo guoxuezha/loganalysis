@@ -69,6 +69,7 @@ public class SNMPMonitorServer {
         loadSNMPConfig();
         loadDeviceMIB();
         loadCommonOID();
+//        createThreadPool();
     }
 
     /**
@@ -146,7 +147,7 @@ public class SNMPMonitorServer {
                     mib.setOID(record.get("OID"));
                     mib.setSnmpMethod(record.get("SNMP_METHOD"));
                     mib.setMeasureType(record.get("MEASURE_TYPE"));
-                    mibs.put(mib.getMibVersion(), mib);
+                    mibs.put(mib.getOID(), mib);
                 }
             }
         } catch (Exception ex) {

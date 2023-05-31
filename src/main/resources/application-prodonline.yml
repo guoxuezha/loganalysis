@@ -1,8 +1,8 @@
-verifyUrl: http://123.60.214.137:9090/oauth/verifyToken
+verifyUrl: http://222.95.84.173:9090/oauth/verifyToken
 
 business-config:
-  authenticationEnable: false
-  responseEncryptEnable: false
+  authenticationEnable: true
+  responseEncryptEnable: true
   AESKey: SKVNMEIHJLOANSKI
   logMonitorEnable: true
   adadDefaultPackage: "defaultPackage"
@@ -11,7 +11,7 @@ business-config:
 
 minio:
   #Minio服务所在地址
-  endpoint: http://123.60.214.137:5000/
+  endpoint: http://222.95.84.173:5000/
   #访问的key
   accessKey: Jonny
   #访问的秘钥
@@ -26,9 +26,9 @@ pool:
   dbVersion: ""
   driverName: "com.mysql.cj.jdbc.Driver"
   jndiName: ""
-  jdbcURL: "jdbc:mysql://localhost:3306/loganalysis?useOldAliasMetadataBehavior=true&useUnicode=true&characterEncoding=UTF8&rewriteBatchedStatements=true&useCursorFetch=true&defaultFetchSize=100"
+  jdbcURL: "jdbc:mysql://222.95.84.173:3306/sop?useOldAliasMetadataBehavior=true&useUnicode=true&characterEncoding=UTF8&rewriteBatchedStatements=true&useCursorFetch=true&defaultFetchSize=100"
   userName: "root"
-  password: "MySqlPassword!!"
+  password: "M^stBechgd1"
   schema: ""
   initialSize: 5
   maxActive: 5
@@ -51,28 +51,18 @@ pool:
   testOnIdle: false
   passwordEncrypted: false
 
-logging:
-  file:
-    name: D:/workspace/project/loganalysis/src/main/resources/log/local.log
-
-mybatis-plus:
-  # 控制台打印sql语句
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-
 spring:
   datasource:
     dynamic:
       datasource:
         master:
-          name: loganalysis
           driver-class-name: com.mysql.cj.jdbc.Driver
-          url: jdbc:mysql://localhost:3306/${spring.datasource.dynamic.datasource.master.name}?characterEncoding=utf8&nullCatalogMeansCurrent=true&useSSL=false&useUnicode=true&0=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Shanghai
+          url: jdbc:mysql://222.95.84.173:3306/sop?characterEncoding=utf8&nullCatalogMeansCurrent=true&useSSL=false&useUnicode=true&0=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Shanghai
           username: root
-          password: MySqlPassword!!
+          password: M^stBechgd1
   kafka:
     ###########【Kafka集群地址】###########
-    bootstrap-servers: 123.60.214.137:9092
+    bootstrap-servers: 222.95.84.173:9092
 
     ###########【初始化生产者配置】###########
     producer:
@@ -117,4 +107,3 @@ spring:
       auto-offset-reset: latest
       # 批量消费每次最多消费多少条消息
       max-poll-records: 500
-

@@ -2,6 +2,7 @@ package com.gem.loganalysis.util;
 
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.util.StrUtil;
+import com.gem.utils.crypto.MD5;
 import sun.misc.BASE64Decoder;
 
 import javax.crypto.Cipher;
@@ -27,6 +28,8 @@ public class AESUtil {
     private static final String ALGORITHM = "AES/ECB/PKCS5Padding";
 
     public static void main(String[] args) {
+        System.out.println(MD5.encryptPwd("testUser", "admin@123!", "GEM#SHA512"));
+
         String content = "{\"account\":\"郭超\",\"email\":\"\",\"mobile\":\"\",\"orgId\":null,\"password\":\"123456\",\"userId\":\"064bb8bd8a694b8999c4f6f9c6dcd9ed\",\"userName\":\"guochao\",\"userSex\":1}";
         String encrypt = aesEncrypt(content, KEY);
         System.out.println("加密后：" + encrypt);
@@ -77,7 +80,7 @@ public class AESUtil {
      * @return 编码后的base 64 code
      */
     public static String base64Encode(byte[] bytes) {
-        return Base64.encode(bytes).replaceAll("/", "&");
+        return Base64.encode(bytes).replaceAll("/", "#");
     }
 
     /**
@@ -91,7 +94,7 @@ public class AESUtil {
         if (StrUtil.isEmpty(base64Code)) {
             return null;
         }
-        return StrUtil.isEmpty(base64Code) ? null : new BASE64Decoder().decodeBuffer(base64Code.replaceAll("&", "/"));
+        return StrUtil.isEmpty(base64Code) ? null : new BASE64Decoder().decodeBuffer(base64Code.replaceAll("#", "/"));
     }
 
 

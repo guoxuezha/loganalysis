@@ -64,7 +64,7 @@ public class SNMPMonitorThread extends Thread {
     private void snmpGet() {
         try {
             if (snmpGetOIDList.size() > 0) {
-                log.info("snmpGetOIDList: {}", Arrays.toString(new List[]{snmpGetOIDList}));
+//                log.info("snmpGetOIDList: {}", Arrays.toString(new List[]{snmpGetOIDList}));
                 List<String> result = Shell.snmpget(snmpConfig.getVersion(), snmpConfig.getCommunity(), snmpConfig.getOutput(), snmpConfig.getIPAddress(), snmpGetOIDList);
                 parseData(result);
             }
@@ -76,7 +76,7 @@ public class SNMPMonitorThread extends Thread {
     private void snmpWalk() {
         try {
             if (snmpWalkOIDList.size() > 0) {
-                log.info("snmpWalkOIDList: {}", Arrays.toString(new List[]{snmpWalkOIDList}));
+//                log.info("snmpWalkOIDList: {}", Arrays.toString(new List[]{snmpWalkOIDList}));
                 List<String> result = Shell.snmpwalk(snmpConfig.getVersion(), snmpConfig.getCommunity(), snmpConfig.getOutput(), snmpConfig.getIPAddress(), snmpWalkOIDList);
                 parseData(result);
             }
@@ -112,7 +112,7 @@ public class SNMPMonitorThread extends Thread {
      * @param result responseStr List
      */
     private void parseData(List<String> result) {
-        log.info("result : {}", Arrays.toString(new List[]{result}));
+//        log.info("result : {}", Arrays.toString(new List[]{result}));
         try {
             if (result != null && result.size() > 0) {
                 for (String response : result) {

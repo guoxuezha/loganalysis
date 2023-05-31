@@ -22,6 +22,8 @@ public class ManagerStartup implements CommandLineRunner {
 
     private final PoolParameter poolParameter;
 
+    private final BusinessConfigInfo businessConfigInfo;
+
     @Override
     public void run(String... args) {
         PoolParameters pool = new PoolParameters();
@@ -67,8 +69,9 @@ public class ManagerStartup implements CommandLineRunner {
 
         // Gem-utils 调度器启动
 //        Schedule.getInstance().start();
-
-        SNMPMonitorServer.getInstance().createThreadPool();
+        if (businessConfigInfo.getSnmpMonitorEnable()) {
+            SNMPMonitorServer.getInstance().createThreadPool();
+        }
 
     }
 
