@@ -8,9 +8,13 @@ import com.gem.loganalysis.util.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -51,6 +55,19 @@ public interface AssetConvert {
         return JsonUtils.toJsonString(list);
     }
 
+
+    @Named("formatScanTime")
+    default String formatScanTime(String scanTime) {
+        SimpleDateFormat originalFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+        SimpleDateFormat targetFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        try {
+            Date date = originalFormat.parse(scanTime);
+            return targetFormat.format(date);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     Asset convert(AssetDTO bean);
 
     AssetGroup convert(AssetGroupDTO bean);
@@ -76,6 +93,8 @@ public interface AssetConvert {
     //IP资产扫描
     Page<PhysicalAssetScannerRespVO> convertPage03(Page<PhysicalAssetTemp> page);
     List<PhysicalAssetScannerRespVO> convertList03(List<PhysicalAssetTemp> list);
+    @Mapping(source = "scanTime", target = "scanTime", qualifiedByName = "formatScanTime")
+    AssetOverviewVO.NewAssetScanList convert(PhysicalAssetTemp bean);
     List<AssetOverviewVO.NewAssetScanList> convertList06(List<PhysicalAssetTemp> list);
     //资产分组分页
     List<AssetGroupRespVO> convertList(List<AssetGroup> list);
