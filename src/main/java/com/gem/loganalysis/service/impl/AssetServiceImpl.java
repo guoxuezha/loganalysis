@@ -1,12 +1,6 @@
 package com.gem.loganalysis.service.impl;
 
-import cn.hutool.core.date.DateField;
-import cn.hutool.core.date.DateTime;
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.json.JSONUtil;
-import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gem.loganalysis.config.BusinessConfigInfo;
@@ -16,22 +10,22 @@ import com.gem.loganalysis.enmu.DictType;
 import com.gem.loganalysis.exception.ServiceException;
 import com.gem.loganalysis.mapper.AssetMapper;
 import com.gem.loganalysis.model.PageRequest;
+import com.gem.loganalysis.model.PageResponse;
 import com.gem.loganalysis.model.Result;
+import com.gem.loganalysis.model.bo.MergeLog;
 import com.gem.loganalysis.model.dto.asset.AssetDTO;
 import com.gem.loganalysis.model.dto.asset.AssetQueryDTO;
-import com.gem.loganalysis.model.dto.asset.PhysicalAssetQueryDTO;
 import com.gem.loganalysis.model.dto.query.LambdaQueryWrapperX;
 import com.gem.loganalysis.model.entity.Asset;
-import com.gem.loganalysis.model.entity.AssetGroup;
 import com.gem.loganalysis.model.entity.M4SsoUser;
 import com.gem.loganalysis.model.entity.PhysicalAssetTemp;
-import com.gem.loganalysis.model.vo.AssetEventVO;
 import com.gem.loganalysis.model.vo.ImportRespVO;
 import com.gem.loganalysis.model.vo.asset.*;
 import com.gem.loganalysis.service.*;
 import com.gem.loganalysis.util.AESUtil;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.apache.commons.lang3.StringUtils;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -41,7 +35,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.gem.loganalysis.util.UserUtil.getLoginUserOrgId;
 
@@ -90,23 +83,11 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     }
 
     @Override
-    public Page<AssetRespVO> getPageList(PageRequest<AssetQueryDTO> dto) {
-        Page<Asset> page = new Page<>(dto.getPageNum(), dto.getPageSize());
-        AssetQueryDTO data = dto.getData();
-        LambdaQueryWrapperX<Asset> wrapper = new LambdaQueryWrapperX<Asset>()
-                .likeIfPresent(Asset::getAssetName, data.getAssetName())
-                .eqIfPresent(Asset::getAssetClass, data.getAssetClass())
-                .eqIfPresent(Asset::getAssetType, data.getAssetType())
-                .eqIfPresent(Asset::getIpAddress, data.getIpAddress())
-                .eqIfPresent(Asset::getAssetManager, data.getAssetManager())
-                .eqIfPresent(Asset::getAssetGroupId, data.getAssetGroupId())
-                .eqIfPresent(Asset::getAssetOrg, data.getAssetOrg())
-                .eqIfPresent(Asset::getAssetStatus, data.getAssetStatus())
-                .orderByDesc(Asset::getUpdateTime);
-        Page<Asset> resp = this.page(page, wrapper);
-        Page<AssetRespVO> assetRespVOPage = AssetConvert.INSTANCE.convertPage(resp);
+    public PageResponse<AssetRespVO> getPageList(PageRequest<AssetQueryDTO> dto) {
+        com.github.pagehelper.Page<AssetRespVO> result = PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
+        assetMapper.getAssetList(dto.getData());
         //转义
-        assetRespVOPage.getRecords().forEach(e->{
+        result.forEach(e->{
             //TODO 资产的安全状态目前先全部放安全，等待之后风险部分完成再放入
             e.setAssetSecurityStatus("2");
             changeAssetName(e);
@@ -115,26 +96,15 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             int randomNum = rand.nextInt((100 - 95) + 1) + 95;
             e.setScore(randomNum);
         });
-        return assetRespVOPage;
+        return new PageResponse<>(result);
     }
 
 
     @Override
     public List<AssetRespVO> getAssetList(AssetQueryDTO dto) {
-        LambdaQueryWrapperX<Asset> wrapper = new LambdaQueryWrapperX<Asset>()
-                .likeIfPresent(Asset::getAssetName, dto.getAssetName())
-                .eqIfPresent(Asset::getAssetClass, dto.getAssetClass())
-                .eqIfPresent(Asset::getAssetType, dto.getAssetType())
-                .eqIfPresent(Asset::getIpAddress, dto.getIpAddress())
-                .eqIfPresent(Asset::getAssetManager, dto.getAssetManager())
-                .eqIfPresent(Asset::getAssetGroupId, dto.getAssetGroupId())
-                .eqIfPresent(Asset::getAssetOrg, dto.getAssetOrg())
-                .eqIfPresent(Asset::getAssetStatus, dto.getAssetStatus())
-                .orderByDesc(Asset::getUpdateTime);
-        List<Asset> resp = this.list(wrapper);
-        List<AssetRespVO> assetRespVOPage = AssetConvert.INSTANCE.convertList10(resp);
+        List<AssetRespVO> assetRespVOList = assetMapper.getAssetList(dto);
         //转义
-        assetRespVOPage.forEach(e->{
+        assetRespVOList.forEach(e->{
             //TODO 资产的安全状态目前先全部放安全，等待之后风险部分完成再放入
             e.setAssetSecurityStatus("2");
             changeAssetName(e);
@@ -143,7 +113,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             int randomNum = rand.nextInt((100 - 95) + 1) + 95;
             e.setScore(randomNum);
         });
-        return assetRespVOPage;
+        return assetRespVOList;
     }
 
     @Override
@@ -264,9 +234,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
 
     @Override
     public AssetRespVO getAsset(String id) {
-        Asset asset = this.getById(id);
-        AssetRespVO convert = AssetConvert.INSTANCE.convert(asset);
-        return changeAssetName(convert);
+        return  changeAssetName(assetMapper.getAssetById(id));
     }
 
     @Override
@@ -398,6 +366,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
 
 
     private AssetRespVO changeAssetName(AssetRespVO respVO){
+        //全部是从缓存里取的数据，缓存里取不到的转义都连表查了
         respVO.setAssetClassName(dictItemService.getDictData(DictType.ASSET_CLASS.getType(),respVO.getAssetClass()));
         respVO.setAssetStatusName(dictItemService.getDictData(DictType.ASSET_STATUS.getType(),respVO.getAssetStatus()));
         if(respVO.getAssetClass().equals(AssetClass.LOGICAL.getId())){//逻辑资产
@@ -407,15 +376,15 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             respVO.setAssetTypeName(assetTypeService.getAssetTypeName(Integer.valueOf(respVO.getAssetType())));
         }
         respVO.setAssetSecurityStatusName(dictItemService.getDictData(DictType.ASSET_SECURITY_STATUS.getType(),respVO.getAssetSecurityStatus()));
-        AssetGroup assetGroup = assetGroupService.getById(respVO.getAssetGroupId());
-        respVO.setAssetGroupName(assetGroup==null?"":assetGroup.getGroupName());
+ /*       AssetGroup assetGroup = assetGroupService.getById(respVO.getAssetGroupId());
+        respVO.setAssetGroupName(assetGroup==null?"":assetGroup.getGroupName());*/
         respVO.setAssetOrgName(orgService.changeOrgName(respVO.getAssetOrg()));
-        if(!StringUtils.isBlank(respVO.getAssetManager())){
+       /* if(!StringUtils.isBlank(respVO.getAssetManager())){
             M4SsoUser user = userService.getOne(new LambdaQueryWrapper<M4SsoUser>().eq(M4SsoUser::getUserId, respVO.getAssetManager()).last("LIMIT 1"));
             if(user!=null){
                 respVO.setAssetManagerName(user.getUserName());
             }
-        }
+        }*/
         return respVO;
     }
 }

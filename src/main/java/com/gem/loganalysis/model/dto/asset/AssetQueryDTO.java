@@ -10,7 +10,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)//链式
 public class AssetQueryDTO {
 
-    @ApiModelProperty(value = "资产名称")
+    @ApiModelProperty(value = "资产名称(模糊查询)")
     private String assetName;
 
     @ApiModelProperty(value = "资产分类，物理资产/逻辑资产")
@@ -22,15 +22,15 @@ public class AssetQueryDTO {
     @ApiModelProperty(value = "IP地址")
     private String ipAddress;
 
-    @ApiModelProperty(value = "资产管理人")
+    @ApiModelProperty(value = "资产管理人(名称模糊匹配,不是ID)")
     private String assetManager;
 
-    @ApiModelProperty(value = "资产分组")
+    @ApiModelProperty(value = "资产分组(ID精确查询)")
     private String assetGroupId;
 
     @ApiModelProperty(value = "资产状态（0在役/1退役/2在线/3离线）")
     private String assetStatus;
 
-    @ApiModelProperty(value = "资产部门")
+    @ApiModelProperty(value = "资产部门(ID精确查询)")
     private String assetOrg;
 }

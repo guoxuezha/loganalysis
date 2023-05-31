@@ -6,6 +6,7 @@ import com.gem.loganalysis.convert.AssetConvert;
 import com.gem.loganalysis.enmu.AssetClass;
 import com.gem.loganalysis.exception.ServiceException;
 import com.gem.loganalysis.model.PageRequest;
+import com.gem.loganalysis.model.PageResponse;
 import com.gem.loganalysis.model.Result;
 import com.gem.loganalysis.model.dto.DeleteDTO;
 import com.gem.loganalysis.model.dto.GetDTO;
@@ -28,9 +29,7 @@ import io.swagger.annotations.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Api(tags = "资产模块 - 安全管理资产")
 @RestController
@@ -56,7 +55,7 @@ public class AssetController {
 
     @PostMapping("/pageList")
     @ApiOperation("分页查询安全管理资产")
-    public Result<Page<AssetRespVO>> pageList(@RequestBody PageRequest<AssetQueryDTO> dto) {
+    public Result<PageResponse<AssetRespVO>> pageList(@RequestBody PageRequest<AssetQueryDTO> dto) {
         return Result.ok(assetService.getPageList(dto));
     }
 

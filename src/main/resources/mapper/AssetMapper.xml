@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gem.loganalysis.mapper.AssetMapper">
+
+    <select id="getAssetList" resultType="com.gem.loganalysis.model.vo.asset.AssetRespVO">
+        SELECT
+            asset.ASSET_ID AS assetId,
+            asset.ASSET_NAME AS assetName,
+            asset.ASSET_CLASS AS assetClass,
+            asset.ASSET_TYPE AS assetType,
+            asset.ASSET_DESC AS assetDesc,
+            asset.ASSET_BRAND AS assetBrand,
+            asset.ASSET_MODEL AS assetModel,
+            asset.ASSET_SPEC AS assetSpec,
+            asset.OS_VERSION AS osVersion,
+            asset.FIRMWARE_VERSION AS firmwareVersion,
+            asset.SOFTWARE_VERSION AS softwareVersion,
+            asset.IP_ADDRESS AS ipAddress,
+            asset.SERVICE_PORT AS servicePort,
+            asset.NM_PORT AS nmPort,
+            asset.NM_PROCOTOL AS nmProcotol,
+            asset.NM_ACCOUNT AS nmAccount,
+            asset.ASSET_ORG AS assetOrg,
+            asset.ASSET_MANAGER AS assetManager,
+            asset.ASSET_GROUP_ID AS assetGroupId,
+            asset.ASSET_TAG AS assetTag,
+            asset.ASSET_STATUS AS assetStatus,
+            asset.CREATE_TIME AS createTime,
+            asset.CREATE_BY AS createBy,
+            asset.UPDATE_TIME AS updateTime,
+            asset.UPDATE_BY AS updateBy,
+            asset.MIB_VERSION AS mibVersion,
+            group.GROUP_NAME AS assetGroupName,
+            user.USER_NAME AS assetManagerName
+        FROM
+            sop_asset AS asset
+                LEFT JOIN
+            sop_asset_group AS `group`
+            ON
+                asset.ASSET_GROUP_ID = group.GROUP_ID
+                LEFT JOIN
+            m4_sso_user AS `user`
+            ON
+                asset.ASSET_MANAGER = user.USER_ID
+        WHERE
+            asset.DELETE_STATE = 0
+        <if test="assetName != null and assetName.trim() != ''">
+            AND asset.ASSET_NAME LIKE CONCAT('%', #{assetName}, '%')
+        </if>
+        <if test="assetClass!=null and assetClass.trim()!='' ">
+            AND asset.ASSET_CLASS = #{assetClass}
+        </if>
+        <if test="assetType!=null and assetType.trim()!='' ">
+            AND asset.ASSET_TYPE = #{assetType}
+        </if>
+        <if test="ipAddress!=null and ipAddress.trim()!='' ">
+            AND asset.IP_ADDRESS LIKE CONCAT('%', #{ipAddress}, '%')
+        </if>
+        <if test="assetManager!=null and assetManager.trim()!='' ">
+            AND user.USER_NAME LIKE CONCAT('%', #{assetManager}, '%')
+        </if>
+        <if test="assetGroupId!=null and assetGroupId.trim()!='' ">
+            AND asset.ASSET_GROUP_ID = #{assetGroupId}
+        </if>
+        <if test="assetStatus!=null and assetStatus.trim()!='' ">
+            AND asset.ASSET_STATUS = #{assetStatus}
+        </if>
+        <if test="assetOrg!=null and assetOrg.trim()!='' ">
+            AND asset.ASSET_ORG = #{assetOrg}
+        </if>
+    </select>
+
+    <select id="getAssetById" resultType="com.gem.loganalysis.model.vo.asset.AssetRespVO">
+        SELECT
+            asset.ASSET_ID AS assetId,
+            asset.ASSET_NAME AS assetName,
+            asset.ASSET_CLASS AS assetClass,
+            asset.ASSET_TYPE AS assetType,
+            asset.ASSET_DESC AS assetDesc,
+            asset.ASSET_BRAND AS assetBrand,
+            asset.ASSET_MODEL AS assetModel,
+            asset.ASSET_SPEC AS assetSpec,
+            asset.OS_VERSION AS osVersion,
+            asset.FIRMWARE_VERSION AS firmwareVersion,
+            asset.SOFTWARE_VERSION AS softwareVersion,
+            asset.IP_ADDRESS AS ipAddress,
+            asset.SERVICE_PORT AS servicePort,
+            asset.NM_PORT AS nmPort,
+            asset.NM_PROCOTOL AS nmProcotol,
+            asset.NM_ACCOUNT AS nmAccount,
+            asset.ASSET_ORG AS assetOrg,
+            asset.ASSET_MANAGER AS assetManager,
+            asset.ASSET_GROUP_ID AS assetGroupId,
+            asset.ASSET_TAG AS assetTag,
+            asset.ASSET_STATUS AS assetStatus,
+            asset.CREATE_TIME AS createTime,
+            asset.CREATE_BY AS createBy,
+            asset.UPDATE_TIME AS updateTime,
+            asset.UPDATE_BY AS updateBy,
+            asset.MIB_VERSION AS mibVersion,
+            group.GROUP_NAME AS assetGroupName,
+            user.USER_NAME AS assetManagerName
+        FROM
+            sop_asset AS asset
+                LEFT JOIN
+            sop_asset_group AS `group`
+            ON
+                asset.ASSET_GROUP_ID = group.GROUP_ID
+                LEFT JOIN
+            m4_sso_user AS `user`
+            ON
+                asset.ASSET_MANAGER = user.USER_ID
+        WHERE
+            asset.ASSET_ID = #{id}
+    </select>
+</mapper>
