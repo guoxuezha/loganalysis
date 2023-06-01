@@ -42,6 +42,7 @@ public class AuthInfoInterceptor implements HandlerInterceptor {
         param.put("userId", userId);
         param.put("accessToken", token);
         String verifyResult = HttpUtil.post(verifyUrl, param);
+        log.info("verifyResult : {}", verifyResult);
         String code;
         try {
             code = (String) JSONUtil.parseObj(verifyResult).get("code");

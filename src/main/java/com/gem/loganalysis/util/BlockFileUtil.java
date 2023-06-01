@@ -61,7 +61,7 @@ public class BlockFileUtil {
     }
 
     public static String getBlockFileRootPath() {
-        return System.getProperty("user.dir") + "\\blockFile\\";
+        return System.getProperty("user.dir") + File.separator + "blockFile" + File.separator;
         /*try {
             return new ClassPathResource("").getFile().getAbsolutePath() + "\\blockFile\\";
         } catch (IOException e) {

@@ -110,6 +110,15 @@ public class LogEventListener {
         }
     }
 
+
+    /**
+     * 解封扫描
+     */
+    public void unsealScan() {
+
+    }
+
+
     /**
      * 每天0点扫描是否有过早的原始日志文件需要上传到Minio
      */

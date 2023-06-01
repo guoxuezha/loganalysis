@@ -37,6 +37,11 @@ public class BusinessConfigInfo {
     private Boolean logMonitorEnable;
 
     /**
+     * SNMP扫描开启
+     */
+    private Boolean snmpMonitorEnable;
+
+    /**
      * 单点登录默认packageId
      */
     private String adadDefaultPackage;

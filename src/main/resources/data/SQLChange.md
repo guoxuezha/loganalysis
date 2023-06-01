@@ -161,3 +161,15 @@ CREATE TABLE SOP_COMMON_OID
     PRIMARY KEY (MIB_VERSION, OID)
 )COMMENT = '通用MIB库OID列表设置';
 ```
+
+### 2023-05-30
+
+#### 封堵实现调整
+
+```SQL
+ALTER TABLE `loganalysis`.`sop_block_rule`
+    ADD COLUMN `OPERATION_ASSET_ID` varchar(512) NULL COMMENT '执行操作的资产(防火墙)ID(若有多个则使用,分割)' AFTER `BLACK_LIST_ENABLE`;
+
+
+
+```

@@ -1,14 +1,17 @@
-verifyUrl: http://123.249.94.31:9090/oauth/verifyToken
+verifyUrl: http://123.60.214.137:9090/oauth/verifyToken
 
 business-config:
   authenticationEnable: true
   responseEncryptEnable: true
   AESKey: SKVNMEIHJLOANSKI
-  logMonitorEnable: false
+  logMonitorEnable: true
+  adadDefaultPackage: "defaultPackage"
+  logBlockFileRetentionDays: 7
+  snmpMonitorEnable: false
 
 minio:
   #Minio服务所在地址
-  endpoint: http://123.249.94.31:5000/
+  endpoint: http://123.60.214.137:5000/
   #访问的key
   accessKey: Jonny
   #访问的秘钥
