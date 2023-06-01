@@ -7,7 +7,6 @@ import com.gem.loganalysis.model.Result;
 import com.gem.loganalysis.model.dto.DeleteDTO;
 import com.gem.loganalysis.model.dto.asset.*;
 import com.gem.loganalysis.model.dto.query.LambdaQueryWrapperX;
-import com.gem.loganalysis.model.entity.AssetEvent;
 import com.gem.loganalysis.model.entity.LogicalAssetDiscoveryRule;
 import com.gem.loganalysis.model.entity.PhysicalAssetDiscoveryRule;
 import com.gem.loganalysis.model.vo.asset.LogicalAssetDiscoveryRuleVO;
@@ -41,13 +40,13 @@ public class AssetDiscoveryRuleController {
     @PostMapping("/editPhysicalRule")
     @ApiOperation("新增编辑物理资产规则(带ID是编辑，不带是新增)")
     public Result<String> editPhysicalRule(@RequestBody PhysicalAssetDiscoveryRuleDTO dto) {
-        return Result.ok(physicalAssetDiscoveryService.saveOrUpdate(AssetConvert.INSTANCE.convert(dto))?"操作成功":"操作失败");
+        return physicalAssetDiscoveryService.saveOrUpdate(AssetConvert.INSTANCE.convert(dto))?Result.ok("操作成功"):Result.failed("操作失败");
     }
 
     @PostMapping("/editLogicalRule")
     @ApiOperation("新增编辑物理资产规则(带ID是编辑，不带是新增)")
     public Result<String> editLogicalRule(@RequestBody LogicalAssetDiscoveryRuleDTO dto) {
-        return Result.ok(logicalAssetDiscoveryService.saveOrUpdate(AssetConvert.INSTANCE.convert(dto))?"操作成功":"操作失败");
+        return logicalAssetDiscoveryService.saveOrUpdate(AssetConvert.INSTANCE.convert(dto))?Result.ok("操作成功"):Result.failed("操作失败");
     }
 
     @PostMapping("/deletedPhysicalRule")
@@ -56,13 +55,13 @@ public class AssetDiscoveryRuleController {
         if(StringUtils.isBlank(dto.getId())){
             return Result.failed("请传入要删除的物理资产规则ID");
         }
-        return Result.ok(physicalAssetDiscoveryService.removeById(dto.getId())?"删除成功":"删除失败");
+        return physicalAssetDiscoveryService.removeById(dto.getId())?Result.ok("删除成功"):Result.failed("删除失败");
     }
 
     @PostMapping("/deletedLogicalRule")
     @ApiOperation("删除逻辑资产规则")
     public Result<String> deletedLogicalRule(@RequestBody DeleteDTO dto) {
-        return Result.ok(logicalAssetDiscoveryService.removeById(dto.getId())?"删除成功":"删除失败");
+        return logicalAssetDiscoveryService.removeById(dto.getId())?Result.ok("删除成功"):Result.failed("删除失败");
     }
 
     @PostMapping("/physicalRuleList")

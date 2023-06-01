@@ -52,7 +52,7 @@ public class AssetTypeController {
     @PostMapping("/edit")
     @ApiOperation("新增编辑资产类型(带typeId是编辑，不带是新增)")
     public Result<String> edit(@RequestBody AssetTypeDTO dto) {
-        return Result.ok(assetTypeService.editType(dto)?"操作成功":"操作失败");
+        return assetTypeService.editType(dto)?Result.ok("操作成功"):Result.failed("操作失败");
     }
 
     @PostMapping("/deleted")
@@ -61,7 +61,14 @@ public class AssetTypeController {
         if(StringUtils.isBlank(dto.getId())){
             return Result.failed("请传入要删除的类型ID");
         }
-        return Result.ok(assetTypeService.removeById(dto.getId())?"删除成功":"删除失败");
+        boolean b = assetTypeService.removeById(dto.getId());
+        if(b){
+            assetTypeService.initLocalCache();
+            return Result.ok("删除成功");
+        }else{
+            return Result.failed("删除失败");
+        }
+
     }
 
 
