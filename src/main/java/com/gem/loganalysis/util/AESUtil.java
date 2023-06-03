@@ -28,14 +28,14 @@ public class AESUtil {
     private static final String ALGORITHM = "AES/ECB/PKCS5Padding";
 
     public static void main(String[] args) {
-        System.out.println(MD5.encryptPwd("testUser", "admin@123!", "GEM#SHA512"));
+        System.out.println(MD5.encryptPwd("testUser", "CCzuhg091!@", "GEM#SHA512"));
 
-        String content = "{\"account\":\"郭超\",\"email\":\"\",\"mobile\":\"\",\"orgId\":null,\"password\":\"123456\",\"userId\":\"064bb8bd8a694b8999c4f6f9c6dcd9ed\",\"userName\":\"guochao\",\"userSex\":1}";
+        String content = "CCzuhg091!@";
         String encrypt = aesEncrypt(content, KEY);
         System.out.println("加密后：" + encrypt);
 
         String response =
-                "K60XBSGOxaQZm&ppjYSJSc7Bvj4bCcuk7HRBGzlz5Y8DOr2B01hNeeRmpQy8bQZg";
+                "caHzoC1ZOpgmSR50l5$yBPXWBg1UECXVnJDFSvexc4z2q8nNh24w45Hf6qLZoyOQGy3L5EFiK$aLRm+6moM954gvIqAs8PH3rhMCHllYRnFasb0kB0JWz6N0GXTvmUbkLzgc3jvk0uaEwO1FDzY7Q+$0+25HBccpG9L804hLmqOv5pWqvmV$R7MpeuKgB74r6KfGRaSarVb+RJ+RbC+uCNMJp3YFK4A9$DP91qaqoA7k0XNkxGjudZiz4pssGBg21WUDO4bU+y4nT0aPbp8Vq9L$mVhjtRl+zUoNF+MhfbFkAvcfFWb$bhUlGd5Dv5qYQdVtzj94LMt6znF5iq+diMEruW1CCs0JS0dCph43ZPkHqmB+NQvs$o07FlTMJW6ODTfTT73E8UbP$rbZPQn8Iw6XnImHcJAGv05kuTt8a20=";
         String decrypt = aesDecrypt(response, KEY);
         System.out.println("解密后：" + decrypt);
     }

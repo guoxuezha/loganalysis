@@ -67,6 +67,12 @@ public class BlockRule implements Serializable {
     private Integer blackListEnable;
 
     /**
+     * 执行操作的资产(防火墙)ID(若有多个则使用,分割)
+     */
+    @TableField("OPERATION_ASSET_ID")
+    private String operationAssetId;
+
+    /**
      * 创建时间
      */
     @TableField("CREATE_TIME")

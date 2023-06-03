@@ -9,6 +9,7 @@ import cn.hutool.core.util.StrUtil;
 import com.gem.gemada.dal.db.pools.DAO;
 import com.gem.loganalysis.config.BusinessConfigInfo;
 import com.gem.loganalysis.model.BaseConstant;
+import com.gem.loganalysis.model.dto.BlockExecuteDTO;
 import com.gem.loganalysis.util.MinioUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -78,11 +80,11 @@ public class LogEventListener {
     /**
      * 扫描是否有事件可自动处理
      */
-    @Scheduled(cron = "0 0/5 * * * ? ")
+//    @Scheduled(cron = "0 0/5 * * * ? ")
     public void eventHandlerScan() {
         // 1.查询未处理的事件
         String querySql = "SELECT A.EVENT_ID, A.ASSET_ID, A.EVENT_ORIGIN, A.ORIGIN_ID, A.EVENT_TYPE, A.EVENT_CLASS, A.SOURCE_IP, " +
-                "B.BLOCK_RULE_ID, C.BLOCK_RULE_DESC, C.BLOCK_TYPE, C.BLOCK_DURATION, C.WHITE_LIST_ENABLE, C.BLACK_LIST_ENABLE " +
+                "B.BLOCK_RULE_ID, C.BLOCK_RULE_DESC, C.BLOCK_TYPE, C.BLOCK_DURATION, C.WHITE_LIST_ENABLE, C.BLACK_LIST_ENABLE, C.OPERATION_ASSET_ID " +
                 "FROM SOP_ASSET_EVENT A " +
                 "LEFT JOIN SOP_EVENT_TYPE B ON A.EVENT_TYPE = B.EVENT_TYPE AND A.EVENT_CLASS = B.EVENT_CLASS " +
                 "LEFT JOIN SOP_BLOCK_RULE C ON B.BLOCK_RULE_ID = C.BLOCK_RULE_ID " +
@@ -102,7 +104,12 @@ public class LogEventListener {
                     log.info("事件类型:{}, 事件级别:{}, 对IP: {} 进行 {}, 封堵时长为: {} 分钟",
                             map.get("EVENT_TYPE"), map.get("EVENT_CLASS"), map.get("SOURCE_IP"),
                             "0".equals(map.get("BLOCK_TYPE")) ? "临时封堵" : "永久封堵", "0".equals(map.get("BLOCK_TYPE")) ? map.get("BLOCK_DURATION") : "∞");
-                    handleStatus = 1;
+                    if (BlockExecutor.block(map)) {
+                        handleStatus = 2;
+                    } else {
+                        log.warn("EventId 为 {} 的事件封堵执行失败!", map.get("EVENT_ID"));
+                        handleStatus = 0;
+                    }
                 }
                 String updateSql = "UPDATE SOP_ASSET_EVENT SET HANDLE_STATUS = " + handleStatus + " WHERE EVENT_ID = '" + map.get("EVENT_ID") + "' LIMIT 1";
                 dao.execCommand(BaseConstant.DEFAULT_POOL_NAME, updateSql);
@@ -110,14 +117,36 @@ public class LogEventListener {
         }
     }
 
-
     /**
      * 解封扫描
      */
-    public void unsealScan() {
-
+//    @Scheduled(cron = "0 0/5 * * * ? ")
+    public void deBlockScan() {
+        // 查询状态为"临时封堵中"的封堵记录
+        String querySql = "SELECT A.BLOCK_RECORD_ID, A.BLOCK_IP, A.BLOCK_END_TIME, A.ASSET_ID, " +
+                "B.IP_ADDRESS, B.NM_PORT, B.NM_ACCOUNT, B.NM_PASSWORD " +
+                "FROM SOP_BLOCK_RECORD A " +
+                "LEFT JOIN SOP_ASSET B ON A.ASSET_ID = B.ASSET_ID " +
+                "WHERE BLOCK_STATE = 1 AND BLOCK_TYPE = 0";
+        ArrayList<HashMap<String, String>> dataSet = dao.getDataSet(BaseConstant.DEFAULT_POOL_NAME, querySql, 0, 0);
+        if (CollUtil.isNotEmpty(dataSet)) {
+            for (HashMap<String, String> map : dataSet) {
+                // 判断是否抵达封堵结束时间
+                String blockEndTime = map.get("BLOCK_END_TIME");
+                if (StrUtil.isNotEmpty(blockEndTime)) {
+                    DateTime parse = DateUtil.parse(blockEndTime, DatePattern.PURE_DATETIME_PATTERN);
+                    if (new Date().after(parse)) {
+                        // 若抵达则执行解封
+                        BlockExecutor.deBlock(new BlockExecuteDTO(map.get("IP_ADDRESS"), Integer.parseInt(map.get("NM_PORT")),
+                                map.get("NM_ACCOUNT"), map.get("NM_PASSWORD"), map.get("BLOCK_IP"), null));
+                        // 修改封堵状态记录
+                        String updateSql = String.format("UPDATE SOP_BLOCK_RECORD SET BLOCK_STATE = 2 WHERE BLOCK_RECORD_ID = %s LIMIT 1", map.get("BLOCK_RECORD_ID"));
+                        dao.execCommand(BaseConstant.DEFAULT_POOL_NAME, updateSql);
+                    }
+                }
+            }
+        }
     }
-
 
     /**
      * 每天0点扫描是否有过早的原始日志文件需要上传到Minio

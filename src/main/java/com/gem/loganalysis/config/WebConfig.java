@@ -30,7 +30,8 @@ public class WebConfig implements WebMvcConfigurer {
             registry.addInterceptor(authInfoInterceptor)
                     .addPathPatterns("/sop/**")
                     .addPathPatterns("/logAnalysis/**")
-                    .addPathPatterns("/system/**");
+                    .addPathPatterns("/system/**")
+                    .excludePathPatterns("/websocket/**");
         }
     }
 

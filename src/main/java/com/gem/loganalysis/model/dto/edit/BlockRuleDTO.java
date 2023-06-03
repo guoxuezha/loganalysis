@@ -29,4 +29,7 @@ public class BlockRuleDTO {
     @ApiModelProperty("启用黑名单（0否1是）")
     private Integer blackListEnable;
 
+    @ApiModelProperty("执行操作的资产(防火墙)ID(若有多个则使用,分割)")
+    private String operationAssetId;
+
 }
