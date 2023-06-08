@@ -214,11 +214,11 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                     }
                     asset.setAssetManager(user.getUserId());
                 }
-                //对于密码加密,不需要可注释
+              /*  //对于密码加密,不需要可注释
                 if(!StringUtils.isBlank(e.getNmPassword())){
                     String password = AESUtil.aesEncrypt(e.getNmPassword(), businessConfigInfo.getAESKey());
                     asset.setNmPassword(password);
-                }
+                }*/
                 asset.setAssetOrg(getLoginUserOrgId());
                 assetMapper.insert(asset);
                 respVO.getSuccessNames().add(e.getAssetName());
