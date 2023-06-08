@@ -268,6 +268,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         Map<String, List<AssetRespVO>> assetStatus = assetList.stream()
                 .collect(Collectors.groupingBy(AssetRespVO::getAssetStatusName));
         assetOverviewVO.setAssetStatusDistribution(assetStatus);
+        assetOverviewVO.setAssetOnlineStatusDistribution(assetStatus);
         //最近新增资产(10条)
         List<AssetRespVO> sorted = assetList.stream()
                 .sorted(Comparator.comparing(AssetRespVO::getCreateTime,Comparator.reverseOrder()))

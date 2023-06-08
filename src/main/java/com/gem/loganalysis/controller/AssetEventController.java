@@ -14,6 +14,7 @@ import com.gem.loganalysis.model.dto.query.OverviewQueryDTO;
 import com.gem.loganalysis.model.entity.AssetEvent;
 import com.gem.loganalysis.model.entity.AssetMergeLog;
 import com.gem.loganalysis.model.entity.EventType;
+import com.gem.loganalysis.model.vo.EventMonitorVO;
 import com.gem.loganalysis.model.vo.EventOverviewVO;
 import com.gem.loganalysis.service.IAssetEventService;
 import com.gem.loganalysis.service.IAssetMergeLogService;
@@ -59,6 +60,19 @@ public class AssetEventController {
     @ApiOperation("事件总览")
     public Result<EventOverviewVO> overview(@RequestBody OverviewQueryDTO dto) {
         return Result.ok(iAssetEventService.geOverviewInfo(dto));
+    }
+
+
+    /**
+     * 事件监控
+     *
+     * @param dto 查询参数
+     * @return 返回对象
+     */
+    @PostMapping("/assetEvent/eventMonitor")
+    @ApiOperation("事件监控")
+    public Result<EventMonitorVO> eventMonitor() {
+        return Result.ok(iAssetEventService.getEventMonitor());
     }
 
     @PostMapping("/eventType/pageList")

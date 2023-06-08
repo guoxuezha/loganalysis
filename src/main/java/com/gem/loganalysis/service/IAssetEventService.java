@@ -3,6 +3,7 @@ package com.gem.loganalysis.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.gem.loganalysis.model.dto.query.OverviewQueryDTO;
 import com.gem.loganalysis.model.entity.AssetEvent;
+import com.gem.loganalysis.model.vo.EventMonitorVO;
 import com.gem.loganalysis.model.vo.EventOverviewVO;
 
 /**
@@ -22,4 +23,10 @@ public interface IAssetEventService extends IService<AssetEvent> {
      * @return 响应
      */
     EventOverviewVO geOverviewInfo(OverviewQueryDTO dto);
+
+    /**
+     * 事件监控
+     * @return
+     */
+    EventMonitorVO getEventMonitor();
 }

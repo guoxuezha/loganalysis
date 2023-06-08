@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gem.loganalysis.mapper.AssetSnmpConfigMapper">
+
+    <insert id="insertSnmpConfig">
+        INSERT INTO `loganalysis`.`sop_asset_snmp_config`
+        (`ASSET_ORG`, `IP_ADDRESS`, `SNMP_VERSION`, `SNMP_COMMUNITY`,
+         `SNMP_USERNAME`, `AUTH_PASSWORD`, `PRIV_PASSWORD`,`OUTPUT_PARAM`,`ASSET_ID`)
+        VALUES (#{assetOrg}, #{ipAddress}, #{snmpVersion},#{snmpCommunity},
+                #{snmpUsername}, #{authPassword}, #{privPassword}, #{outputParam},#{assetId})
+    </insert>
+    <update id="updateSnmpConfig">
+        UPDATE `loganalysis`.`sop_asset_snmp_config` SET
+         `SNMP_VERSION` = #{snmpVersion},
+         `SNMP_COMMUNITY` = #{snmpCommunity},
+         `SNMP_USERNAME` = #{snmpUsername},
+         `AUTH_PASSWORD` = #{authPassword},
+         `PRIV_PASSWORD` = #{privPassword},
+         `OUTPUT_PARAM` = #{outputParam},
+         `ASSET_ID` = #{assetId}
+        WHERE `ASSET_ORG` = #{assetOrg} AND `IP_ADDRESS` = #{ipAddress}
+    </update>
+
+    <delete id="deleteSnmpConfig">
+        DELETE FROM `loganalysis`.`sop_asset_snmp_config`
+        WHERE `ASSET_ORG` = #{assetOrg} AND `IP_ADDRESS` = #{ipAddress}
+    </delete>
+    <select id="getSnmpConfig" resultType="com.gem.loganalysis.model.vo.asset.AssetSnmpConfigRespVO">
+        SELECT
+            config.ASSET_ORG AS assetOrg,
+            config.IP_ADDRESS AS ipAddress,
+            config.SNMP_VERSION AS snmpVersion,
+            config.SNMP_COMMUNITY AS snmpCommunity,
+            config.SNMP_USERNAME AS snmpUsername,
+            config.AUTH_PASSWORD AS authPassword,
+            config.PRIV_PASSWORD AS privPassword,
+            config.OUTPUT_PARAM AS outputParam,
+            config.ASSET_ID AS assetId,
+            org.ORG_NAME AS assetOrgName,
+            asset.ASSET_NAME AS assetName
+        FROM
+            sop_asset_snmp_config AS config
+                LEFT JOIN
+            m4_sso_org AS org
+            ON
+                config.ASSET_ORG = org.ORG_ID
+                LEFT JOIN
+            sop_asset AS asset
+            ON
+                config.ASSET_ID = asset.ASSET_ID
+        WHERE
+            config.ASSET_ORG = #{assetOrg} AND
+            config.IP_ADDRESS = #{ipAddress}
+    </select>
+
+    <select id="getList" resultType="com.gem.loganalysis.model.vo.asset.AssetSnmpConfigRespVO">
+        SELECT
+            config.ASSET_ORG AS assetOrg,
+            config.IP_ADDRESS AS ipAddress,
+            config.SNMP_VERSION AS snmpVersion,
+            config.SNMP_COMMUNITY AS snmpCommunity,
+            config.SNMP_USERNAME AS snmpUsername,
+            config.AUTH_PASSWORD AS authPassword,
+            config.PRIV_PASSWORD AS privPassword,
+            config.OUTPUT_PARAM AS outputParam,
+            config.ASSET_ID AS assetId,
+            org.ORG_NAME AS assetOrgName,
+            asset.ASSET_NAME AS assetName
+        FROM
+            sop_asset_snmp_config AS config
+                LEFT JOIN
+            m4_sso_org AS org
+            ON
+                config.ASSET_ORG = org.ORG_ID
+                LEFT JOIN
+            sop_asset AS asset
+            ON
+                config.ASSET_ID = asset.ASSET_ID
+        <where>
+            <if test="assetOrg!=null and assetOrg.trim()!='' ">
+                AND config.ASSET_ORG = #{assetOrg}
+            </if>
+            <if test="ipAddress!=null and ipAddress.trim()!='' ">
+                AND config.IP_ADDRESS like concat('%',#{ipAddress},'%')
+            </if>
+            <if test="snmpVersion!=null and snmpVersion.trim()!='' ">
+                AND config.SNMP_VERSION like concat('%',#{snmpVersion},'%')
+            </if>
+        </where>
+    </select>
+
+
+</mapper>

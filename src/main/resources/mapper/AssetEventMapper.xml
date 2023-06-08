@@ -22,4 +22,51 @@
                  LEFT JOIN sop_asset c on a.ASSET_ID = c.ASSET_ID
         WHERE b.BEGIN_TIME BETWEEN #{startTime, jdbcType=VARCHAR} AND #{endTime, jdbcType=VARCHAR}
     </select>
+
+    <select id="getEquipmentList"
+            resultType="com.gem.loganalysis.model.vo.NetworkEquipmentVO">
+        SELECT
+            a.ASSET_ID AS assetId,
+            a.ASSET_NAME AS assetName,
+            a.ASSET_BRAND AS assetBrand,
+            a.ASSET_MODEL AS assetModel,
+            o.ORG_NAME AS orgName,
+            t.ASSET_TYPE AS assetType,
+            t.TYPE_NAME AS typeName,
+            COALESCE(COUNT(e.ASSET_ID), 0) AS todayEventCount
+        FROM
+            SOP_ASSET AS a
+                LEFT JOIN
+            SOP_ASSET_EVENT AS e
+            ON
+                    a.ASSET_ID = e.ASSET_ID AND
+                    SUBSTRING(e.BEGIN_TIME, 1, 8) = DATE_FORMAT(NOW(), '%Y%m%d')
+                LEFT JOIN
+            m4_sso_org AS o
+            ON
+                o.ORG_ID = a.ASSET_ORG
+                LEFT JOIN
+            sop_asset_type AS t
+            ON
+                t.TYPE_ID = a.ASSET_TYPE
+        WHERE
+            t.ASSET_TYPE = #{assetTypeName}
+        GROUP BY
+            a.ASSET_ID
+    </select>
+    <select id="getEquipmentCount"
+            resultType="com.gem.loganalysis.model.vo.TerminalEquipmentVO">
+        SELECT
+            count(0) AS totalNumber,
+            COUNT(CASE WHEN a.ASSET_STATUS = '2' THEN 1 END) AS onlineNumber
+        FROM
+            SOP_ASSET AS a
+                LEFT JOIN
+            sop_asset_type AS t
+            ON
+                t.TYPE_ID = a.ASSET_TYPE
+        WHERE
+            t.ASSET_TYPE = #{assetTypeName}
+    </select>
+
 </mapper>

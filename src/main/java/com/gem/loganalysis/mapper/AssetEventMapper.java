@@ -2,7 +2,10 @@ package com.gem.loganalysis.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.gem.loganalysis.model.entity.AssetEvent;
+import com.gem.loganalysis.model.vo.EventMonitorVO;
+import com.gem.loganalysis.model.vo.NetworkEquipmentVO;
 import com.gem.loganalysis.model.vo.RiskOverviewRecordVO;
+import com.gem.loganalysis.model.vo.TerminalEquipmentVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -29,4 +32,7 @@ public interface AssetEventMapper extends BaseMapper<AssetEvent> {
     List<RiskOverviewRecordVO> getOverviewInfo(@Param("startTime") String startTime,
                                                @Param("endTime") String endTime);
 
+    List<NetworkEquipmentVO> getEquipmentList(String assetTypeName);
+
+    List<TerminalEquipmentVO> getEquipmentCount(String assetTypeName);
 }

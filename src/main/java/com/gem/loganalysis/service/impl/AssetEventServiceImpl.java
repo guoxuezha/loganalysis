@@ -12,7 +12,9 @@ import com.gem.loganalysis.model.BaseConstant;
 import com.gem.loganalysis.model.dto.query.OverviewQueryDTO;
 import com.gem.loganalysis.model.entity.AssetEvent;
 import com.gem.loganalysis.model.vo.AssetEventVO;
+import com.gem.loganalysis.model.vo.EventMonitorVO;
 import com.gem.loganalysis.model.vo.EventOverviewVO;
+import com.gem.loganalysis.model.vo.ITEquipmentVO;
 import com.gem.loganalysis.service.IAssetEventService;
 import com.gem.loganalysis.util.MapToBeanUtil;
 import org.springframework.stereotype.Service;
@@ -81,6 +83,36 @@ public class AssetEventServiceImpl extends ServiceImpl<AssetEventMapper, AssetEv
             result.setDailyEventNumList(dailyDataPadding(startTime, dailyNum));
         }
         return result;
+    }
+
+    @Override
+    public EventMonitorVO getEventMonitor() {
+        EventMonitorVO eventMonitorVO = new EventMonitorVO();
+        eventMonitorVO.setNetworkEquipmentList(assetEventMapper.getEquipmentList("网络设备"));//网络设备
+        eventMonitorVO.setSafetyDEquipmentList(assetEventMapper.getEquipmentList("安全设备"));//安全设备
+        //TODO 怎么拿到数据 网络吞吐量怎么拿 先写假的了
+        ITEquipmentVO itEquipmentList1 = new ITEquipmentVO()
+                .setIpAddress("104.253.151.3")
+                .setTypeName("交换机")
+                .setOrgName("资产管理部")
+                .setCpu("40")
+                .setMemory("30")
+                .setDisk("30")
+                .setNetworkThroughput("86");
+        ITEquipmentVO itEquipmentList2 = new ITEquipmentVO()
+                .setIpAddress("104.253.151.3")
+                .setTypeName("交换机")
+                .setOrgName("资产管理部")
+                .setCpu("28")
+                .setMemory("16")
+                .setDisk("30")
+                .setNetworkThroughput("73");
+        List<ITEquipmentVO> list = new ArrayList<>();
+        list.add(itEquipmentList1);
+        list.add(itEquipmentList2);
+        eventMonitorVO.setItEquipmentList(list);
+        eventMonitorVO.setTerminalEquipmentList(assetEventMapper.getEquipmentCount("终端设备"));//终端设备
+        return eventMonitorVO;
     }
 
     private List<EventOverviewVO.TypeNum> dailyDataPadding(DateTime startDate, Map<String, List<AssetEventVO>> typeRiskListMap) {

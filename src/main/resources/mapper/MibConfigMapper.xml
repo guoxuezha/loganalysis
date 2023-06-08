@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gem.loganalysis.mapper.MibConfigMapper">
+
+    <insert id="insertConfig">
+        INSERT INTO `loganalysis`.`sop_mib_config`(`MIB_VERSION`, `OID`, `SNMP_METHOD`, `MEASURE_TYPE`)
+         VALUES (#{mibVersion},#{oid},#{snmpMethod},#{measureType})
+    </insert>
+
+    <update id="updateConfig">
+        UPDATE `loganalysis`.`sop_mib_config` SET
+          `MIB_VERSION` = #{mibVersion},
+          `OID` = #{oid},
+          `SNMP_METHOD` = #{snmpMethod},
+          `MEASURE_TYPE` = #{measureType}
+        WHERE `MIB_VERSION` = #{mibVersion} AND `OID` = #{oid}
+    </update>
+    <delete id="deleteConfig">
+        DELETE FROM `loganalysis`.`sop_mib_config`  WHERE `MIB_VERSION` = #{mibVersion} AND `OID` = #{oid}
+    </delete>
+
+    <select id="getConfig" resultType="com.gem.loganalysis.model.vo.asset.MibConfigRespVO">
+        SELECT
+            config.MIB_VERSION AS mibVersion,
+            config.OID AS oid,
+            config.SNMP_METHOD AS snmpMethod,
+            config.MEASURE_TYPE AS measureType
+        FROM
+            sop_mib_config AS config
+        WHERE
+            config.MIB_VERSION = #{mibVersion} AND
+            config.OID = #{oid}
+    </select>
+
+    <select id="getList" resultType="com.gem.loganalysis.model.vo.asset.MibConfigRespVO">
+        SELECT
+            config.MIB_VERSION AS mibVersion,
+            config.OID AS oid,
+            config.SNMP_METHOD AS snmpMethod,
+            config.MEASURE_TYPE AS measureType
+        FROM
+            sop_mib_config AS config
+        <where>
+            <if test="oid!=null and oid.trim()!='' ">
+                AND config.OID like concat('%',#{oid},'%')
+            </if>
+            <if test="mibVersion!=null and mibVersion.trim()!='' ">
+                AND config.MIB_VERSION like concat('%',#{mibVersion},'%')
+            </if>
+            <if test="snmpMethod!=null and snmpMethod.trim()!='' ">
+                AND config.SNMP_METHOD like concat('%',#{snmpMethod},'%')
+            </if>
+            <if test="measureType!=null and measureType.trim()!='' ">
+                AND config.MEASURE_TYPE like concat('%',#{measureType},'%')
+            </if>
+        </where>
+    </select>
+</mapper>

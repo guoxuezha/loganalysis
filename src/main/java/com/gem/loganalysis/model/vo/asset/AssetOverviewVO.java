@@ -38,8 +38,11 @@ public class AssetOverviewVO {
     @ApiModelProperty(value = "物理资产类型分布")
     private List<HashMap<String, Object>> physicalAssetTypeDistribution;
 
-    @ApiModelProperty(value = "资产状态分布")
+    @ApiModelProperty(value = "资产在役情况分布")
     private List<HashMap<String, Object>> assetStatusDistribution;
+
+    @ApiModelProperty(value = "资产在线情况分布")
+    private List<HashMap<String, Object>> assetOnlineStatusDistribution;
 
     @ApiModelProperty(value = "最近新增资产(10条)")
     private List<NewAssetList> newAssetList;
@@ -144,18 +147,69 @@ public class AssetOverviewVO {
 
 
     //放入资产状态
+    //在役 =在役 + 在线 + 离线  退役=退役
     public void setAssetStatusDistribution(Map<String, List<AssetRespVO>> map) {
         List<HashMap<String, Object>> result = new ArrayList<>();
+        int activeOnlineOfflineCount = 0; // 在役 + 在线 + 离线的个数
+        int retiredCount = 0; // 退役的个数
+        int emptyCount = 0; // 空的个数
         for (Map.Entry<String, List<AssetRespVO>> entry : map.entrySet()) {
-            HashMap<String, Object> m = new HashMap<>();
-            m.put("assetStatus", !entry.getKey().equals("")?entry.getKey():"未知");
-            m.put("num", entry.getValue().size());
-            result.add(m);
+            // 统计各个状态的个数
+            if (entry.getKey().equals("在役") || entry.getKey().equals("在线") || entry.getKey().equals("离线")) {
+                activeOnlineOfflineCount += entry.getValue().size();
+            } else if (entry.getKey().equals("退役")) {
+                retiredCount += entry.getValue().size();
+            } else if (entry.getKey().equals("")) {
+                emptyCount += entry.getValue().size();
+            }
         }
+
+        HashMap<String, Object> active = new HashMap<>();
+        active.put("assetStatus", "在役");
+        active.put("num", activeOnlineOfflineCount);
+        result.add(active);
+        HashMap<String, Object> retired = new HashMap<>();
+        retired.put("assetStatus", "退役");
+        retired.put("num", retiredCount);
+        result.add(retired);
+        HashMap<String, Object> empty = new HashMap<>();
+        empty.put("assetStatus", "未知");
+        empty.put("num", emptyCount);
+        result.add(empty);
         this.assetStatusDistribution = result;
     }
 
+    //放入资产在线状态
+    public void setAssetOnlineStatusDistribution(Map<String, List<AssetRespVO>> map) {
+        List<HashMap<String, Object>> result = new ArrayList<>();
+        int onlineCount = 0; // 在线个数
+        int offlineCount = 0; // 离线个数
+        int emptyCount = 0; // 空的个数
+        for (Map.Entry<String, List<AssetRespVO>> entry : map.entrySet()) {
+            // 统计各个状态的个数
+            if (entry.getKey().equals("在线")) {
+                onlineCount += entry.getValue().size();
+            } else if (entry.getKey().equals("离线")) {
+                offlineCount += entry.getValue().size();
+            } else if (entry.getKey().equals("")) {
+                emptyCount += entry.getValue().size();
+            }
+        }
 
+        HashMap<String, Object> online = new HashMap<>();
+        online.put("assetStatus", "在线");
+        online.put("num", onlineCount);
+        result.add(online);
+        HashMap<String, Object> offline = new HashMap<>();
+        offline.put("assetStatus", "离线");
+        offline.put("num", offlineCount);
+        result.add(offline);
+        HashMap<String, Object> empty = new HashMap<>();
+        empty.put("assetStatus", "未知");
+        empty.put("num", emptyCount);
+        result.add(empty);
+        this.assetOnlineStatusDistribution = result;
+    }
 
     //放入主机开放端口Top5
     public void setIpTop5(Map<String, List<AssetRespVO>> map) {

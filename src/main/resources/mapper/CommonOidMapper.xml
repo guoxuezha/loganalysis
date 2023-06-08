@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gem.loganalysis.mapper.CommonOidMapper">
+    <insert id="insertOid">
+        INSERT INTO `loganalysis`.`sop_common_oid`(`MIB_VERSION`, `OID`, `OID_NAME`,
+            `MEASURE_NAME`, `OID_DATATYPE`, `OID_DESC`)
+         VALUES (#{mibVersion},#{oid}, #{oidName},#{measureName},#{oidDatatype},#{oidDesc})
+    </insert>
+    <update id="updateOid">
+        UPDATE `loganalysis`.`sop_common_oid` SET
+          `MIB_VERSION` = #{mibVersion},
+          `OID` = #{oid},
+          `OID_NAME` = #{oidName},
+          `MEASURE_NAME` = #{measureName},
+          `OID_DATATYPE` = #{oidDatatype},
+          `OID_DESC` = #{oidDesc}
+        WHERE `MIB_VERSION` = #{mibVersion} AND `OID` = #{oid}
+    </update>
+
+    <delete id="deleteOid">
+        DELETE FROM `loganalysis`.`sop_common_oid` WHERE `MIB_VERSION` = #{mibVersion} AND `OID` = #{oid}
+    </delete>
+
+    <select id="getOid" resultType="com.gem.loganalysis.model.vo.asset.CommonOidRespVO">
+        SELECT
+            oid.MIB_VERSION AS mibVersion,
+            oid.OID AS oid,
+            oid.OID_NAME AS oidName,
+            oid.MEASURE_NAME AS measureName,
+            oid.OID_DATATYPE AS oidDatatype,
+            oid.OID_DESC AS oidDesc
+        FROM
+            sop_common_oid AS oid
+        WHERE
+            oid.MIB_VERSION = #{mibVersion} AND
+            oid.OID = #{oid}
+    </select>
+    <select id="getList" resultType="com.gem.loganalysis.model.vo.asset.CommonOidRespVO">
+        SELECT
+            oid.MIB_VERSION AS mibVersion,
+            oid.OID AS oid,
+            oid.OID_NAME AS oidName,
+            oid.MEASURE_NAME AS measureName,
+            oid.OID_DATATYPE AS oidDatatype,
+            oid.OID_DESC AS oidDesc
+        FROM
+            sop_common_oid AS oid
+        <where>
+            <if test="oid!=null and oid.trim()!='' ">
+                AND oid.OID like concat('%',#{oid},'%')
+            </if>
+            <if test="oidName!=null and oidName.trim()!='' ">
+                AND oid.OID_NAME like concat('%',#{oidName},'%')
+            </if>
+            <if test="mibVersion!=null and mibVersion.trim()!='' ">
+                AND oid.MIB_VERSION like concat('%',#{mibVersion},'%')
+            </if>
+            <if test="measureName!=null and measureName.trim()!='' ">
+                AND oid.MEASURE_NAME like concat('%',#{measureName},'%')
+            </if>
+        </where>
+    </select>
+</mapper>
