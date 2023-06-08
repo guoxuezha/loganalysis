@@ -127,6 +127,7 @@ public class LogEventListener {
                 "B.IP_ADDRESS, B.NM_PORT, B.NM_ACCOUNT, B.NM_PASSWORD " +
                 "FROM SOP_BLOCK_RECORD A " +
                 "LEFT JOIN SOP_ASSET B ON A.ASSET_ID = B.ASSET_ID " +
+                "LEFT JOIN SOP_BLOCK_COMMAND C ON B.ASSET_ID = C.ASSET_ID " +
                 "WHERE BLOCK_STATE = 1 AND BLOCK_TYPE = 0";
         ArrayList<HashMap<String, String>> dataSet = dao.getDataSet(BaseConstant.DEFAULT_POOL_NAME, querySql, 0, 0);
         if (CollUtil.isNotEmpty(dataSet)) {
@@ -137,8 +138,7 @@ public class LogEventListener {
                     DateTime parse = DateUtil.parse(blockEndTime, DatePattern.PURE_DATETIME_PATTERN);
                     if (new Date().after(parse)) {
                         // 若抵达则执行解封
-                        BlockExecutor.deBlock(new BlockExecuteDTO(map.get("IP_ADDRESS"), Integer.parseInt(map.get("NM_PORT")),
-                                map.get("NM_ACCOUNT"), map.get("NM_PASSWORD"), map.get("BLOCK_IP"), null));
+                        BlockExecutor.deBlock(new BlockExecuteDTO(map));
                         // 修改封堵状态记录
                         String updateSql = String.format("UPDATE SOP_BLOCK_RECORD SET BLOCK_STATE = 2 WHERE BLOCK_RECORD_ID = %s LIMIT 1", map.get("BLOCK_RECORD_ID"));
                         dao.execCommand(BaseConstant.DEFAULT_POOL_NAME, updateSql);

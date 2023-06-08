@@ -17,6 +17,15 @@ public class BlockRuleDTO {
     @ApiModelProperty("规则描述")
     private String blockRuleDesc;
 
+    @ApiModelProperty("规则类型（0按风险级别/1按IP归属地）")
+    private Integer ruleType;
+
+    @ApiModelProperty("风险级别（1/2/3 低危/中危/高危）")
+    private Integer riskLevel;
+
+    @ApiModelProperty("封堵范围（1/2 国外/省外）")
+    private Integer blockRange;
+
     @ApiModelProperty("封堵类型（0临时/1永久）")
     private Integer blockType;
 

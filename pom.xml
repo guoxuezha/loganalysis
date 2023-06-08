@@ -11,7 +11,7 @@
     </parent>
     <groupId>com.gem</groupId>
     <artifactId>loganalysis</artifactId>
-    <version>0.39</version>
+    <version>0.40</version>
     <name>logAnalysis</name>
     <packaging>jar</packaging>
     <description>Demo project for Spring Boot</description>
@@ -44,6 +44,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-websocket</artifactId>
+            <version>4.3.18.RELEASE</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid-spring-boot-starter</artifactId>
             <version>1.2.16</version>
@@ -69,7 +75,7 @@
         <dependency>
             <groupId>com.gem</groupId>
             <artifactId>gemel-utils</artifactId>
-            <version>23.05.19.001</version>
+            <version>23.06.01.001</version>
         </dependency>
 
         <dependency>
@@ -228,6 +234,21 @@
             <artifactId>snmp4j</artifactId>
             <version>2.5.1</version>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.netbeans.external/com-jcraft-jsch -->
+        <dependency>
+            <groupId>com.jcraft</groupId>
+            <artifactId>jsch</artifactId>
+            <version>0.1.55</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.lionsoul/ip2region -->
+        <dependency>
+            <groupId>org.lionsoul</groupId>
+            <artifactId>ip2region</artifactId>
+            <version>2.7.0</version>
+        </dependency>
+
 
     </dependencies>
 

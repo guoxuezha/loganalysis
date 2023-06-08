@@ -170,6 +170,77 @@ CREATE TABLE SOP_COMMON_OID
 ALTER TABLE `loganalysis`.`sop_block_rule`
     ADD COLUMN `OPERATION_ASSET_ID` varchar(512) NULL COMMENT '执行操作的资产(防火墙)ID(若有多个则使用,分割)' AFTER `BLACK_LIST_ENABLE`;
 
+```
+
+### 2023-06-07
+
+#### 资产封堵命令表
+
+```SQL
+CREATE TABLE `sop_block_command`
+(
+    `ASSET_ID`        varchar(32) NOT NULL COMMENT '资产唯一编码',
+    `BLOCK_COMMAND`   varchar(255) DEFAULT NULL COMMENT '封堵命令模板',
+    `DEBLOCK_COMMAND` varchar(255) DEFAULT NULL COMMENT '解封命令模板',
+    PRIMARY KEY (`ASSET_ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='封堵命令配置';
+```
+
+### 2023-06-08
+
+#### 日志解析属性映射
+
+```SQL
+CREATE TABLE `sop_log_normal_form`
+(
+    `FIELD_ID`     varchar(16) NOT NULL COMMENT '日志项ID',
+    `FIELD_NAME`   varchar(32)                                                  DEFAULT NULL COMMENT '日志项名称(Key)',
+    `FIELD_DESC`   varchar(255)                                                 DEFAULT NULL COMMENT '日志项描述(中文)',
+    `PID`          varchar(16)                                                  DEFAULT NULL COMMENT '父节点ID',
+    `LEVEL`        int                                                          DEFAULT NULL COMMENT '所属层级',
+    `CREATE_TIME`  varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '创建时间',
+    `CREATE_BY`    varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '创建者',
+    `UPDATE_TIME`  varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '修改时间',
+    `UPDATE_BY`    varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '修改人',
+    `DELETE_STATE` int                                                          DEFAULT '0' COMMENT '删除标记',
+    PRIMARY KEY (`FIELD_ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='日志范式';
+
+CREATE TABLE `sop_log_field_mapping`
+(
+    `RULE_RELA_ID`      varchar(32)                                                  NOT NULL COMMENT '日志解析规则关联关系编码',
+    `SOURCE_FIELD_NAME` varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '源端日志项名称',
+    `SOURCE_FIELD_DESC` varchar(255)                                                 DEFAULT NULL COMMENT '源端日志项描述',
+    `TARGET_FIELD_ID`   int                                                          DEFAULT NULL COMMENT '目标日志项ID',
+    `CREATE_TIME`       varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '创建时间',
+    `CREATE_BY`         varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '创建者',
+    `UPDATE_TIME`       varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '修改时间',
+    `UPDATE_BY`         varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '修改人',
+    `DELETE_STATE`      int                                                          DEFAULT '0' COMMENT '删除标记',
+    PRIMARY KEY (`RULE_RELA_ID`, `SOURCE_FIELD_NAME`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='日志字段映射';
+
+```
+
+#### 旧模型调整 - 封堵规则关联到风险,而非事件
+
+```SQL
+ALTER TABLE `loganalysis`.`sop_block_rule`
+    ADD COLUMN `ASSET_ID` varchar(32) NULL COMMENT '资产ID' AFTER `BLOCK_RULE_ID`,
+    ADD COLUMN `RULE_TYPE` int NULL COMMENT '规则类型（0按风险级别/1按IP归属地）' AFTER `BLOCK_RULE_DESC`,
+    ADD COLUMN `RISK_LEVEL` int NULL COMMENT '风险级别（1/2/3 低危/中危/高危）' AFTER `RULE_TYPE`,
+    ADD COLUMN `BLOCK_RANGE` int NULL COMMENT '封堵范围（1/2 国外/省外）' AFTER `RISK_LEVEL`;
+
+ALTER TABLE `loganalysis`.`sop_event_type`
+DROP
+COLUMN `BLOCK_RULE_ID`,
+DROP
+PRIMARY KEY,
+ADD PRIMARY KEY (`EVENT_TYPE`, `EVENT_CLASS`) USING BTREE;
+
+ALTER TABLE `loganalysis`.`sop_asset_risk`
+    ADD COLUMN `RISK_LEVEL` int NULL COMMENT '风险等级(1/2/3 低危/中危/高危)' AFTER `SCAN_TIME`;
 
 
 ```
+

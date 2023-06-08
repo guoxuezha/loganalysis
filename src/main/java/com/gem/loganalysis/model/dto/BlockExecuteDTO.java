@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashMap;
+
 /**
  * 封堵/解封执行传输类
  *
@@ -45,5 +47,25 @@ public class BlockExecuteDTO {
      * 要封堵/解封的端口
      */
     private Integer blockPort;
+
+    /**
+     * 封堵命令模板
+     */
+    private String blockCommand;
+
+    /**
+     * 解封命令模板
+     */
+    private String deBlockCommand;
+
+    public BlockExecuteDTO(HashMap<String, String> map) {
+        this.operationHost = map.get("IP_ADDRESS");
+        this.blockPort = Integer.parseInt(map.get("NM_PORT"));
+        this.userName = map.get("NM_ACCOUNT");
+        this.password = map.get("NM_PASSWORD");
+        this.blockIp = map.get("SOURCE_IP");
+        this.blockCommand = map.get("BLOCK_COMMAND");
+        this.deBlockCommand = map.get("DEBLOCK_COMMAND");
+    }
 
 }

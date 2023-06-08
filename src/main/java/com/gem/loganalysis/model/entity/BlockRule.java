@@ -36,11 +36,32 @@ public class BlockRule implements Serializable {
     @TableId(value = "BLOCK_RULE_ID", type = IdType.AUTO)
     private String blockRuleId;
 
+    @TableField(value = "ASSET_ID")
+    private String assetId;
+
     /**
      * 封堵规则描述
      */
     @TableField("BLOCK_RULE_DESC")
     private String blockRuleDesc;
+
+    /**
+     * 规则类型（0按风险级别/1按IP归属地）
+     */
+    @TableField("RULE_TYPE")
+    private Integer ruleType;
+
+    /**
+     * 风险级别（1/2/3 低危/中危/高危）
+     */
+    @TableField("RISK_LEVEL")
+    private Integer riskLevel;
+
+    /**
+     * 封堵范围（1/2 国外/省外）
+     */
+    @TableField("BLOCK_RANGE")
+    private Integer blockRange;
 
     /**
      * 封堵类型（0临时封堵/1永久封堵）

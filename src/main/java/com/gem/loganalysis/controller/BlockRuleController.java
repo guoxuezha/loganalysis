@@ -1,12 +1,17 @@
 package com.gem.loganalysis.controller;
 
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.gem.gemada.dal.db.pools.DAO;
+import com.gem.loganalysis.model.BaseConstant;
 import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.Result;
 import com.gem.loganalysis.model.dto.DeleteDTO;
+import com.gem.loganalysis.model.dto.GetDTO;
+import com.gem.loganalysis.model.dto.asset.AssetBlockCommandEditDTO;
 import com.gem.loganalysis.model.dto.edit.BlockRuleDTO;
 import com.gem.loganalysis.model.dto.query.BlockRecordQueryDTO;
 import com.gem.loganalysis.model.dto.query.BlockRuleQueryDTO;
@@ -22,6 +27,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import static com.gem.loganalysis.util.CustomDateFormatUtil.format;
 
@@ -40,6 +48,37 @@ public class BlockRuleController {
     private final IBlockRuleService iBlockRuleService;
 
     private final IBlockRecordService iBlockRecordService;
+
+    private final DAO dao;
+
+    @PostMapping("/getAssetBlockCommand")
+    @ApiOperation("查询资产封堵命令")
+    public Result<Object> getAssetBlockCommand(@RequestBody GetDTO dto) {
+        ArrayList<HashMap<String, String>> dataSet = dao.getDataSet(BaseConstant.DEFAULT_POOL_NAME, "SELECT BLOCK_COMMAND, DEBLOCK_COMMAND FROM SOP_BLOCK_COMMAND WHERE ASSET_ID = '" + dto.getId() + "' LIMIT 1");
+        if (CollUtil.isNotEmpty(dataSet)) {
+            return Result.ok(dataSet.get(0));
+        }
+        return Result.ok();
+    }
+
+    @PostMapping("/editAssetBlockCommand")
+    @ApiOperation("编辑资产封堵命令")
+    public Result<Object> editAssetBlockCommand(@RequestBody AssetBlockCommandEditDTO dto) {
+        dao.execCommand(BaseConstant.DEFAULT_POOL_NAME, "DELETE FROM SOP_BLOCK_COMMAND WHERE ASSET_ID = '" + dto.getAssetId() + "'");
+        String insertSql = "INSERT INTO `SOP_BLOCK_COMMAND` (`ASSET_ID`, `BLOCK_COMMAND`, `DEBLOCK_COMMAND`) VALUES (" +
+                "'" + dto.getAssetId() + "', " +
+                "'" + dto.getBlockCommand() + "', " +
+                "'" + dto.getDeBlockCommand() + "')";
+        int i = dao.execCommand(BaseConstant.DEFAULT_POOL_NAME, insertSql);
+        return i == 1 ? Result.ok("编辑成功!") : Result.failed("编辑失败!");
+    }
+
+    @PostMapping("/deleteAssetBlockCommand")
+    @ApiOperation("删除资产封堵命令")
+    public Result<Object> deleteAssetBlockCommand(@RequestBody GetDTO dto) {
+        int i = dao.execCommand(BaseConstant.DEFAULT_POOL_NAME, "DELETE FROM SOP_BLOCK_COMMAND WHERE ASSET_ID = '" + dto.getId() + "'");
+        return i >= 0 ? Result.ok("删除成功!") : Result.failed("删除失败!");
+    }
 
     @PostMapping("/pageList")
     @ApiOperation("分页查询封堵规则")
