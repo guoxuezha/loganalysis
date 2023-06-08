@@ -35,7 +35,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/sop/mib-config")
-@Api(tags = "MIB指令集设置")
+@Api(tags = "SNMP扫描 - MIB指令集设置")
 public class MibConfigController {
 
     @Resource

@@ -37,7 +37,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/sop/asset-snmp-config")
-@Api(tags = "SNMP参数设置")
+@Api(tags = "SNMP扫描 - SNMP参数设置")
 public class AssetSnmpConfigController {
 
     @Resource

@@ -35,7 +35,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/sop/common-oid")
-@Api(tags = "通用MIB库OID列表设置")
+@Api(tags = "SNMP扫描 - 通用MIB库OID列表设置")
 public class CommonOidController {
 
     @Resource
