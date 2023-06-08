@@ -98,18 +98,49 @@ public class AssetEventServiceImpl extends ServiceImpl<AssetEventMapper, AssetEv
                 .setCpu("40")
                 .setMemory("30")
                 .setDisk("30")
-                .setNetworkThroughput("86");
+                .setNetworkThroughput("86")
+                .setRunningState("正常");
         ITEquipmentVO itEquipmentList2 = new ITEquipmentVO()
-                .setIpAddress("104.253.151.3")
+                .setIpAddress("104.253.151.4")
                 .setTypeName("交换机")
                 .setOrgName("资产管理部")
                 .setCpu("28")
                 .setMemory("16")
                 .setDisk("30")
                 .setNetworkThroughput("73");
+        ITEquipmentVO itEquipmentList3 = new ITEquipmentVO()
+                .setIpAddress("104.253.151.5")
+                .setTypeName("交换机")
+                .setOrgName("资产管理部")
+                .setCpu("54")
+                .setMemory("24")
+                .setDisk("46")
+                .setNetworkThroughput("86")
+                .setRunningState("正常");
+        ITEquipmentVO itEquipmentList4 = new ITEquipmentVO()
+                .setIpAddress("104.253.151.6")
+                .setTypeName("交换机")
+                .setOrgName("资产管理部")
+                .setCpu("70")
+                .setMemory("88")
+                .setDisk("60")
+                .setNetworkThroughput("87")
+                .setRunningState("异常");
+        ITEquipmentVO itEquipmentList5 = new ITEquipmentVO()
+                .setIpAddress("104.253.151.7")
+                .setTypeName("交换机")
+                .setOrgName("资产管理部")
+                .setCpu("21")
+                .setMemory("30")
+                .setDisk("30")
+                .setNetworkThroughput("84")
+                .setRunningState("正常");
         List<ITEquipmentVO> list = new ArrayList<>();
         list.add(itEquipmentList1);
         list.add(itEquipmentList2);
+        list.add(itEquipmentList3);
+        list.add(itEquipmentList4);
+        list.add(itEquipmentList5);
         eventMonitorVO.setItEquipmentList(list);
         eventMonitorVO.setTerminalEquipmentList(assetEventMapper.getEquipmentCount("终端设备"));//终端设备
         return eventMonitorVO;

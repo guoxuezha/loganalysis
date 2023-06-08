@@ -35,4 +35,8 @@ public class ITEquipmentVO {
 
     @ApiModelProperty(value = "网络吞吐量")
     private String networkThroughput;
+
+    //TODO  放入 运行状态 正常 异常 告警等
+    @ApiModelProperty(value = "运行状态")
+    private String runningState;
 }
