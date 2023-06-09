@@ -1,21 +1,25 @@
 package com.gem.loganalysis.controller;
 
 import cn.hutool.core.collection.CollUtil;
+import com.alibaba.excel.EasyExcel;
 import com.gem.loganalysis.convert.AssetConvert;
 import com.gem.loganalysis.enmu.AssetClass;
 import com.gem.loganalysis.exception.ServiceException;
+import com.gem.loganalysis.handler.DropDownWriteHandler;
 import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.PageResponse;
 import com.gem.loganalysis.model.Result;
 import com.gem.loganalysis.model.dto.DeleteDTO;
 import com.gem.loganalysis.model.dto.GetDTO;
-import com.gem.loganalysis.model.dto.asset.AssetDTO;
-import com.gem.loganalysis.model.dto.asset.AssetQueryDTO;
-import com.gem.loganalysis.model.dto.asset.AssetUpdateDTO;
+import com.gem.loganalysis.model.dto.asset.*;
 import com.gem.loganalysis.model.entity.Asset;
+import com.gem.loganalysis.model.entity.M4SsoOrg;
 import com.gem.loganalysis.model.vo.ImportRespVO;
 import com.gem.loganalysis.model.vo.asset.*;
+import com.gem.loganalysis.service.IAssetGroupService;
 import com.gem.loganalysis.service.IAssetService;
+import com.gem.loganalysis.service.IAssetTypeService;
+import com.gem.loganalysis.service.IM4SsoOrgService;
 import com.gem.loganalysis.util.ExcelUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +32,9 @@ import io.swagger.annotations.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
+import java.net.URLEncoder;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Api(tags = "资产模块 - 安全管理资产")
 @RestController
@@ -38,6 +44,13 @@ public class AssetController {
 
     @Resource
     private IAssetService assetService;
+    @Resource
+    private IAssetTypeService assetTypeService;
+    @Resource
+    private IAssetGroupService assetGroupService;
+    @Resource
+    private IM4SsoOrgService orgService;
+
 
     @PostMapping("/edit")
     @ApiOperation("创建/编辑安全管理资产")
@@ -146,15 +159,50 @@ public class AssetController {
     @PostMapping("/physical-import-template")
     @ApiOperation("物理资产导入模板")
     public void importPhysicalTemplate(HttpServletResponse response) throws IOException {
-        // 输出
-        ExcelUtils.write(response, "物理资产导入模板.xlsx", "物理资产", PhysicalAssetExcelVO.class, null);
+
+        Map<String, List<AssetTypeRespVO>> typeMap = assetTypeService.getTypeMap(new AssetTypeQueryDTO());
+        // 所有类别
+        List<String> assetTypeList = new ArrayList<String>();
+        Map<String, List<String>> assetTypeMap = new HashMap<String, List<String>>();
+        typeMap.forEach((m,n)->{
+            assetTypeList.add(m);
+            assetTypeMap.put(m,n.stream().map(AssetTypeRespVO::getTypeName).collect(Collectors.toList()));
+        });
+
+        // 部门-分组级联
+        List<String> orgList = new ArrayList<String>();
+        List<M4SsoOrg> m4OrgList = orgService.list();
+        m4OrgList.forEach(e->orgList.add(e.getOrgName()));
+        List<AssetGroupRespVO> list = assetGroupService.getList(new AssetGroupQueryDTO());
+        Map<String, List<String>> groupMap = list.stream().collect(Collectors.groupingBy(AssetGroupRespVO::getAssetOrgName,
+                Collectors.mapping(AssetGroupRespVO::getGroupName, Collectors.toList())));
+
+        // 输出 Excel
+        EasyExcel.write(response.getOutputStream(), PhysicalAssetExcelVO.class)
+                .registerWriteHandler(new DropDownWriteHandler(assetTypeList,assetTypeMap,1))
+     //           .registerWriteHandler(new DropDownWriteHandler(orgList,groupMap,17))
+                .autoCloseStream(false) // 不要自动关闭，交给 Servlet 自己处理
+                .sheet("物理资产").doWrite((Collection<?>) null);
+        // 设置 header 和 contentType。写在最后的原因是，避免报错时，响应 contentType 已经被修改了
+        response.addHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode("物理资产导入模板.xlsx", "UTF-8"));
+        //response.setContentType("application/vnd.ms-excel;charset=UTF-8");
+        response.setCharacterEncoding("utf-8");
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
     }
 
     @PostMapping("/logical-import-export")
     @ApiOperation("逻辑资产导入模板")
     public void importLogicalTemplate(HttpServletResponse response) throws IOException {
-        // 输出
-        ExcelUtils.write(response, "逻辑资产导入模板.xlsx", "逻辑资产", LogicalAssetExcelVO.class, null);
+        // 输出 Excel
+        EasyExcel.write(response.getOutputStream(), LogicalAssetExcelVO.class)
+                .autoCloseStream(false) // 不要自动关闭，交给 Servlet 自己处理
+                .sheet("逻辑资产").doWrite((Collection<?>) null);
+        // 设置 header 和 contentType。写在最后的原因是，避免报错时，响应 contentType 已经被修改了
+        response.addHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode("逻辑资产导入模板.xlsx", "UTF-8"));
+        //response.setContentType("application/vnd.ms-excel;charset=UTF-8");
+        response.setCharacterEncoding("utf-8");
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
     }
 
     @PostMapping("/export-physical")

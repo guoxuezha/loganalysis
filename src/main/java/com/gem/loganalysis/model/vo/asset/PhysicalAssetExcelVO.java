@@ -16,9 +16,13 @@ public class PhysicalAssetExcelVO {
     @ColumnWidth(value = 20)
     private String assetName;
 
-    @ExcelProperty(value = "*资产类型")
+    @ExcelProperty(value = "*资产型别")
     @ColumnWidth(value = 18)
     private String assetType;
+
+    @ExcelProperty(value = "*资产类型")
+    @ColumnWidth(value = 18)
+    private String typeName;
 
     @ExcelProperty(value = "*IP地址")
     @ColumnWidth(value = 20)
@@ -75,6 +79,14 @@ public class PhysicalAssetExcelVO {
     @ExcelProperty(value = "资产管理人")
     @ColumnWidth(value = 18)
     private String assetManager;
+
+    @ExcelProperty(value = "*资产部门")
+    @ColumnWidth(value = 20)
+    private String assetOrg;
+
+    @ExcelProperty(value = "*资产分组")
+    @ColumnWidth(value = 20)
+    private String assetGroup;
 
     @ExcelProperty(value = "资产标签")
     @ColumnWidth(value = 20)

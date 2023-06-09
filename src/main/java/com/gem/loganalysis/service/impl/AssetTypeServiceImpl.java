@@ -42,7 +42,7 @@ public class AssetTypeServiceImpl extends ServiceImpl<AssetTypeMapper, AssetType
 
     @Override
     public List<AssetTypeRespVO> getList(AssetTypeQueryDTO dto) {
-        if(StringUtils.isBlank(dto.getAssetType())){
+        if(dto==null||StringUtils.isBlank(dto.getAssetType())){
             return typeCache;
         }else{
             List<AssetTypeRespVO> list = typeCache;

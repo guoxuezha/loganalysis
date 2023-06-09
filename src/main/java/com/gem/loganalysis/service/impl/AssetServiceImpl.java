@@ -49,8 +49,6 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     @Resource
     private DictItemService dictItemService;
     @Resource
-    private IAssetGroupService assetGroupService;
-    @Resource
     private IM4SsoOrgService orgService;
     @Resource
     private IPhysicalAssetTempService physicalAssetTempService;
