@@ -1,12 +1,17 @@
 package com.gem.loganalysis.controller;
 
-
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.gem.loganalysis.config.MinioConfig;
+import com.gem.loganalysis.model.PageRequest;
+import com.gem.loganalysis.model.PageResponse;
 import com.gem.loganalysis.model.Result;
+import com.gem.loganalysis.model.bo.MergeLog;
+import com.gem.loganalysis.model.dto.GetDTO;
 import com.gem.loganalysis.model.dto.query.LogContentQueryDTO;
 import com.gem.loganalysis.model.dto.query.LogFileQueryDTO;
+import com.gem.loganalysis.model.entity.Asset;
+import com.gem.loganalysis.model.vo.asset.AssetLogFileVO;
 import com.gem.loganalysis.service.IAssetMergeLogService;
 import com.gem.loganalysis.util.MinioUtil;
 import com.gem.loganalysis.util.SpringContextUtil;
@@ -92,5 +97,32 @@ public class MergeLogController {
     public Result<Object> getSourceLogInFile(@RequestBody LogContentQueryDTO dto) {
         return Result.ok(iAssetMergeLogService.getSourceLog(dto));
     }
+
+    @ApiOperation("查看已接收到日志的资产列表")
+    @PostMapping("/getLogAsset")
+    public Result<PageResponse<Asset>> getLogAsset(@RequestBody PageRequest<String> dto) {
+        return Result.ok(iAssetMergeLogService.getLogAsset(dto.getPageNum(), dto.getPageSize()));
+    }
+
+    @ApiOperation("根据资产ID查询归并日志列表")
+    @PostMapping("/getMergeLogByAsset")
+    public Result<PageResponse<MergeLog>> getMergeLogByAsset(@RequestBody PageRequest<String> dto) {
+        return Result.ok(iAssetMergeLogService.getMergeLogByAsset(dto));
+    }
+
+    @ApiOperation("根据资产ID查询日志文件列表")
+    @PostMapping("/getSourceLogFileByAsset")
+    public Result<PageResponse<AssetLogFileVO>> getSourceLogFileByAsset(@RequestBody PageRequest<String> dto) {
+        return Result.ok(iAssetMergeLogService.getSourceLogFileByAsset(dto));
+    }
+
+    @ApiOperation("根据日志文件查看内容")
+    @PostMapping("/getSourceLogFileContent")
+    public Result<String> getSourceLogFileContent(@RequestBody GetDTO dto) {
+
+        return Result.ok();
+    }
+
+
 
 }

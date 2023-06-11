@@ -13,4 +13,5 @@ public class GetDTO {
 
     @ApiModelProperty(value = "通用ID，传业务对象的ID")
     private String id;
+
 }

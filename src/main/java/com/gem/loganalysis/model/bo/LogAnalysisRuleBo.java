@@ -1,5 +1,6 @@
 package com.gem.loganalysis.model.bo;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateTime;
@@ -7,11 +8,7 @@ import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gem.loganalysis.mapper.AssetEventMapper;
 import com.gem.loganalysis.mapper.AssetMergeLogMapper;
 import com.gem.loganalysis.mapper.AssetRiskMapper;
@@ -21,7 +18,6 @@ import com.gem.loganalysis.model.entity.Asset;
 import com.gem.loganalysis.model.entity.AssetEvent;
 import com.gem.loganalysis.model.entity.AssetMergeLog;
 import com.gem.loganalysis.model.entity.AssetRisk;
-import com.gem.loganalysis.model.vo.AssetAnalysisRuleVO;
 import com.gem.loganalysis.util.BlockFileUtil;
 import com.gem.loganalysis.util.SpringContextUtil;
 import com.gem.utils.file.BlockFile;
@@ -68,19 +64,26 @@ public class LogAnalysisRuleBo {
      * 日志事件状态,用于判断当前事件是否为新事件
      */
     private final Cache<String, String> logEventState;
+
+    /**
+     * 执行数据操作用到的Mapper
+     */
     private final AssetEventMapper assetEventMapper;
     private final AssetRiskMapper assetRiskMapper;
     private final AssetMergeLogMapper assetMergeLogMapper;
     private final LogAnalysisRuleMapper logAnalysisRuleMapper;
+
     /**
      * 资产对象
      */
     private final Asset asset;
+
     /**
      * 规则ID
      */
     @Getter
     private final String ruleRelaId;
+
     private final String analysisRuleId;
 
     /**
@@ -98,46 +101,44 @@ public class LogAnalysisRuleBo {
      * 可用状态
      */
     private boolean enable;
+
     /**
      * 日志生产子系统
      */
     private String facility;
+
     /**
      * 日志级别
      */
     private String severity;
-    private Integer ruleType;
-    private String jarName;
-    private String version;
-    private String methodName;
-    /**
-     * 分段字符序列
-     */
-    private String itemSplitSequence;
-    /**
-     * 分值字符序列
-     */
-    private String kvSplitSequence;
+
+    private LogFormatter logFormatter;
+
     /**
      * 归并字段列表
      */
     private List<String> mergeItemList;
+
     /**
      * 归并窗口时长(分钟)
      */
     private Integer mergeWindowTime;
+
     /**
      * 下一个归并窗口(周期)的开始时间
      */
     private Date nextMergeWindowStartTime;
+
     /**
      * 事件统计滑动窗口时长(分钟)
      */
     private Integer eventWindowTime;
+
     /**
      * 事件判定阈值
      */
     private Integer eventThreshold;
+
     /**
      * 关注的IP字段名
      */
@@ -146,11 +147,6 @@ public class LogAnalysisRuleBo {
     private String eventTypeItem;
 
     private String eventClassItem;
-
-    /**
-     * 封堵时长
-     */
-    private Long blockOffSecond;
 
     public LogAnalysisRuleBo(HashMap<String, Object> ruleMap) {
         this.ruleRelaId = (String) ruleMap.get("RULE_RELA_ID");
@@ -165,6 +161,7 @@ public class LogAnalysisRuleBo {
         this.assetMergeLogMapper = SpringContextUtil.getBean(AssetMergeLogMapper.class);
         this.logAnalysisRuleMapper = SpringContextUtil.getBean(LogAnalysisRuleMapper.class);
 
+        // 解析规则关联资产的基本信息
         this.asset = new Asset();
         this.asset.setAssetId((String) ruleMap.get("ASSET_ID"));
         this.asset.setAssetName((String) ruleMap.get("ASSET_NAME"));
@@ -196,14 +193,7 @@ public class LogAnalysisRuleBo {
         this.eventTypeItem = (String) ruleMap.get("EVENT_TYPE_ITEM");
         this.eventClassItem = (String) ruleMap.get("EVENT_CLASS_ITEM");
 
-        if (ruleMap.get("RULE_TYPE") != null) {
-            this.ruleType = (Integer) ruleMap.get("RULE_TYPE");
-            this.itemSplitSequence = (String) ruleMap.get("ITEM_SPLIT");
-            this.kvSplitSequence = (String) ruleMap.get("KV_SPLIT");
-            this.jarName = (String) ruleMap.get("JAR_NAME");
-            this.version = (String) ruleMap.get("VERSION");
-            this.methodName = (String) ruleMap.get("METHOD_NAME");
-        }
+        this.logFormatter = new LogFormatter(ruleRelaId);
 
         this.blockFileDay = DateUtil.format(new Date(), DatePattern.PURE_DATE_PATTERN);
         String fileName = ruleRelaId + blockFileDay;
@@ -236,20 +226,14 @@ public class LogAnalysisRuleBo {
         this.eventClassItem = dto.getEventClassItem();
 
         // 若绑定的解析规则发生了变更,再执行关联修改
-        if (!this.analysisRuleId.equals(dto.getAnalysisRuleId())) {
-            AssetAnalysisRuleVO analysisRule = logAnalysisRuleMapper.getAnalysisRuleVOById(dto.getAnalysisRuleId());
-            this.ruleType = analysisRule.getRuleType();
-            this.itemSplitSequence = analysisRule.getItemSplit();
-            this.kvSplitSequence = analysisRule.getKvSplit();
-            this.jarName = analysisRule.getJarName();
-            this.version = analysisRule.getVersion();
-            this.methodName = analysisRule.getMethodName();
-        }
+        this.logFormatter = new LogFormatter(ruleRelaId);
         this.enable = true;
     }
 
     public void printOverview() {
-        log.info(" LogAnalysisRule Overview: RULE_RELA_ID: {}, IP: {}, PORT: {}, FACILITY: {}, SEVERITY: {}, MERGE_ITEMS: {}", ruleRelaId, asset.getIpAddress(), asset.getServicePort(), facility, severity, mergeItemList.toArray());
+        log.info("LogAnalysisRule Overview: RULE_RELA_ID: {}, IP: {}, PORT: {}, FACILITY: {}, SEVERITY: {}, " +
+                        "MERGE_ITEMS: {}", ruleRelaId, asset.getIpAddress(), asset.getServicePort(), facility, severity,
+                mergeItemList.toArray());
     }
 
     /**
@@ -269,7 +253,9 @@ public class LogAnalysisRuleBo {
     }
 
     public String getCacheInfo() {
-        return String.format("enable : %s, CACHE COUNT: %d, CACHE LENGTH: %d Byte, queue.size: %d, logCount.size: %d", enable, cacheMap.size(), ObjectSizeCalculator.getObjectSize(cacheMap), queue.size(), logCount.estimatedSize());
+        return String.format("enable : %s, CACHE COUNT: %d, CACHE LENGTH: %d Byte, queue.size: %d, logCount.size: %d"
+                , enable, cacheMap.size(), ObjectSizeCalculator.getObjectSize(cacheMap), queue.size(),
+                logCount.estimatedSize());
     }
 
     /**
@@ -277,16 +263,16 @@ public class LogAnalysisRuleBo {
      *
      * @param mergeLog 原始日志对象
      */
-    public void insertInCache(MergeLog mergeLog) {
-        HashMap<String, Object> map = getMessageInfoMap(mergeLog.getMessage());
-        mergeLog.setMessage(JSONUtil.toJsonStr(map));
+    public void analysisSourceLog(MergeLog mergeLog) {
+        // 1.将原始日志范式化
+        LogNormalFormTree logMessageTree = logFormatter.format(mergeLog.getMessage());
 
-        // 拼接构造业务联合主键
+        // 2.拼接构造业务联合主键
         StringBuilder unionKey = new StringBuilder();
         String unionKeyStr;
         if (CollUtil.isNotEmpty(this.mergeItemList)) {
             for (String mergeKey : this.mergeItemList) {
-                unionKey.append(map.get(mergeKey)).append("~");
+                unionKey.append(logMessageTree.getFieldValue(mergeKey)).append("~");
             }
             if (unionKey.length() > 0) {
                 unionKey.delete(unionKey.length() - 1, unionKey.length());
@@ -297,7 +283,7 @@ public class LogAnalysisRuleBo {
         }
         mergeLog.setUnionKey(unionKeyStr);
 
-        // 判断该日志是否需要作为当前归并周期的第一条生成logId
+        // 3.判断该日志是否需要作为当前归并周期的第一条生成logId
         MergeLog ifPresent = cacheMap.get(unionKeyStr);
         if (ifPresent == null) {
             mergeLog.generateLogId();
@@ -305,112 +291,83 @@ public class LogAnalysisRuleBo {
             mergeLog.setLogId(ifPresent.getLogId());
         }
 
-        queue.add(mergeLog.toSimpleQueueMessageInfo());
+        // 4.将原始日志信息写入日志文件
+        MergeLog sourceMergeLog = new MergeLog();
+        BeanUtil.copyProperties(mergeLog, sourceMergeLog);
+        BlockFileUtil.writeLog(sourceMergeLog, this);
 
-        logIncrAndStartEvent(mergeLog, unionKeyStr);
+        // 5.将日志对象写入归并缓存（异步生成归并日志）
+        mergeLog.setMessage(logMessageTree.toJsonStr());
+        MergeLog mLog = cacheMap.get(unionKeyStr);
+        if (mLog == null) {
+            cacheMap.put(unionKeyStr, mergeLog);
+            mLog = mergeLog;
+        }
 
-        // 将日志信息放入文件写入日志文件
-        BlockFileUtil.writeLog(mergeLog, this);
+        // 6.判断是否满足根据IP属地封堵条件
+        LogEventParamConfig eventParamConfig = LogEventParamConfig.getInstance();
+        String sourceIp = logMessageTree.getFieldValue(eventParamConfig.getSourceIpItem());
+        if (BlockRuleServer.getInstance().judgeNeedRegionBlock(this.asset.getAssetId(), sourceIp)) {
+            // 生成中危事件记录及风险记录
+            eventStart(mergeLog, sourceIp, logMessageTree.getFieldValue(eventParamConfig.getTargetIpItem()), "(国/省/市)域外访问", "2");
+        } else {
+            // 进入阈值计算分支
+            logIncrAndStartEvent(mLog, unionKeyStr, logMessageTree);
+        }
     }
 
     /**
      * 将取到的日志放入缓存并累加归并次数,再判断是否触发了事件
      *
-     * @param mergeLog 归并日志对象
-     * @param unionKey 业务联合主键
+     * @param mergeLog       归并日志对象
+     * @param unionKey       业务联合主键
+     * @param logMessageTree 日志消息结构树
      */
-    private void logIncrAndStartEvent(MergeLog mergeLog, String unionKey) {
-        MergeLog eventStartLog = null;
-        JSONObject jsonObject = null;
-        synchronized (cacheMap) {
-            MergeLog mLog = cacheMap.get(unionKey);
-            if (mLog == null) {
-                cacheMap.put(unionKey, mergeLog);
-                mLog = mergeLog;
-            }
-            // 归并周期日志出现的次数
-            mLog.getMergeCount().getAndIncrement();
-
-
-            if (logCount.getIfPresent(unionKey) == null) {
-                logCount.put(unionKey, new AtomicInteger(0));
-            }
-            logCount.getIfPresent(unionKey).getAndIncrement();
-            // 若cacheFlush和eventScan均采用定时任务的方式执行,可能导致扫描到的事件涉及到的归并日志被Flush掉,从而丢失ORIGIN_ID信息的问题,故事件发生的检查应立即执行
-            for (SimpleQueueMessageInfo message : queue) {
-                long between = DateUtil.between(message.getTimeStamp(), DateUtil.date(), DateUnit.MINUTE);
-                if (between > eventWindowTime) {
-                    queue.poll();
-                    logCount.getIfPresent(unionKey).getAndDecrement();
-                } else {
-                    break;
-                }
-            }
-            if (StrUtil.isEmpty(logEventState.getIfPresent(unionKey)) && logCount.getIfPresent(unionKey).get() > eventThreshold) {
-                logEventState.put(unionKey, mLog.getLogId());
-                jsonObject = JSONUtil.parseObj(mLog.getMessage());
-                log.info("{} 触发事件, unionKey = {}, 应执行封堵的IP为: {}, 事件类型为: {}, 事件级别为: {}", ruleRelaId, unionKey,
-                        jsonObject.get(eventKeyWord), jsonObject.get(eventTypeItem), jsonObject.get(eventClassItem));
-                eventStartLog = mLog;
+    private void logIncrAndStartEvent(MergeLog mergeLog, String unionKey, LogNormalFormTree logMessageTree) {
+        mergeLog.getMergeCount().getAndIncrement();
+        queue.add(mergeLog.toSimpleQueueMessageInfo());
+        if (logCount.getIfPresent(unionKey) == null) {
+            logCount.put(unionKey, new AtomicInteger(0));
+        }
+        logCount.getIfPresent(unionKey).getAndIncrement();
+        // 若cacheFlush和eventScan均采用定时任务的方式执行,可能导致扫描到的事件涉及到的归并日志被Flush掉,从而丢失ORIGIN_ID信息的问题,故事件发生的检查应立即执行
+        for (SimpleQueueMessageInfo message : queue) {
+            long between = DateUtil.between(message.getTimeStamp(), DateUtil.date(), DateUnit.MINUTE);
+            if (between > eventWindowTime) {
+                queue.poll();
+                logCount.getIfPresent(unionKey).getAndDecrement();
+            } else {
+                break;
             }
         }
-        if (eventStartLog != null) {
-            eventStart(eventStartLog, jsonObject);
-        }
-    }
+        // 判断归并日志在时间窗口内的频率是否超过阈值
+        if (StrUtil.isEmpty(logEventState.getIfPresent(unionKey)) && logCount.getIfPresent(unionKey).get() >= eventThreshold) {
+            logEventState.put(unionKey, mergeLog.getLogId());
 
-    /**
-     * JSON格式化message
-     *
-     * @param msg 日志消息体
-     * @return 格式化后的日志消息体
-     */
-    private HashMap<String, Object> getMessageInfoMap(String msg) {
-        HashMap<String, Object> map = new HashMap<>();
-        if (this.ruleType == null) {
-            try {
-                map = new ObjectMapper().readValue(msg, HashMap.class);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
+            LogEventParamConfig eventParamConfig = LogEventParamConfig.getInstance();
+            String sourceIp = logMessageTree.getFieldValue(eventParamConfig.getSourceIpItem());
+            String targetIp = logMessageTree.getFieldValue(eventParamConfig.getTargetIpItem());
+            String eventType = logMessageTree.getFieldValue(eventParamConfig.getEventTypeItem());
+            String riskLevel = logMessageTree.getFieldValue(eventParamConfig.getRiskLevelItem());
+            log.info("{} 触发事件, 应执行封堵的IP为: {}, 攻击目标IP为: {}, 事件类型为: {}, 事件级别为: {}",
+                    ruleRelaId, sourceIp, targetIp, eventType, riskLevel);
+            if (eventType == null) {
+                log.warn("发生未知类型事件! ruleRelaId: {}, mergeLog: {}", ruleRelaId, mergeLog);
+                return;
             }
-        } else if (this.ruleType == 1) {
-            if (StrUtil.isEmpty(itemSplitSequence) && StrUtil.isEmpty(kvSplitSequence)) {
-                ObjectMapper objectMapper = new ObjectMapper();
-                try {
-                    return objectMapper.readValue(msg, HashMap.class);
-                } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            for (String kv : msg.trim().split(itemSplitSequence)) {
-                String[] split = kv.split(kvSplitSequence);
-                if (split.length == 2) {
-                    map.put(split[0], split[1]);
-                } else if (split.length == 1) {
-                    map.put(split[0], null);
-                } else {
-                    map.put(split[0], kv.substring(split[0].length()));
-                }
-            }
-        } else {
-            if (StrUtil.isNotEmpty(jarName) && StrUtil.isNotEmpty(version) && StrUtil.isNotEmpty(methodName)) {
-                Object result = SpringContextUtil.invokeClassMethod(jarName + "-CustomizationAnalysis" + version, methodName, msg);
-                if (result != null) {
-                    map = (HashMap<String, Object>) result;
-                }
-            }
+            // 事件开始
+            eventStart(mergeLog, sourceIp, targetIp, eventType, riskLevel);
         }
-        return map;
     }
 
     /**
      * 扫描并停止事件
      */
     protected void scanAndStopEvent() {
-        // 先从滑动窗口中移除早期日志记录
         if (CollUtil.isEmpty(queue)) {
             return;
         }
+        // 先从滑动窗口中移除早期日志记录
         for (SimpleQueueMessageInfo message : queue) {
             long between = DateUtil.between(message.getTimeStamp(), DateUtil.date(), DateUnit.MINUTE);
             if (between > eventWindowTime) {
@@ -447,7 +404,8 @@ public class LogAnalysisRuleBo {
                 cacheData = new HashMap<>(cacheMap.size());
                 cacheData.putAll(cacheMap);
                 cacheMap.clear();
-                log.info("{}: 周期滚动, Cache Flush 用时: {}, cacheData.size = {}", ruleRelaId, DateUtil.current() - start, cacheData.size());
+                log.info("{}: 周期滚动, Cache Flush 用时: {}, cacheData.size = {}", ruleRelaId, DateUtil.current() - start,
+                        cacheData.size());
             }
             // 执行入库
             for (Map.Entry<String, Object> entry : cacheData.entrySet()) {
@@ -494,35 +452,45 @@ public class LogAnalysisRuleBo {
     /**
      * 事件开始
      *
-     * @param mergeLog   原始日志记录
-     * @param jsonObject 日志内容对象
+     * @param mergeLog  原始日志记录
+     * @param sourceIp  事件源IP
+     * @param targetIp  事件目标IP
+     * @param eventType 事件类型
+     * @param riskLevel 风险等级
      */
-    private void eventStart(MergeLog mergeLog, JSONObject jsonObject) {
+    private void eventStart(MergeLog mergeLog, String sourceIp, String targetIp, String eventType, String riskLevel) {
         String eventId = IdUtil.fastSimpleUUID();
         AssetEvent assetEvent = AssetEvent.builder()
                 .eventId(eventId)
                 .assetId(asset.getAssetId())
                 .eventOrigin(1)
                 .originId(mergeLog.getLogId())
-                .eventType(jsonObject.get(eventTypeItem) != null ? (String) jsonObject.get(eventTypeItem) : "未定义")
-                .eventClass(jsonObject.get(eventClassItem) != null ? String.valueOf(jsonObject.get(eventClassItem)) : "未定义")
-                .sourceIp((String) jsonObject.get(eventKeyWord))
+                .sourceIp(sourceIp)
+                .targetIp(targetIp)
+                .eventType(eventType)
+                .eventClass(riskLevel == null ? "未定义" : riskLevel)
                 .beginTime(DatePattern.PURE_DATETIME_FORMAT.format(new Date()))
                 .eventMessage(mergeLog.getMessage())
                 .handleStatus(0)
                 .build();
         int insertResult = assetEventMapper.insert(assetEvent);
-        // 创建事件的同时新增风险记录
-        AssetRisk assetRisk = AssetRisk.builder()
-                .assetId(asset.getAssetId())
-                .vulnId(eventId)
-                .scanTime(DateUtil.format(new Date(), DatePattern.PURE_DATETIME_PATTERN))
-                .refEventId(eventId)
-                .statusChangeTime(DateUtil.format(new Date(), DatePattern.PURE_DATETIME_PATTERN))
-                .build();
-        assetRiskMapper.insert(assetRisk);
         if (insertResult <= 0) {
             log.warn("事件创建失败! {}", mergeLog);
+        }
+        // 创建事件的同时新增风险记录(前提条件为风险等级不为空)
+        if (riskLevel != null) {
+            AssetRisk assetRisk = AssetRisk.builder()
+                    .assetId(asset.getAssetId())
+                    .vulnId(eventId)
+                    .scanTime(DateUtil.format(new Date(), DatePattern.PURE_DATETIME_PATTERN))
+                    .refEventId(eventId)
+                    .riskLevel(Integer.parseInt(riskLevel))
+                    .statusChangeTime(DateUtil.format(new Date(), DatePattern.PURE_DATETIME_PATTERN))
+                    .build();
+            int insert = assetRiskMapper.insert(assetRisk);
+            if (insert <= 0) {
+                log.warn("日志风险告警记录生成失败! {}", mergeLog);
+            }
         }
     }
 
@@ -536,7 +504,8 @@ public class LogAnalysisRuleBo {
             log.warn("缓存中的logId被删除！");
             return;
         }
-        AssetEvent assetEvent = AssetEvent.builder().endTime(DatePattern.PURE_DATETIME_FORMAT.format(new Date())).build();
+        AssetEvent assetEvent =
+                AssetEvent.builder().endTime(DatePattern.PURE_DATETIME_FORMAT.format(new Date())).build();
         LambdaQueryWrapper<AssetEvent> updateWrapper = new LambdaQueryWrapper<>();
         updateWrapper.eq(AssetEvent::getEventOrigin, 1).eq(AssetEvent::getOriginId, mergeLogId);
         int updateResult = assetEventMapper.update(assetEvent, updateWrapper);
@@ -559,6 +528,5 @@ public class LogAnalysisRuleBo {
         }
 
     }
-
 
 }

@@ -4,11 +4,20 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.gem.gemada.dal.db.pools.DAO;
 import com.gem.loganalysis.config.MinioConfig;
 import com.gem.loganalysis.mapper.AssetMergeLogMapper;
+import com.gem.loganalysis.model.BaseConstant;
+import com.gem.loganalysis.model.PageRequest;
+import com.gem.loganalysis.model.PageResponse;
+import com.gem.loganalysis.model.bo.BlockFileSearchServer;
+import com.gem.loganalysis.model.bo.MergeLog;
 import com.gem.loganalysis.model.dto.query.LogContentQueryDTO;
+import com.gem.loganalysis.model.entity.Asset;
 import com.gem.loganalysis.model.entity.AssetMergeLog;
+import com.gem.loganalysis.model.vo.asset.AssetLogFileVO;
 import com.gem.loganalysis.service.IAssetMergeLogService;
+import com.gem.loganalysis.util.MapToBeanUtil;
 import com.gem.utils.file.BlockData;
 import com.gem.utils.file.BlockFile;
 import com.gem.utils.file.MinioRW;
@@ -19,6 +28,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import static com.gem.loganalysis.util.BlockFileUtil.getBlockFileRootPath;
@@ -37,6 +47,9 @@ public class AssetMergeLogServiceImpl extends ServiceImpl<AssetMergeLogMapper, A
     @Resource
     private MinioConfig prop;
 
+    @Resource
+    private DAO dao;
+
     @Override
     public List<String> getSourceLog(LogContentQueryDTO dto) {
         List<String> result = new ArrayList<>();
@@ -45,7 +58,10 @@ public class AssetMergeLogServiceImpl extends ServiceImpl<AssetMergeLogMapper, A
         String fileName = ruleRelaId + day;
         // 若目标文件不存在,则尝试从minio拉取
         if (!FileUtil.exist(getBlockFileRootPath() + fileName + ".DAT")) {
-            try (InputStream datInputStream = MinioRW.read(prop.getEndpoint(), prop.getAccessKey(), prop.getSecretKey(), prop.getBucketName(), fileName + ".DAT"); InputStream idxInputStream = MinioRW.read(prop.getEndpoint(), prop.getAccessKey(), prop.getSecretKey(), prop.getBucketName(), fileName + ".IDX"); FileOutputStream datOutputStream = new FileOutputStream("./" + fileName + ".DAT"); FileOutputStream idxOutputStream = new FileOutputStream("./" + fileName + ".IDX")) {
+            try (InputStream datInputStream = MinioRW.read(prop.getEndpoint(), prop.getAccessKey(), prop.getSecretKey(), prop.getBucketName(), fileName + ".DAT");
+                 InputStream idxInputStream = MinioRW.read(prop.getEndpoint(), prop.getAccessKey(), prop.getSecretKey(), prop.getBucketName(), fileName + ".IDX");
+                 FileOutputStream datOutputStream = new FileOutputStream("./" + fileName + ".DAT");
+                 FileOutputStream idxOutputStream = new FileOutputStream("./" + fileName + ".IDX")) {
                 IoUtil.copy(datInputStream, datOutputStream);
                 IoUtil.copy(idxInputStream, idxOutputStream);
             } catch (IOException e) {
@@ -58,6 +74,67 @@ public class AssetMergeLogServiceImpl extends ServiceImpl<AssetMergeLogMapper, A
             for (BlockData blockData : blockDataList) {
                 // result.add(objectMapper.readValue(new String(blockData.getData()), MergeLog.class));
                 result.add((new String(blockData.getData())));
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public PageResponse<Asset> getLogAsset(Integer pageNum, Integer pageSize) {
+        PageResponse<Asset> result = new PageResponse<>();
+        String querySql = "SELECT ASSET_ID, ASSET_NAME, ASSET_TYPE, ASSET_DESC, IP_ADDRESS " +
+                "FROM SOP_ASSET A " +
+                "LEFT JOIN SOP_ASSET_LOG_PREVIEW B ON A.IP_ADDRESS = B.`HOST` " +
+                "WHERE B.`HOST` IS NOT NULL AND A.DELETE_STATE = 0";
+        long count = dao.getDataSetCount(BaseConstant.DEFAULT_POOL_NAME, querySql);
+        if (count != 0) {
+            ArrayList<HashMap<String, String>> dataSet = dao.getDataSet(BaseConstant.DEFAULT_POOL_NAME, querySql, pageNum, pageSize);
+            List<Asset> list = MapToBeanUtil.execute(dataSet, Asset.class);
+            result.setTotal((int) count);
+            result.setRecords(list);
+        }
+        return result;
+    }
+
+    @Override
+    public PageResponse<MergeLog> getMergeLogByAsset(PageRequest<String> dto) {
+        PageResponse<MergeLog> result = new PageResponse<>();
+        String querySql = "SELECT LOG_ID, RULE_RELA_ID, UNION_KEY, LOG_PERIOD, EVENT_COUNT, UPDATE_TIME, MESSAGE, TAG " +
+                "FROM SOP_ASSET_MERGE_LOG WHERE RULE_RELA_ID IN " +
+                "(SELECT RULE_RELA_ID FROM SOP_LOG_ANALYSIS_RULE_RELA WHERE ASSET_ID = '" + dto.getData() + "')";
+        long count = dao.getDataSetCount(BaseConstant.DEFAULT_POOL_NAME, querySql);
+        if (count != 0) {
+            ArrayList<HashMap<String, String>> dataSet = dao.getDataSet(BaseConstant.DEFAULT_POOL_NAME, querySql, dto.getPageNum(), dto.getPageSize());
+            List<MergeLog> list = MapToBeanUtil.execute(dataSet, MergeLog.class);
+            result.setTotal((int) count);
+            result.setRecords(list);
+        }
+        return result;
+    }
+
+    @Override
+    public PageResponse<AssetLogFileVO> getSourceLogFileByAsset(PageRequest<String> dto) {
+        PageResponse<AssetLogFileVO> result = new PageResponse<>();
+        String ruleRelaQuerySql = "SELECT RULE_RELA_ID, SEVERITY, FACILITY FROM SOP_LOG_ANALYSIS_RULE_RELA WHERE ASSET_ID = '" + dto.getData() + "'";
+        ArrayList<HashMap<String, String>> dataSet = dao.getDataSet(BaseConstant.DEFAULT_POOL_NAME, ruleRelaQuerySql);
+        if (CollUtil.isNotEmpty(dataSet)) {
+            List<AssetLogFileVO> list = new ArrayList<>();
+            BlockFileSearchServer blockFileSearchServer = BlockFileSearchServer.getInstance();
+            for (HashMap<String, String> map : dataSet) {
+                list.addAll(blockFileSearchServer.getFileInfoByRuleRelaId(map.get("RULE_RELA_ID"), map.get("SEVERITY"), map.get("FACILITY")));
+            }
+            int total = list.size();
+            result.setTotal(total);
+
+            // 手动分页
+            int start = (dto.getPageNum() - 1) * dto.getPageSize();
+            int end = dto.getPageNum() * dto.getPageSize() - 1;
+            if (total < start) {
+                result.setRecords(new ArrayList<>());
+            } else if (total <= end) {
+                result.setRecords(list.subList(start, total));
+            } else {
+                result.setRecords(list.subList(start, end));
             }
         }
         return result;

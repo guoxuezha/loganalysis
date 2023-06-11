@@ -10,8 +10,10 @@ import com.gem.loganalysis.model.Result;
 import com.gem.loganalysis.model.bo.LogAnalysisRuleBo;
 import com.gem.loganalysis.model.bo.LogAnalysisRulePool;
 import com.gem.loganalysis.model.dto.DeleteDTO;
+import com.gem.loganalysis.model.dto.GetDTO;
 import com.gem.loganalysis.model.dto.edit.LogAnalysisRuleDTO;
 import com.gem.loganalysis.model.dto.edit.LogAnalysisRuleRelaDTO;
+import com.gem.loganalysis.model.dto.edit.LogFieldMappingDTO;
 import com.gem.loganalysis.model.dto.query.AnalysisRuleQueryDTO;
 import com.gem.loganalysis.model.entity.Asset;
 import com.gem.loganalysis.model.entity.LogAnalysisRule;
@@ -50,23 +52,24 @@ public class LogAnalysisRuleController {
 
     private final LogAnalysisRulePool logAnalysisRulePool;
 
-    /**
-     * 全查日志解析规则列表
-     *
-     * @return 日志解析规则列表
-     */
+    @ApiOperation("查看日志范式树")
+    @PostMapping("/showLogNormalForm")
+    public Result<Object> showLogNormalForm(@RequestBody GetDTO dto) {
+        return Result.ok(iLogAnalysisRuleRelaService.showLogNormalForm(dto.getId()));
+    }
+
+    @ApiOperation("编辑解析规则日志字段映射关系")
+    @PostMapping("/editLogFieldMapping")
+    public Result<Object> editLogFieldMapping(@RequestBody LogFieldMappingDTO dto) {
+        return iLogAnalysisRuleRelaService.editLogFieldMapping(dto) ? Result.ok("编辑成功！") : Result.failed("编辑失败！");
+    }
+
     @ApiOperation("全查日志解析规则列表")
     @PostMapping("/list")
     public Result<Object> list() {
         return Result.ok(iLogAnalysisRuleService.list());
     }
 
-    /**
-     * 分页查询日志解析规则
-     *
-     * @param dto 分页查询参数
-     * @return 日志解析规则列表
-     */
     @ApiOperation("分页查询日志解析规则")
     @PostMapping("/pageList")
     public Result<Object> pageList(@RequestBody PageRequest<String> dto) {
@@ -88,23 +91,12 @@ public class LogAnalysisRuleController {
         return deleteResult ? Result.ok("删除成功!") : Result.failed("删除失败!");
     }
 
-    /**
-     * 分页查询设备的日志解析规则
-     *
-     * @param dto 分页查询参数
-     * @return 日志解析规则列表
-     */
     @ApiOperation("分页查询设备的日志解析规则")
     @PostMapping("/getAnalysisRules")
     public Result<Object> getAnalysisRules(@RequestBody PageRequest<AnalysisRuleQueryDTO> dto) {
         return Result.ok(iLogAnalysisRuleRelaService.getAnalysisRules(dto));
     }
 
-    /**
-     * 配置数据资产的日志解析规则
-     *
-     * @return 配置参数
-     */
     @ApiOperation("配置数据资产的日志解析规则")
     @PostMapping("/setAnalysisRuleRela")
     public Result<Object> setAnalysisRuleRela(@RequestBody LogAnalysisRuleRelaDTO dto) {

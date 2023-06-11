@@ -9,7 +9,8 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.gem.gemada.dal.db.pools.DAO;
 import com.gem.loganalysis.model.BaseConstant;
-import com.gem.loganalysis.model.dto.BlockExecuteDTO;
+import com.gem.loganalysis.model.dto.block.BlockExecuteDTO;
+import com.gem.loganalysis.model.dto.block.BlockExecuteHelper;
 import com.gem.utils.net.SSHAgent;
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,8 +35,8 @@ public class BlockExecutor {
         deBlock(dto);
     }
 
-    public static Boolean block(HashMap<String, String> info) {
-        String operationAssetId = info.get("OPERATION_ASSET_ID");
+    public static Boolean block(BlockExecuteHelper info) {
+        String operationAssetId = info.getOperationAssetId();
         if (StrUtil.isEmpty(operationAssetId)) {
             log.warn("执行封堵的设备ID不得为空!");
             return false;
@@ -44,7 +45,7 @@ public class BlockExecutor {
         StringBuilder querySql = new StringBuilder("SELECT IP_ADDRESS, NM_PORT, NM_ACCOUNT, NM_PASSWORD, BLOCK_COMMAND, DEBLOCK_COMMAND FROM SOP_ASSET A LEFT JOIN SOP_BLOCK_COMMAND B ON A.ASSET_ID = B.ASSET_ID WHERE A.ASSET_ID IN (");
         for (String assetId : operationAssetId.trim().split(",")) {
             querySql.append("'").append(assetId).append("',");
-            saveBlockRecord(assetId, info.get("EVENT_ID"), info.get("SOURCE_IP"), info.get("BLOCK_TYPE"), info.get("BLOCK_DURATION"));
+            saveBlockRecord(assetId, info.getEventId(), info.getSourceIp(), info.getBlockType(), info.getBlockDuration());
         }
         querySql.delete(querySql.length() - 1, querySql.length()).append(")");
         ArrayList<HashMap<String, String>> dataSet = dao.getDataSet(BaseConstant.DEFAULT_POOL_NAME, querySql.toString(), 0, 0);

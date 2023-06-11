@@ -75,6 +75,10 @@ public class AssetEvent implements Serializable {
     @ApiModelProperty(value = "源端IP")
     private String sourceIp;
 
+    @TableField("TARGET_IP")
+    @ApiModelProperty(value = "目标IP")
+    private String targetIp;
+
     /**
      * 事件起始时间
      */

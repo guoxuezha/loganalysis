@@ -32,6 +32,7 @@ public class MergeLog {
      */
     @ApiModelProperty("日志类型")
     private int logType;
+
     /**
      * 时间戳
      */
