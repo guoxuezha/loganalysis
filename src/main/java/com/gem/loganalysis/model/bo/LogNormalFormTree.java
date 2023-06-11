@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.gem.loganalysis.model.vo.SopLogNormalFormNode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import java.util.List;
 @NoArgsConstructor
 public class LogNormalFormTree {
 
+    @Getter
     private SopLogNormalFormNode root;
 
     public LogNormalFormTree(List<SopLogNormalFormNode> list) {

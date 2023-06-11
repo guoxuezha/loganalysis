@@ -5,10 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Comparator.comparingInt;
@@ -38,8 +35,14 @@ public class EventOverviewVO {
     @ApiModelProperty("根据设备ID统计事件数Top5")
     private List<TypeNum> assetEventTop5;
 
+    @ApiModelProperty("根据目标IP统计事件数Top5")
+    private List<TypeNum> targetIpTop5;
+
     @ApiModelProperty("时段内每日事件数")
-    private List<TypeNum> dailyEventNumList;
+    private HashMap<Integer, List<TypeNum>> dailyEventNumMap;
+
+    @ApiModelProperty("未处置事件列表")
+    private List<AssetEventVO> undisposedEventList;
 
     public void setHandleStatusNum(Map<Integer, List<AssetEventVO>> map) {
         this.handleStatusNum = new ArrayList<>();
@@ -88,8 +91,25 @@ public class EventOverviewVO {
         }
     }
 
-    public void setDailyEventNumList(List<TypeNum> dailyEventNumList) {
-        this.dailyEventNumList = dailyEventNumList;
+    public void setTargetIpTop5(Map<String, List<AssetEventVO>> map) {
+        ArrayList<TypeNum> list = new ArrayList<>();
+        for (Map.Entry<String, List<AssetEventVO>> entry : map.entrySet()) {
+            list.add(new TypeNum(entry.getKey(), entry.getValue().size()));
+        }
+        List<TypeNum> collect = list.stream().sorted().collect(Collectors.toList());
+        if (collect.size() > 5) {
+            this.targetIpTop5 = collect.subList(0, 5);
+        } else {
+            this.targetIpTop5 = collect;
+        }
+    }
+
+    public void setDailyEventNumMap(HashMap<Integer, List<TypeNum>> dailyEventNumMap) {
+        this.dailyEventNumMap = dailyEventNumMap;
+    }
+
+    public void setUndisposedEventList(List<AssetEventVO> undisposedEventList) {
+        this.undisposedEventList = undisposedEventList;
     }
 
     @AllArgsConstructor

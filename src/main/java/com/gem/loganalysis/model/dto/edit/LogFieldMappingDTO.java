@@ -25,11 +25,11 @@ public class LogFieldMappingDTO {
         @ApiModelProperty(value = "源端日志属性名称", required = true)
         private String sourceFieldName;
 
-        @ApiModelProperty("源端日志属性描述")
-        private String sourceFieldDesc;
-
         @ApiModelProperty(value = "目标日志属性ID", required = true)
         private String targetFieldId;
+
+        @ApiModelProperty("源端日志属性描述")
+        private String sourceFieldDesc;
     }
 
 }
