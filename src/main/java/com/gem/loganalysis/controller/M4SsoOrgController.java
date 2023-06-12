@@ -79,7 +79,9 @@ public class M4SsoOrgController {
         if(list.size()!=0){
             return Result.failed("该组织机构下还有子节点,请先删除子节点");
         }*/
-        return m4SsoOrgService.removeById(dto.getId()) ? Result.ok("删除成功!") : Result.failed("删除失败!");
+        boolean b = m4SsoOrgService.removeById(dto.getId());
+        m4SsoOrgService.initLocalCache();
+        return  b ? Result.ok("删除成功!") : Result.failed("删除失败!");
     }
 
 

@@ -29,7 +29,7 @@ public interface IM4SsoOrgService extends IService<M4SsoOrg> {
     void initLocalCache();
 
     /**
-     * 组织机构ID和NAME转移
+     * 组织机构ID转NAMe
      */
     String changeOrgName(String orgId);
 

@@ -112,8 +112,9 @@ public class DictItemServiceImpl implements DictItemService {
         // 插入字典类型
         DictType2 dictType = dictTypeMapper.selectById(reqVO.getTypeId());
         reqVO.setCode(dictType.getCode());
+        int insert = dictItemMapper.insert(reqVO);
         initLocalCache();
-        return dictItemMapper.insert(reqVO);
+        return insert;
     }
 
     @Override
@@ -122,8 +123,9 @@ public class DictItemServiceImpl implements DictItemService {
         DictType2 dictType = dictTypeMapper.selectById(reqVO.getTypeId());
         reqVO.setUpdateTime(DateUtil.format(new Date(), "yyyy-MM-dd"));
         reqVO.setCode(dictType.getCode());
+        int i = dictItemMapper.updateById(reqVO);
         initLocalCache();
-        return dictItemMapper.updateById(reqVO);
+        return i;
     }
 
     @Override
@@ -143,8 +145,9 @@ public class DictItemServiceImpl implements DictItemService {
 
     @Override
     public int deleteDictItem(String id) {
+        int i = dictItemMapper.deleteById(id);
         initLocalCache();
-        return dictItemMapper.deleteById(id);
+        return i;
     }
 
     @Override
@@ -218,6 +221,24 @@ public class DictItemServiceImpl implements DictItemService {
             return collect.get(0).getText();
         }else{
             return "";
+        }
+    }
+
+    @Override
+    public String getValueByText(String code, String text) {
+        if(StringUtils.isBlank(code) ||StringUtils.isBlank(text)){
+            return null;
+        }
+        Map<String, List<DictItem>> dictDataMap = getDictItemMap();
+        List<DictItem> dictData = dictDataMap.get(code);
+        if(dictData==null){
+            return null;
+        }
+        List<DictItem> collect = dictData.stream().filter(e -> e.getText().equals(text)&&e.getLevel()==0).collect(Collectors.toList());
+        if(collect.size()>0){
+            return collect.get(0).getValue();
+        }else{
+            return null;
         }
     }
 

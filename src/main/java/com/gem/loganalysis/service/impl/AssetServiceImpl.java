@@ -14,9 +14,7 @@ import com.gem.loganalysis.model.Result;
 import com.gem.loganalysis.model.dto.asset.AssetDTO;
 import com.gem.loganalysis.model.dto.asset.AssetQueryDTO;
 import com.gem.loganalysis.model.dto.query.LambdaQueryWrapperX;
-import com.gem.loganalysis.model.entity.Asset;
-import com.gem.loganalysis.model.entity.M4SsoUser;
-import com.gem.loganalysis.model.entity.PhysicalAssetTemp;
+import com.gem.loganalysis.model.entity.*;
 import com.gem.loganalysis.model.vo.ImportRespVO;
 import com.gem.loganalysis.model.vo.asset.*;
 import com.gem.loganalysis.service.*;
@@ -50,6 +48,8 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     private DictItemService dictItemService;
     @Resource
     private IM4SsoOrgService orgService;
+    @Resource
+    private IAssetGroupService groupService;
     @Resource
     private IPhysicalAssetTempService physicalAssetTempService;
     @Resource
@@ -121,7 +121,10 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 if(StringUtils.isBlank(e.getAssetName())){
                     throw new ServiceException("导入的资产名称不能为空");
                 }
-                if(StringUtils.isBlank(e.getAssetType())){
+                if(e.getAssetName().equals("逻辑资产示例")){
+                    return;
+                }
+                if(StringUtils.isBlank(e.getAssetTypeName())){
                     throw new ServiceException("导入的资产类型不能为空");
                 }
                 if(StringUtils.isBlank(e.getIpAddress())){
@@ -136,18 +139,52 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 }
                 Asset asset = AssetConvert.INSTANCE.convert(e);
                 asset.setAssetClass(AssetClass.LOGICAL.getId());
-                asset.setAssetType(assetTypeService.getAssetTypeId(e.getAssetType()));
-                if(assetTypeService.getAssetTypeId(e.getAssetType())==null){
-                    throw new ServiceException("请导入资产类型配置中存在的资产类型，若不存在请先添加");
+                //判断资产名称是否存在
+                Asset one = this.getOne(new LambdaQueryWrapper<Asset>()
+                        .eq(Asset::getAssetName, e.getAssetName()).last("LIMIT 1"));
+                if(one!=null){
+                    throw new ServiceException("该资产:"+e.getAssetName()+"已存在");
                 }
-                if(!StringUtils.isBlank(e.getAssetManager())){
-                    M4SsoUser user = userService.getOne(new LambdaQueryWrapper<M4SsoUser>().eq(M4SsoUser::getUserName, e.getAssetManager()).last("LIMIT 1"));
+                //资产类型导入
+                if(!StringUtils.isBlank(e.getAssetTypeName())){
+                    String value = dictItemService.getValueByText(DictType.LOGICAL_ASSET_TYPE.getType(), e.getAssetTypeName());
+                    if(value==null){
+                        throw new ServiceException("请导入数据字典中存在的逻辑资产的类型");
+                    }
+                    asset.setAssetType(value);
+                }
+                //资产部门导入
+                if(!StringUtils.isBlank(e.getAssetOrgName())){
+                    M4SsoOrg org = orgService.getOne(new LambdaQueryWrapper<M4SsoOrg>()
+                            .eq(M4SsoOrg::getOrgName, e.getAssetOrgName()).last("LIMIT 1"));
+                    if(org==null){
+                        //优先放导入的部门，没有就放登录人的部门，如果导入的部门不存在，且登录人的部门也不存在，就报异常
+                        if(!StringUtils.isBlank(getLoginUserOrgId())){
+                            asset.setAssetOrg(getLoginUserOrgId());
+                        }else{
+                            throw new ServiceException("您导入的资产部门系统中不存在，请先添加部门");
+                        }
+                    }else{
+                        asset.setAssetOrg(org.getOrgId());
+                    }
+                }
+                //资产分组导入
+                if(!StringUtils.isBlank(e.getAssetGroupName())){
+                    AssetGroup group = groupService.getOne(new LambdaQueryWrapper<AssetGroup>()
+                            .eq(AssetGroup::getGroupName, e.getAssetGroupName()).last("LIMIT 1"));
+                    if(group==null){
+                        throw new ServiceException("您导入的资产分组系统中不存在，请先添加分组");
+                    }
+                    asset.setAssetGroupId(group.getGroupId());
+                }
+                //负责人导入
+                if(!StringUtils.isBlank(e.getAssetManagerName())){
+                    M4SsoUser user = userService.getOne(new LambdaQueryWrapper<M4SsoUser>().eq(M4SsoUser::getAccount, e.getAssetManagerName()).last("LIMIT 1"));
                     if(user==null){
                         throw new ServiceException("您导入的资产管理人系统中不存在，请先添加用户");
                     }
                     asset.setAssetManager(user.getUserId());
                 }
-                asset.setAssetOrg(getLoginUserOrgId());
                 assetMapper.insert(asset);
                 respVO.getSuccessNames().add(e.getAssetName());
             }catch (Exception ex){
@@ -167,23 +204,17 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 if(StringUtils.isBlank(e.getAssetName())){
                     throw new ServiceException("导入的资产名称不能为空");
                 }
-                if(StringUtils.isBlank(e.getAssetType())){
+                if(e.getAssetName().equals("物理资产示例")){
+                    return;
+                }
+                if(StringUtils.isBlank(e.getAssetCategory())){
+                    throw new ServiceException("导入的资产类别不能为空");
+                }
+                if(StringUtils.isBlank(e.getTypeName())){
                     throw new ServiceException("导入的资产类型不能为空");
                 }
                 if(StringUtils.isBlank(e.getIpAddress())){
                     throw new ServiceException("导入的IP地址为空");
-                }
-                if(StringUtils.isBlank(e.getNmPort())){
-                    throw new ServiceException("导入的网管端口不能为空");
-                }
-                if(StringUtils.isBlank(e.getNmProcotol())){
-                    throw new ServiceException("导入的网管协议不能为空");
-                }
-                if(StringUtils.isBlank(e.getNmAccount())){
-                    throw new ServiceException("导入的网管账号不能为空");
-                }
-                if(StringUtils.isBlank(e.getNmPassword())){
-                    throw new ServiceException("导入的网管密码不能为空");
                 }
                 if(!Pattern.matches(regex,e.getIpAddress())){
                     //效验IP地址格式是否正确
@@ -192,32 +223,54 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 if(!StringUtils.isBlank(e.getServicePort())&&!e.getServicePort().matches("\\d+")){
                     throw new ServiceException("请确保服务端口号为纯数字");
                 }
-                if(!StringUtils.isBlank(e.getNmPort())&&!e.getNmPort().matches("\\d+")){
-                    throw new ServiceException("请确保网管端口号为纯数字");
+                //判断资产名称是否存在
+                Asset one = this.getOne(new LambdaQueryWrapper<Asset>()
+                        .eq(Asset::getAssetName, e.getAssetName()).last("LIMIT 1"));
+                if(one!=null){
+                    throw new ServiceException("该资产:"+e.getAssetName()+"已存在");
                 }
-                if(StringUtils.isBlank(e.getAssetName())){
-                    throw new ServiceException("导入的资产名称不能为空");
-                }
-
                 Asset asset = AssetConvert.INSTANCE.convert(e);
                 asset.setAssetClass(AssetClass.PHYSICAL.getId());
-                asset.setAssetType(assetTypeService.getAssetTypeId(e.getAssetType()));
-                if(assetTypeService.getAssetTypeId(e.getAssetType())==null){
-                    throw new ServiceException("请导入资产类型配置中存在的资产类型，若不存在请先添加");
+                //资产类型导入
+                if(!StringUtils.isBlank(e.getTypeName())){
+                    String assetTypeId = assetTypeService.getAssetTypeId(e.getTypeName());
+                    if(assetTypeId==null){
+                        throw new ServiceException("您导入的资产类型不存在,请先去配置管理中添加");
+                    }
+                    asset.setAssetType(assetTypeId);
                 }
-                if(!StringUtils.isBlank(e.getAssetManager())){
-                    M4SsoUser user = userService.getOne(new LambdaQueryWrapper<M4SsoUser>().eq(M4SsoUser::getUserName, e.getAssetManager()).last("LIMIT 1"));
+                //资产部门导入
+                if(!StringUtils.isBlank(e.getAssetOrgName())){
+                    M4SsoOrg org = orgService.getOne(new LambdaQueryWrapper<M4SsoOrg>()
+                            .eq(M4SsoOrg::getOrgName, e.getAssetOrgName()).last("LIMIT 1"));
+                    if(org==null){
+                        //优先放导入的部门，没有就放登录人的部门，如果导入的部门不存在，且登录人的部门也不存在，就报异常
+                        if(!StringUtils.isBlank(getLoginUserOrgId())){
+                            asset.setAssetOrg(getLoginUserOrgId());
+                        }else{
+                            throw new ServiceException("您导入的资产部门系统中不存在，请先添加部门");
+                        }
+                    }else{
+                        asset.setAssetOrg(org.getOrgId());
+                    }
+                }
+                //资产分组导入
+                if(!StringUtils.isBlank(e.getAssetGroupName())){
+                    AssetGroup group = groupService.getOne(new LambdaQueryWrapper<AssetGroup>()
+                            .eq(AssetGroup::getGroupName, e.getAssetGroupName()).last("LIMIT 1"));
+                    if(group==null){
+                        throw new ServiceException("您导入的资产分组系统中不存在，请先添加分组");
+                    }
+                    asset.setAssetGroupId(group.getGroupId());
+                }
+                //负责人导入
+                if(!StringUtils.isBlank(e.getAssetManagerName())){
+                    M4SsoUser user = userService.getOne(new LambdaQueryWrapper<M4SsoUser>().eq(M4SsoUser::getAccount, e.getAssetManagerName()).last("LIMIT 1"));
                     if(user==null){
                         throw new ServiceException("您导入的资产管理人系统中不存在，请先添加用户");
                     }
                     asset.setAssetManager(user.getUserId());
                 }
-              /*  //对于密码加密,不需要可注释
-                if(!StringUtils.isBlank(e.getNmPassword())){
-                    String password = AESUtil.aesEncrypt(e.getNmPassword(), businessConfigInfo.getAESKey());
-                    asset.setNmPassword(password);
-                }*/
-                asset.setAssetOrg(getLoginUserOrgId());
                 assetMapper.insert(asset);
                 respVO.getSuccessNames().add(e.getAssetName());
             }catch (Exception ex){
@@ -369,7 +422,12 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             respVO.setAssetTypeName(dictItemService.getDictData(DictType.LOGICAL_ASSET_TYPE.getType(),respVO.getAssetType()));
         }
         if(respVO.getAssetClass().equals(AssetClass.PHYSICAL.getId())){//物理资产
-            respVO.setAssetTypeName(assetTypeService.getAssetTypeName(Integer.valueOf(respVO.getAssetType())));
+            AssetTypeRespVO type = assetTypeService.getAssetTypeById(Integer.valueOf(respVO.getAssetType()));
+            if(type!=null){
+                respVO.setAssetCategory(type.getAssetType());
+                respVO.setTypeName(type.getTypeName());
+                respVO.setAssetTypeName(type.getAssetType()+"-"+type.getTypeName());
+            }
         }
         respVO.setAssetSecurityStatusName(dictItemService.getDictData(DictType.ASSET_SECURITY_STATUS.getType(),respVO.getAssetSecurityStatus()));
  /*       AssetGroup assetGroup = assetGroupService.getById(respVO.getAssetGroupId());

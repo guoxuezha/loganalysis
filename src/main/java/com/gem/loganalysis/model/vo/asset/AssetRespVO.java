@@ -25,10 +25,16 @@ public class AssetRespVO {
     @ApiModelProperty(value = "资产分类(名称)")
     private String assetClassName;
 
-    @ApiModelProperty(value = "资产类型，服务器/路由器/交换机/防火墙或者数据库/中间件/网络应用/域名等")
+    @ApiModelProperty(value = "资产类型ID，服务器/路由器/交换机/防火墙或者数据库/中间件/网络应用/域名等")
     private String assetType;
 
-    @ApiModelProperty(value = "资产类型(名称)")
+    @ApiModelProperty(value = "资产类别(大类别名称)")
+    private String assetCategory;
+
+    @ApiModelProperty(value = "资产类别(小类别名称)")
+    private String typeName;
+
+    @ApiModelProperty(value = "资产类型(全称)")
     private String assetTypeName;
 
     @ApiModelProperty(value = "资产描述")
@@ -81,6 +87,9 @@ public class AssetRespVO {
 
     @ApiModelProperty(value = "资产管理人名称")
     private String assetManagerName;
+
+    @ApiModelProperty(value = "资产管理人电话")
+    private String assetManagerMobile;
 
     @ApiModelProperty(value = "资产分组")
     private String assetGroupId;

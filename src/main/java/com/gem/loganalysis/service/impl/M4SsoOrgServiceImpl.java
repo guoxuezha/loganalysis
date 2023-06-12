@@ -68,8 +68,9 @@ public class M4SsoOrgServiceImpl extends ServiceImpl<M4SsoOrgMapper, M4SsoOrg> i
     public boolean editOrg(OrgDTO dto) {
         M4SsoOrg convert = M4SsoConvert.INSTANCE.convert(dto);
         convert.setUpdateTime(DateUtil.format(new Date(),"yyyyMMddHHmmss"));
+        boolean b = this.saveOrUpdate(convert);
         initLocalCache();
-        return this.saveOrUpdate(convert);
+        return b;
     }
 
     @Override

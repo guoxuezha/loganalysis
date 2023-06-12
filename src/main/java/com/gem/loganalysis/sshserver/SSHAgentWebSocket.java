@@ -26,7 +26,7 @@ public class SSHAgentWebSocket extends WebSocket {
 
     public SSHAgentWebSocket() {
         super();
-        this.setDecryptKey("SKVNMEIHJLOANSKI");
+     //   this.setDecryptKey("SKVNMEIHJLOANSKI");
         System.out.println("SSHAgentWebSocket=================================================>");
     }
 

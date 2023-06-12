@@ -14,8 +14,11 @@ import java.util.List;
 @AllArgsConstructor
 public class AssetTypeVO {
 
+    @ApiModelProperty(value = "类别ID,目前类别没ID因为是一张表存的，怕前端显示不了先返一个0")
+    private Integer typeId;
+
     @ApiModelProperty(value = "资产类别")
-    private String assetType;
+    private String typeName;
 
     @ApiModelProperty(value = "资产类别关联数据")
     private List<AssetTypeRespVO> list;

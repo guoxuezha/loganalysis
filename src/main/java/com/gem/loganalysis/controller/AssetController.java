@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import com.alibaba.excel.EasyExcel;
 import com.gem.loganalysis.convert.AssetConvert;
 import com.gem.loganalysis.enmu.AssetClass;
+import com.gem.loganalysis.enmu.DictType;
 import com.gem.loganalysis.exception.ServiceException;
 import com.gem.loganalysis.handler.DropDownWriteHandler;
 import com.gem.loganalysis.model.PageRequest;
@@ -12,14 +13,13 @@ import com.gem.loganalysis.model.Result;
 import com.gem.loganalysis.model.dto.DeleteDTO;
 import com.gem.loganalysis.model.dto.GetDTO;
 import com.gem.loganalysis.model.dto.asset.*;
+import com.gem.loganalysis.model.dto.query.DictItemQueryDTO;
 import com.gem.loganalysis.model.entity.Asset;
 import com.gem.loganalysis.model.entity.M4SsoOrg;
+import com.gem.loganalysis.model.vo.DictItemRespVO;
 import com.gem.loganalysis.model.vo.ImportRespVO;
 import com.gem.loganalysis.model.vo.asset.*;
-import com.gem.loganalysis.service.IAssetGroupService;
-import com.gem.loganalysis.service.IAssetService;
-import com.gem.loganalysis.service.IAssetTypeService;
-import com.gem.loganalysis.service.IM4SsoOrgService;
+import com.gem.loganalysis.service.*;
 import com.gem.loganalysis.util.ExcelUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -50,6 +50,8 @@ public class AssetController {
     private IAssetGroupService assetGroupService;
     @Resource
     private IM4SsoOrgService orgService;
+    @Resource
+    private DictItemService dictItemService;
 
 
     @PostMapping("/edit")
@@ -159,7 +161,6 @@ public class AssetController {
     @PostMapping("/physical-import-template")
     @ApiOperation("物理资产导入模板")
     public void importPhysicalTemplate(HttpServletResponse response) throws IOException {
-
         Map<String, List<AssetTypeRespVO>> typeMap = assetTypeService.getTypeMap(new AssetTypeQueryDTO());
         // 所有类别
         List<String> assetTypeList = new ArrayList<String>();
@@ -174,15 +175,35 @@ public class AssetController {
         List<M4SsoOrg> m4OrgList = orgService.list();
         m4OrgList.forEach(e->orgList.add(e.getOrgName()));
         List<AssetGroupRespVO> list = assetGroupService.getList(new AssetGroupQueryDTO());
-        Map<String, List<String>> groupMap = list.stream().collect(Collectors.groupingBy(AssetGroupRespVO::getAssetOrgName,
-                Collectors.mapping(AssetGroupRespVO::getGroupName, Collectors.toList())));
+        Map<String, List<String>> groupMap = list.stream()
+                .filter(vo -> !StringUtils.isBlank(vo.getAssetOrgName())) // 过滤掉 AssetOrgName 为空的项
+                .collect(Collectors.groupingBy(
+                        AssetGroupRespVO::getAssetOrgName,
+                        Collectors.mapping(AssetGroupRespVO::getGroupName, Collectors.toList())
+                ));
 
+        //构建导入实例
+        List<PhysicalAssetExcelVO> exampleList = new ArrayList<>();
+        PhysicalAssetExcelVO physicalAssetExcelVO = PhysicalAssetExcelVO.builder()
+                .assetName("物理资产示例")//资产名称
+                .assetCategory("服务器")//资产类别
+                .typeName("云平台虚拟机")//资产类型
+                .ipAddress("192.168.0.104")//IP地址
+                .assetBrand("Vmware")//品牌
+                .assetModel("VC6.7")//型号
+                .osVersion("CentOS 7.6")//操作系统版本
+                .assetManagerName("管理员")//资产管理人
+                .assetOrgName("资产管理部")//资产部门
+                .assetGroupName("动态资产分组")//资产分组
+                .assetTag("服务器资产")
+                .build();
+        exampleList.add(physicalAssetExcelVO);
         // 输出 Excel
         EasyExcel.write(response.getOutputStream(), PhysicalAssetExcelVO.class)
                 .registerWriteHandler(new DropDownWriteHandler(assetTypeList,assetTypeMap,1))
-     //           .registerWriteHandler(new DropDownWriteHandler(orgList,groupMap,17))
+                .registerWriteHandler(new DropDownWriteHandler(orgList,groupMap,17))
                 .autoCloseStream(false) // 不要自动关闭，交给 Servlet 自己处理
-                .sheet("物理资产").doWrite((Collection<?>) null);
+                .sheet("物理资产").doWrite(exampleList);
         // 设置 header 和 contentType。写在最后的原因是，避免报错时，响应 contentType 已经被修改了
         response.addHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode("物理资产导入模板.xlsx", "UTF-8"));
         //response.setContentType("application/vnd.ms-excel;charset=UTF-8");
@@ -194,10 +215,39 @@ public class AssetController {
     @PostMapping("/logical-import-export")
     @ApiOperation("逻辑资产导入模板")
     public void importLogicalTemplate(HttpServletResponse response) throws IOException {
+        //逻辑资产类型(从字典里取)
+        List<DictItemRespVO> dictItemList = dictItemService.getDictItemList(new DictItemQueryDTO().setCode(DictType.LOGICAL_ASSET_TYPE.getType()));
+        List<String> dictList = dictItemList.stream().map(DictItemRespVO::getText).collect(Collectors.toList());
+        // 部门-分组级联
+        List<String> orgList = new ArrayList<String>();
+        List<M4SsoOrg> m4OrgList = orgService.list();
+        m4OrgList.forEach(e->orgList.add(e.getOrgName()));
+        List<AssetGroupRespVO> list = assetGroupService.getList(new AssetGroupQueryDTO());
+        Map<String, List<String>> groupMap = list.stream()
+                .filter(vo -> !StringUtils.isBlank(vo.getAssetOrgName())) // 过滤掉 AssetOrgName 为空的项
+                .collect(Collectors.groupingBy(
+                        AssetGroupRespVO::getAssetOrgName,
+                        Collectors.mapping(AssetGroupRespVO::getGroupName, Collectors.toList())
+                ));
+        //构建导入示例
+        List<LogicalAssetExcelVO> exampleList = new ArrayList<>();
+        LogicalAssetExcelVO logicalAssetExcelVO = LogicalAssetExcelVO.builder()
+                .assetName("逻辑资产示例")//资产名称
+                .assetTypeName("网络应用")//资产类型
+                .ipAddress("192.168.0.104")//IP地址
+                .servicePort("8080")//端口号
+                .assetManagerName("管理员")//资产管理人
+                .assetOrgName("资产管理部")//资产部门
+                .assetGroupName("动态资产分组")//资产分组
+                .assetTag("网络应用资产")
+                .build();
+        exampleList.add(logicalAssetExcelVO);
         // 输出 Excel
         EasyExcel.write(response.getOutputStream(), LogicalAssetExcelVO.class)
+                .registerWriteHandler(new DropDownWriteHandler(dictList,null,1))
+                .registerWriteHandler(new DropDownWriteHandler(orgList,groupMap,6))
                 .autoCloseStream(false) // 不要自动关闭，交给 Servlet 自己处理
-                .sheet("逻辑资产").doWrite((Collection<?>) null);
+                .sheet("逻辑资产").doWrite((exampleList));
         // 设置 header 和 contentType。写在最后的原因是，避免报错时，响应 contentType 已经被修改了
         response.addHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode("逻辑资产导入模板.xlsx", "UTF-8"));
         //response.setContentType("application/vnd.ms-excel;charset=UTF-8");
@@ -244,7 +294,4 @@ public class AssetController {
         }
         return Result.ok(assetService.importLogicalExcel(list));
     }
-
-
-
 }

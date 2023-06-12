@@ -101,6 +101,14 @@ public interface DictItemService {
     String getDictData(String code,String value);
 
     /**
+     * 根据字典名称获取Value
+     * @param dictType
+     * @param value
+     * @return
+     */
+    String getValueByText(String code,String text);
+
+    /**
      * 获得非首层的数据字典的中文
      * @param dictType
      * @param value
