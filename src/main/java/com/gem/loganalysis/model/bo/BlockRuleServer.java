@@ -29,7 +29,8 @@ public class BlockRuleServer {
         logAnalysisRuleBoMap = new HashMap<>();
         BlockRuleMapper blockRuleMapper = SpringContextUtil.getBean(BlockRuleMapper.class);
         LambdaQueryWrapper<BlockRule> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(BlockRule::getDeleteState, 0);
+        wrapper.eq(BlockRule::getDeleteState, 0)
+                .isNotNull(BlockRule::getAssetId);
         List<BlockRule> list = blockRuleMapper.selectList(wrapper);
         Map<String, List<BlockRule>> collect = list.stream().collect(Collectors.groupingBy(BlockRule::getAssetId));
         for (Map.Entry<String, List<BlockRule>> entry : collect.entrySet()) {
@@ -54,6 +55,21 @@ public class BlockRuleServer {
     public boolean judgeNeedRegionBlock(String assetId, String sourceIp) {
         AssetBlockRuleBo assetBlockRuleBo = logAnalysisRuleBoMap.get(assetId);
         return assetBlockRuleBo != null && assetBlockRuleBo.needRegionBlock(sourceIp);
+    }
+
+    /**
+     * 执行封堵
+     *
+     * @param assetId   资产ID
+     * @param eventId   风险关联的事件ID
+     * @param sourceIp  要封堵的IP
+     * @param riskLevel 风险级别
+     * @param eventType 事件类型(供属地封堵规则特判)
+     * @return 封堵结果
+     */
+    public boolean executeBlock(String assetId, String eventId, String sourceIp, Integer riskLevel, String eventType) {
+        AssetBlockRuleBo assetBlockRuleBo = logAnalysisRuleBoMap.get(assetId);
+        return assetBlockRuleBo.executeBlock(eventId, sourceIp, riskLevel, eventType);
     }
 
 }

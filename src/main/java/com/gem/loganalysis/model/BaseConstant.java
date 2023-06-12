@@ -9,4 +9,6 @@ public interface BaseConstant {
 
     String DEFAULT_POOL_NAME = "sop";
 
+    String EXTRA_TERRITORIAL_ACCESS = "(国/省/市)域外访问";
+
 }

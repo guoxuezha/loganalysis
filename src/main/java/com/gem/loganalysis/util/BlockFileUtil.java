@@ -6,12 +6,15 @@ import cn.hutool.http.ContentType;
 import cn.hutool.json.JSONUtil;
 import com.gem.loganalysis.model.bo.LogAnalysisRuleBo;
 import com.gem.loganalysis.model.bo.MergeLog;
+import com.gem.utils.file.BlockData;
 import com.gem.utils.file.BlockFile;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -21,6 +24,15 @@ import java.util.Date;
  */
 public class BlockFileUtil {
 
+    public static void main(String[] args) throws UnsupportedEncodingException {
+        BlockFile blockFile = new BlockFile(getBlockFileRootPath(), "0420230526.DAT", "0420230526.IDX", true, 1, 64);
+        System.out.println(blockFile.getBlockCount());
+
+        BlockData fetch = blockFile.fetch();
+        System.out.println(Arrays.toString(fetch.getData()));
+        blockFile.destroy();
+    }
+
     /**
      * 将日志写入文件
      *
@@ -28,9 +40,9 @@ public class BlockFileUtil {
      * @param analysisRuleBo 解析规则
      */
     public static void writeLog(MergeLog mergeLog, LogAnalysisRuleBo analysisRuleBo) {
+        // 执行写入前先判断文件是否应切换到新的一天
         if (!DateUtil.format(new Date(), DatePattern.PURE_DATE_PATTERN).equals(analysisRuleBo.getBlockFileDay())) {
-            // 旧日文件关闭上传
-            analysisRuleBo.getBlockFile().close();
+            analysisRuleBo.getBlockFile().destroy();
             MinioUtil minioUtil = SpringContextUtil.getBean(MinioUtil.class);
             File datFile = new File(getBlockFileRootPath() + analysisRuleBo.getRuleRelaId() + analysisRuleBo.getBlockFileDay() + ".DAT");
             File idxFile = new File(getBlockFileRootPath() + analysisRuleBo.getRuleRelaId() + analysisRuleBo.getBlockFileDay() + ".IDX");
@@ -63,8 +75,5 @@ public class BlockFileUtil {
     public static String getBlockFileRootPath() {
         return System.getProperty("user.dir") + File.separator + "blockFile" + File.separator;
     }
-
-
-
 
 }

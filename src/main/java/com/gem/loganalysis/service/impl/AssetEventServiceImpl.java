@@ -74,9 +74,10 @@ public class AssetEventServiceImpl extends ServiceImpl<AssetEventMapper, AssetEv
         ArrayList<HashMap<String, String>> dataSet = dao.getDataSet(BaseConstant.DEFAULT_POOL_NAME, querySql.toString(), 0, 0);
         if (CollUtil.isNotEmpty(dataSet)) {
             List<AssetEventVO> list = MapToBeanUtil.execute(dataSet, AssetEventVO.class);
-            result.setHandleStatusNum(list.stream().collect(Collectors.groupingBy(AssetEventVO::getHandleStatus)));
+            result.setEvenOriginNum(list.stream().collect(Collectors.groupingBy(AssetEventVO::getEventOrigin)));
             result.setEventTypeNum(list.stream().collect(Collectors.groupingBy(AssetEventVO::getEventType)));
             result.setEventClassNum(list.stream().collect(Collectors.groupingBy(AssetEventVO::getEventClass)));
+            result.setHandleStatusNum(list.stream().collect(Collectors.groupingBy(AssetEventVO::getHandleStatus)));
             result.setSourceIpTop5(list.stream().collect(Collectors.groupingBy(AssetEventVO::getSourceIp)));
             result.setAssetEventTop5(list.stream().collect(Collectors.groupingBy(AssetEventVO::getAssetName)));
             result.setTargetIpTop5(list.stream().collect(Collectors.groupingBy(AssetEventVO::getTargetIp)));

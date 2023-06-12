@@ -281,3 +281,21 @@ ALTER TABLE `loganalysis`.`sop_asset_event`
 ALTER TABLE `loganalysis`.`sop_log_normal_form`
     ADD COLUMN `FIELD_TAG` int NULL COMMENT '属性标签 (1/2/3/4 源IP/目标IP/事件类型/危险等级)' AFTER `LEVEL`;
 ```
+
+### 2023-06-12
+
+#### 日志解析规则表字段精简
+
+```SQL
+ALTER TABLE `loganalysis`.`sop_log_analysis_rule_rela`
+    DROP COLUMN `EVENT_KEYWORD`,
+    DROP COLUMN `EVENT_TYPE_ITEM`,
+    DROP COLUMN `EVENT_CLASS_ITEM`,
+    MODIFY COLUMN `MERGE_ITEMS` varchar(512) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL COMMENT '归并字段属性列表' AFTER `ANALYSIS_RULE_ID`;
+
+ALTER TABLE `loganalysis`.`sop_block_rule`
+    MODIFY COLUMN `BLOCK_RULE_DESC` varchar(128) CHARACTER
+        SET utf8mb3 COLLATE utf8mb3_general_ci NULL COMMENT '封堵规则描述' AFTER `ASSET_ID`,
+    MODIFY COLUMN `RULE_TYPE` int NOT NULL COMMENT '规则类型（0按风险级别/1按IP归属地）' AFTER `BLOCK_RULE_DESC`,
+    MODIFY COLUMN `BLOCK_DURATION` int NULL DEFAULT 30 COMMENT '临时封堵时长（分钟）' AFTER `BLOCK_TYPE`;
+```

@@ -3,6 +3,7 @@ package com.gem.loganalysis.model.vo;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -14,7 +15,7 @@ import java.util.List;
  */
 @Data
 @NoArgsConstructor
-public class SopLogNormalFormNode {
+public class SopLogNormalFormNode implements Serializable {
 
     /**
      * 日志项ID

@@ -27,6 +27,7 @@ import javax.annotation.Resource;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -76,6 +77,7 @@ public class AssetMergeLogServiceImpl extends ServiceImpl<AssetMergeLogMapper, A
                 result.add((new String(blockData.getData())));
             }
         }
+        blockFile.destroy();
         return result;
     }
 
@@ -137,6 +139,31 @@ public class AssetMergeLogServiceImpl extends ServiceImpl<AssetMergeLogMapper, A
                 result.setRecords(list.subList(start, end));
             }
         }
+        return result;
+    }
+
+    @Override
+    public PageResponse<String> getSourceLogFileContent(PageRequest<String> dto) {
+        PageResponse<String> result = new PageResponse<>();
+        String fileName = dto.getData();
+        BlockFile blockFile = new BlockFile(getBlockFileRootPath(), fileName + ".DAT", fileName + ".IDX", true, 3, 64);
+        long total = blockFile.getBlockCount();
+        result.setTotal((int) total);
+
+        int start = (dto.getPageNum() - 1) * dto.getPageSize();
+        if (total >= start) {
+            blockFile.blockPosition(start);
+            List<String> records = new ArrayList<>();
+            int loop = (int) Math.min(dto.getPageSize(), total - start);
+            for (int i = 0; i < loop; i++) {
+                BlockData fetch = blockFile.fetch();
+                if (fetch != null) {
+                    records.add(new String(fetch.getData(), StandardCharsets.UTF_8));
+                }
+            }
+            result.setRecords(records);
+        }
+        blockFile.destroy();
         return result;
     }
 

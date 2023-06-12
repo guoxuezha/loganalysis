@@ -1,12 +1,14 @@
 package com.gem.loganalysis.model.bo;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import com.gem.loganalysis.model.vo.SopLogNormalFormNode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +21,7 @@ import java.util.List;
  * @date 2023/6/9 22:43
  */
 @NoArgsConstructor
-public class LogNormalFormTree {
+public class LogNormalFormTree implements Serializable {
 
     @Getter
     private SopLogNormalFormNode root;
@@ -28,8 +30,8 @@ public class LogNormalFormTree {
         // 创建根节点
         this.root = new SopLogNormalFormNode();
         this.root.setFieldId("0");
-        this.root.setFieldName("root");
-        this.root.setFieldName("根节点");
+        this.root.setFieldName("logRoot");
+        this.root.setFieldDesc("根节点");
         this.root.setLevel(0);
         this.root.setPid("-1");
         this.root.setChildren(new ArrayList<>());
@@ -39,9 +41,7 @@ public class LogNormalFormTree {
     }
 
     protected LogNormalFormTree newInstance() {
-        LogNormalFormTree newTree = new LogNormalFormTree();
-        BeanUtil.copyProperties(this, newTree);
-        return newTree;
+        return ObjectUtil.clone(this);
     }
 
     private void listToTree(List<SopLogNormalFormNode> list) {
@@ -100,7 +100,7 @@ public class LogNormalFormTree {
     private String getFieldValueFromMap(HashMap<String, Object> messageInfoMap, String fieldName) {
         if (CollUtil.isNotEmpty(messageInfoMap) && StrUtil.isNotEmpty(fieldName)) {
             int splitChar = fieldName.indexOf(".");
-            if (splitChar != 0) {
+            if (splitChar > 0) {
                 String preField = fieldName.substring(0, splitChar);
                 return getFieldValueFromMap((HashMap<String, Object>) messageInfoMap.get(preField), fieldName.substring(splitChar + 1));
             } else {
@@ -131,7 +131,7 @@ public class LogNormalFormTree {
         if (CollUtil.isNotEmpty(nodeList)) {
             int splitChar = fieldName.indexOf(".");
             for (SopLogNormalFormNode node : nodeList) {
-                if (splitChar != 0) {
+                if (splitChar > 0) {
                     String preField = fieldName.substring(0, splitChar);
                     if (preField.equals(node.getFieldName())) {
                         return getFieldValue(node.getChildren(), fieldName.substring(splitChar + 1));
@@ -147,7 +147,22 @@ public class LogNormalFormTree {
     }
 
     public String toJsonStr() {
-        return null;
+        HashMap<String, Object> map = getNodeKV(root);
+        return JSONUtil.toJsonStr(map);
+    }
+
+    private HashMap<String, Object> getNodeKV(SopLogNormalFormNode node) {
+        HashMap<String, Object> result = new HashMap<>();
+        if (CollUtil.isEmpty(node.getChildren())) {
+            result.put(node.getFieldName(), node.getFieldValue());
+        } else {
+            HashMap<String, Object> childInfoMap = new HashMap<>(node.getChildren().size());
+            for (SopLogNormalFormNode child : node.getChildren()) {
+                childInfoMap.putAll(getNodeKV(child));
+            }
+            result.put(node.getFieldName(), childInfoMap);
+        }
+        return result;
     }
 
 }

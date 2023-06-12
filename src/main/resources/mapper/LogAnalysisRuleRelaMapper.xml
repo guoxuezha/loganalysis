@@ -14,15 +14,14 @@
         b.MERGE_WINDOW_TIME,
         b.EVENT_WINDOW_TIME,
         b.EVENT_THRESHOLD,
-        b.EVENT_KEYWORD,
         c.ANALYSIS_RULE_ID,
         c.ANALYSIS_RULE_NAME,
         c.RULE_TYPE,
         c.METHOD_NAME,
         c.ITEM_SPLIT,
         c.KV_SPLIT,
-        d.jar_name,
-        d.version
+        d.JAR_NAME,
+        d.VERSION
         FROM sop_asset a
         LEFT JOIN sop_log_analysis_rule_rela b ON a.ASSET_ID = b.ASSET_ID
         LEFT JOIN sop_log_analysis_rule c ON b.ANALYSIS_RULE_ID = c.ANALYSIS_RULE_ID
@@ -108,9 +107,6 @@
         b.MERGE_WINDOW_TIME,
         b.EVENT_WINDOW_TIME,
         b.EVENT_THRESHOLD,
-        b.EVENT_KEYWORD,
-        b.EVENT_TYPE_ITEM,
-        b.EVENT_CLASS_ITEM,
         c.RULE_TYPE,
         d.JAR_NAME,
         d.VERSION,

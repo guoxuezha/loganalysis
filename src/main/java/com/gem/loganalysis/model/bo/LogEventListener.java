@@ -10,7 +10,6 @@ import com.gem.gemada.dal.db.pools.DAO;
 import com.gem.loganalysis.config.BusinessConfigInfo;
 import com.gem.loganalysis.model.BaseConstant;
 import com.gem.loganalysis.model.dto.block.BlockExecuteDTO;
-import com.gem.loganalysis.model.dto.block.BlockExecuteHelper;
 import com.gem.loganalysis.util.MinioUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -78,41 +77,18 @@ public class LogEventListener {
     }
 
     /**
-     * 扫描是否有事件可自动处理
+     * 查询处置状态为0的风险并尝试执行封堵
      */
-//    @Scheduled(cron = "0 0/5 * * * ? ")
-    public void eventHandlerScan() {
-        // 1.查询未处理的事件
-        String querySql = "SELECT A.EVENT_ID, A.ASSET_ID, A.EVENT_ORIGIN, A.ORIGIN_ID, A.EVENT_TYPE, A.EVENT_CLASS, A.SOURCE_IP, " +
-                "B.BLOCK_RULE_ID, C.BLOCK_RULE_DESC, C.BLOCK_TYPE, C.BLOCK_DURATION, C.WHITE_LIST_ENABLE, C.BLACK_LIST_ENABLE, C.OPERATION_ASSET_ID " +
-                "FROM SOP_ASSET_EVENT A " +
-                "LEFT JOIN SOP_EVENT_TYPE B ON A.EVENT_TYPE = B.EVENT_TYPE AND A.EVENT_CLASS = B.EVENT_CLASS " +
-                "LEFT JOIN SOP_BLOCK_RULE C ON B.BLOCK_RULE_ID = C.BLOCK_RULE_ID " +
-                "WHERE A.HANDLE_STATUS = 0";
+    @Scheduled(cron = "0 0/1 * * * ? ")
+    public void riskHandlerScan() {
+        String querySql = "SELECT A.ASSET_ID, A.RISK_LEVEL, B.EVENT_ID, B.EVENT_TYPE, B.SOURCE_IP FROM SOP_ASSET_RISK A " +
+                "LEFT JOIN SOP_ASSET_EVENT B ON A.REF_EVENT_ID = B.EVENT_ID WHERE A.HANDLE_STATUS = 0";
         ArrayList<HashMap<String, String>> dataSet = dao.getDataSet(BaseConstant.DEFAULT_POOL_NAME, querySql, 0, 0);
         if (CollUtil.isNotEmpty(dataSet)) {
+            BlockRuleServer blockRuleServer = BlockRuleServer.getInstance();
             for (HashMap<String, String> map : dataSet) {
-                // 如果事件类型关联的封堵规则为空,则新增一条闲置记录,并修改事件状态为"忽略"
-                int handleStatus;
-                if (StrUtil.isEmpty(map.get("BLOCK_RULE_ID"))) {
-                    dao.execCommand(BaseConstant.DEFAULT_POOL_NAME,
-                            String.format("INSERT IGNORE INTO SOP_EVENT_TYPE(EVENT_TYPE, EVENT_CLASS, BLOCK_RULE_ID) VALUE('%s','%s','%s')",
-                                    map.get("EVENT_TYPE"), map.get("EVENT_CLASS"), ""));
-                    handleStatus = 3;
-                } else {
-                    // 否则根据对应的封堵规则执行封堵
-                    log.info("事件类型:{}, 事件级别:{}, 对IP: {} 进行 {}, 封堵时长为: {} 分钟",
-                            map.get("EVENT_TYPE"), map.get("EVENT_CLASS"), map.get("SOURCE_IP"),
-                            "0".equals(map.get("BLOCK_TYPE")) ? "临时封堵" : "永久封堵", "0".equals(map.get("BLOCK_TYPE")) ? map.get("BLOCK_DURATION") : "∞");
-                    if (BlockExecutor.block(new BlockExecuteHelper(map.get("OPERATION_ASSET_ID"), map.get("EVENT_ID"), map.get("SOURCE_IP"), map.get("BLOCK_TYPE"), map.get("BLOCK_DURATION")))) {
-                        handleStatus = 2;
-                    } else {
-                        log.warn("EventId 为 {} 的事件封堵执行失败!", map.get("EVENT_ID"));
-                        handleStatus = 0;
-                    }
-                }
-                String updateSql = "UPDATE SOP_ASSET_EVENT SET HANDLE_STATUS = " + handleStatus + " WHERE EVENT_ID = '" + map.get("EVENT_ID") + "' LIMIT 1";
-                dao.execCommand(BaseConstant.DEFAULT_POOL_NAME, updateSql);
+                blockRuleServer.executeBlock(map.get("ASSET_ID"), map.get("EVENT_ID"), map.get("SOURCE_IP"),
+                        Integer.valueOf(map.get("RISK_LEVEL")), map.get("EVENT_TYPE"));
             }
         }
     }
@@ -120,7 +96,7 @@ public class LogEventListener {
     /**
      * 解封扫描
      */
-//    @Scheduled(cron = "0 0/5 * * * ? ")
+    @Scheduled(cron = "0 0/1 * * * ? ")
     public void deBlockScan() {
         // 查询状态为"临时封堵中"的封堵记录
         String querySql = "SELECT A.BLOCK_RECORD_ID, A.BLOCK_IP, A.BLOCK_END_TIME, A.ASSET_ID, " +
@@ -138,7 +114,7 @@ public class LogEventListener {
                     DateTime parse = DateUtil.parse(blockEndTime, DatePattern.PURE_DATETIME_PATTERN);
                     if (new Date().after(parse)) {
                         // 若抵达则执行解封
-                        BlockExecutor.deBlock(new BlockExecuteDTO(map));
+                        BlockExecutor.deBlock(new BlockExecuteDTO(map, map.get("BLOCK_IP")));
                         // 修改封堵状态记录
                         String updateSql = String.format("UPDATE SOP_BLOCK_RECORD SET BLOCK_STATE = 2 WHERE BLOCK_RECORD_ID = %s LIMIT 1", map.get("BLOCK_RECORD_ID"));
                         dao.execCommand(BaseConstant.DEFAULT_POOL_NAME, updateSql);
@@ -147,6 +123,7 @@ public class LogEventListener {
             }
         }
     }
+
 
     /**
      * 每天0点扫描是否有过早的原始日志文件需要上传到Minio

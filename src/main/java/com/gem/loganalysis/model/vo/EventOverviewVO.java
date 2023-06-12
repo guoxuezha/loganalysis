@@ -20,14 +20,17 @@ import static java.util.Comparator.comparingInt;
 @Getter
 public class EventOverviewVO {
 
-    @ApiModelProperty("根据处置状态统计")
-    private List<TypeNum> handleStatusNum;
+    @ApiModelProperty("根据事件起源类型统计")
+    private List<TypeNum> evenOriginNum;
 
     @ApiModelProperty("根据事件类型统计")
     private List<TypeNum> eventTypeNum;
 
     @ApiModelProperty("根据事件级别统计")
     private List<TypeNum> eventClassNum;
+
+    @ApiModelProperty("根据处置状态统计")
+    private List<TypeNum> handleStatusNum;
 
     @ApiModelProperty("根据源端IP统计事件数Top5")
     private List<TypeNum> sourceIpTop5;
@@ -44,10 +47,10 @@ public class EventOverviewVO {
     @ApiModelProperty("未处置事件列表")
     private List<AssetEventVO> undisposedEventList;
 
-    public void setHandleStatusNum(Map<Integer, List<AssetEventVO>> map) {
-        this.handleStatusNum = new ArrayList<>();
+    public void setEvenOriginNum(Map<Integer, List<AssetEventVO>> map) {
+        this.evenOriginNum = new ArrayList<>();
         for (Map.Entry<Integer, List<AssetEventVO>> entry : map.entrySet()) {
-            this.handleStatusNum.add(new TypeNum(entry.getKey().toString(), entry.getValue().size()));
+            this.evenOriginNum.add(new TypeNum(entry.getKey().toString(), entry.getValue().size()));
         }
     }
 
@@ -62,6 +65,13 @@ public class EventOverviewVO {
         this.eventClassNum = new ArrayList<>();
         for (Map.Entry<String, List<AssetEventVO>> entry : map.entrySet()) {
             this.eventClassNum.add(new TypeNum(entry.getKey(), entry.getValue().size()));
+        }
+    }
+
+    public void setHandleStatusNum(Map<Integer, List<AssetEventVO>> map) {
+        this.handleStatusNum = new ArrayList<>();
+        for (Map.Entry<Integer, List<AssetEventVO>> entry : map.entrySet()) {
+            this.handleStatusNum.add(new TypeNum(entry.getKey().toString(), entry.getValue().size()));
         }
     }
 

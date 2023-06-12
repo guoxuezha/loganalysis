@@ -35,4 +35,6 @@ public interface IAssetMergeLogService extends IService<AssetMergeLog> {
 
     PageResponse<AssetLogFileVO> getSourceLogFileByAsset(PageRequest<String> dto);
 
+    PageResponse<String> getSourceLogFileContent(PageRequest<String> dto);
+
 }
