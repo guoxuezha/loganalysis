@@ -17,7 +17,9 @@ import com.gem.loganalysis.model.dto.query.DictItemQueryDTO;
 import com.gem.loganalysis.model.entity.Asset;
 import com.gem.loganalysis.model.entity.M4SsoOrg;
 import com.gem.loganalysis.model.vo.DictItemRespVO;
+import com.gem.loganalysis.model.vo.HomeOverviewVO;
 import com.gem.loganalysis.model.vo.ImportRespVO;
+import com.gem.loganalysis.model.vo.RiskAssetRankingVO;
 import com.gem.loganalysis.model.vo.asset.*;
 import com.gem.loganalysis.service.*;
 import com.gem.loganalysis.util.ExcelUtils;
@@ -33,6 +35,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -201,7 +205,7 @@ public class AssetController {
         // 输出 Excel
         EasyExcel.write(response.getOutputStream(), PhysicalAssetExcelVO.class)
                 .registerWriteHandler(new DropDownWriteHandler(assetTypeList,assetTypeMap,1))
-                .registerWriteHandler(new DropDownWriteHandler(orgList,groupMap,17))
+                .registerWriteHandler(new DropDownWriteHandler(orgList,groupMap,13))
                 .autoCloseStream(false) // 不要自动关闭，交给 Servlet 自己处理
                 .sheet("物理资产").doWrite(exampleList);
         // 设置 header 和 contentType。写在最后的原因是，避免报错时，响应 contentType 已经被修改了
@@ -294,4 +298,82 @@ public class AssetController {
         }
         return Result.ok(assetService.importLogicalExcel(list));
     }
+
+    @PostMapping("/homeOverview")
+    @ApiOperation("首页总览")
+    public Result<HomeOverviewVO> getHomeOverview(){
+        List<String> dateList = new ArrayList<>();
+        LocalDate currentDate = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy-MM-dd");
+        for (int i = 0; i < 6; i++) {
+            String date = currentDate.minusDays(i).format(formatter);
+            dateList.add(date);
+        }
+        // 示例数据
+        List<RiskAssetRankingVO> nonEndpointRiskAssetRanking = new ArrayList<>();
+        List<RiskAssetRankingVO> endpointRiskAssetRanking = new ArrayList<>();
+
+        RiskAssetRankingVO nonEndpointRiskAsset1 = new RiskAssetRankingVO("192.168.0.1", 97);
+        RiskAssetRankingVO nonEndpointRiskAsset2 = new RiskAssetRankingVO("192.168.0.2", 95);
+        RiskAssetRankingVO nonEndpointRiskAsset3 = new RiskAssetRankingVO("192.168.0.3", 92);
+        RiskAssetRankingVO nonEndpointRiskAsset4 = new RiskAssetRankingVO("192.168.0.4", 87);
+        RiskAssetRankingVO nonEndpointRiskAsset5 = new RiskAssetRankingVO("192.168.0.5", 85);
+
+        RiskAssetRankingVO endpointRiskAsset1 = new RiskAssetRankingVO("192.168.1.1", 97);
+        RiskAssetRankingVO endpointRiskAsset2 = new RiskAssetRankingVO("192.168.1.2", 97);
+        RiskAssetRankingVO endpointRiskAsset3 = new RiskAssetRankingVO("192.168.1.3", 96);
+        RiskAssetRankingVO endpointRiskAsset4 = new RiskAssetRankingVO("192.168.1.4", 88);
+        RiskAssetRankingVO endpointRiskAsset5 = new RiskAssetRankingVO("192.168.1.5", 86);
+
+        nonEndpointRiskAssetRanking.add(nonEndpointRiskAsset1);
+        nonEndpointRiskAssetRanking.add(nonEndpointRiskAsset2);
+        nonEndpointRiskAssetRanking.add(nonEndpointRiskAsset3);
+        nonEndpointRiskAssetRanking.add(nonEndpointRiskAsset4);
+        nonEndpointRiskAssetRanking.add(nonEndpointRiskAsset5);
+
+        endpointRiskAssetRanking.add(endpointRiskAsset1);
+        endpointRiskAssetRanking.add(endpointRiskAsset2);
+        endpointRiskAssetRanking.add(endpointRiskAsset3);
+        endpointRiskAssetRanking.add(endpointRiskAsset4);
+        endpointRiskAssetRanking.add(endpointRiskAsset5);
+
+        //TODO 明天把能取到的取到
+        HomeOverviewVO homeOverview = new HomeOverviewVO()
+                .setAssetTotalCount(138) // 资产总数
+                .setAssetTotalScore(96) // 资产总评分
+                .setSecurityDeviceTotalCount(15) // 安全设备全部数量
+                .setSecurityDeviceAliveCount(14) // 安全设备存活数量
+                .setItDeviceTotalCount(60) // IT设备全部数量
+                .setItDeviceAliveCount(58) // IT设备存活数量
+                .setNetworkDeviceTotalCount(30) // 网络设备全部数量
+                .setNetworkDeviceAliveCount(28) // 网络设备存活数量
+                .setLogicalAssetCount(10) // 逻辑资产数量
+                .setSecurityVulnerabilityCount(30) // 安全漏洞数量
+                .setComplianceVulnerabilityCount(25) // 合规漏洞数量
+                .setCloudAssetRiskCount(52) // 云资产风险数量
+                .setBaselineRiskCount(10) // 基线风险数量
+                .setTotalRiskCount(117) // 风险总数
+                .setNetworkDeviceEventsResolvedCount(2) // 网络设备事件已处理次数
+                .setNetworkDeviceEventsPendingCount(1) // 网络设备事件未处理次数
+                .setSecurityDeviceEventsResolvedCount(1) // 安全设备事件已处理次数
+                .setSecurityDeviceEventsPendingCount(0) // 安全设备事件未处理次数
+                .setItDeviceEventsResolvedCount(3) // IT设备事件已处理次数
+                .setItDeviceEventsPendingCount(3) // IT设备事件未处理次数
+                .setEndpointDeviceTotalCount(12) // 终端设备总数
+                .setEndpointDeviceOnlineCount(12) // 终端设备在线数量
+                .setDateList(dateList) // 近六天日期集合
+                .setLowRiskCount(Arrays.asList(5, 6, 3, 8, 4, 2)) // 近六天低风险集合
+                .setMediumRiskCount(Arrays.asList(2, 3, 1, 4, 2, 1)) // 近六天中风险集合
+                .setHighRiskCount(Arrays.asList(1, 0, 2, 1, 3, 2)) // 近六天高风险集合
+                .setExportDeviceLoad(Arrays.asList(590, 640, 850, 730, 800, 800)) // 近六天出口设备负荷(流量)
+                .setSecurityDeviceAssetScore(Arrays.asList(85, 90, 92, 88, 95, 91))
+                .setNetworkDeviceAssetScore(Arrays.asList(82, 85, 89, 86, 88, 90))
+                .setItDeviceAssetScore(Arrays.asList(80, 85, 90, 88, 86, 92))
+                .setLogicalAssetScore(Arrays.asList(90, 88, 92, 85, 91, 86))
+                .setNonEndpointRiskAssetRanking(nonEndpointRiskAssetRanking)
+                .setEndpointRiskAssetRanking(endpointRiskAssetRanking);
+        return Result.ok(homeOverview);
+    }
+
+
 }

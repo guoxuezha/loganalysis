@@ -321,23 +321,27 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         assetOverviewVO.setAssetStatusDistribution(assetStatus);
         assetOverviewVO.setAssetOnlineStatusDistribution(assetStatus);
         //最近新增资产(10条)
+        //TODO 这个不要了 统计的没意义到时候删掉
         List<AssetRespVO> sorted = assetList.stream()
                 .sorted(Comparator.comparing(AssetRespVO::getCreateTime,Comparator.reverseOrder()))
                 .limit(10)
                 .collect(Collectors.toList());
         assetOverviewVO.setNewAssetList(AssetConvert.INSTANCE.convertList11(sorted));
         //最近资产发现(5条)
+        //TODO 这个不要了 统计的没意义到时候删掉
         List<PhysicalAssetTemp> newAssetScanner = physicalAssetTempService.list(new LambdaQueryWrapperX<PhysicalAssetTemp>()
                 .eq(PhysicalAssetTemp::getAssetStatus, 1)
                 .orderByDesc(PhysicalAssetTemp::getScanTime)
                 .last("LIMIT 5"));
         assetOverviewVO.setNewAssetScanList(AssetConvert.INSTANCE.convertList06(newAssetScanner));
         //主机开放端口Top5
+        //TODO 改成了高危端口，不知道咋取值
         Map<String, List<AssetRespVO>> ip = assetList.stream()
                 .filter(e -> e.getAssetClass().equals("0")&&StringUtils.isNotEmpty(e.getIpAddress()))
                 .collect(Collectors.groupingBy(AssetRespVO::getIpAddress));
         assetOverviewVO.setIpTop5(ip);
         //主机端口Top5
+        //TODO 改成了封堵设备TOP5 可以取但是还没取
         Map<Integer, List<AssetRespVO>> port = assetList.stream()
                 .filter(e -> e.getAssetClass().equals("0")&&e.getServicePort()!=null)
                 .collect(Collectors.groupingBy(AssetRespVO::getServicePort));

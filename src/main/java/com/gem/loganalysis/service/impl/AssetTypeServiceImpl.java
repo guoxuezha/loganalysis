@@ -62,7 +62,7 @@ public class AssetTypeServiceImpl extends ServiceImpl<AssetTypeMapper, AssetType
         List<AssetTypeVO> list = new ArrayList<>();
         Map<String, List<AssetTypeRespVO>> typeMap = getTypeMap(dto);
         typeMap.forEach((m,n)->{
-            list.add(new AssetTypeVO(0,m,n));
+            list.add(new AssetTypeVO(m,m,n));
         });
         return list;
     }
