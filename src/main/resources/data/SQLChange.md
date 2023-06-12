@@ -17,7 +17,8 @@ CREATE TABLE `sop_log_analysis_customization_rule`
     `VERSION`     varchar(8)  DEFAULT NULL COMMENT '版本号',
     `UPDATE_TIME` varchar(14) DEFAULT NULL COMMENT 'Jar包更新时间',
     PRIMARY KEY (`METHOD_NAME`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='日志解析定制化规则';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb3 COMMENT ='日志解析定制化规则';
 ```
 
 #### 删除标记设置默认值为0
@@ -82,7 +83,8 @@ CREATE TABLE `sop_job`
     `UPDATE_BY`        varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '修改人',
     `DELETE_STATE`     int                                                          DEFAULT '0' COMMENT '删除标记',
     PRIMARY KEY (`JOB_ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='调度任务-工作';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb3 COMMENT ='调度任务-工作';
 
 CREATE TABLE `sop_task`
 (
@@ -101,7 +103,8 @@ CREATE TABLE `sop_task`
     `UPDATE_BY`    varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '修改人',
     `DELETE_STATE` int                                                          DEFAULT '0' COMMENT '删除标记',
     PRIMARY KEY (`TASK_ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='调度任务-子任务';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb3 COMMENT ='调度任务-子任务';
 
 CREATE TABLE `sop_task_log`
 (
@@ -113,7 +116,8 @@ CREATE TABLE `sop_task_log`
     `EXECUTE_MESSAGE` varchar(255)                                                 DEFAULT NULL COMMENT '执行消息',
     `JOB_ID`          varchar(32)                                                  DEFAULT NULL COMMENT '工作ID(冗余)',
     PRIMARY KEY (`TASK_LOG_ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='调度任务-任务执行记录';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb3 COMMENT ='调度任务-任务执行记录';
 ```
 
 ### 2023-05-29
@@ -134,10 +138,10 @@ CREATE TABLE SOP_ASSET_SNMP_CONFIG
     SNMP_USERNAME  VARCHAR(64) NULL COMMENT 'SNMP-V3 USERNAME',
     AUTH_PASSWORD  VARCHAR(64) NULL COMMENT 'SNMP-V3 AUTH_PASSWORD',
     PRIV_PASSWORD  VARCHAR(64) NULL COMMENT 'SNMP-V3 PRIV_PASSWORD',
-    OUTPUT_PARAM   VARCHAR(8) NULL DEFAULT 'fn' COMMENT 'SNMP -O',
+    OUTPUT_PARAM   VARCHAR(8)  NULL DEFAULT 'fn' COMMENT 'SNMP -O',
     ASSET_ID       VARCHAR(32) NULL COMMENT '资产编码',
     PRIMARY KEY (ASSET_ORG, IP_ADDRESS)
-)COMMENT = 'SNMP参数设置';
+) COMMENT = 'SNMP参数设置';
 
 DROP TABLE IF EXISTS SOP_MIB_CONFIG;
 CREATE TABLE SOP_MIB_CONFIG
@@ -147,19 +151,19 @@ CREATE TABLE SOP_MIB_CONFIG
     SNMP_METHOD  VARCHAR(16) NOT NULL COMMENT '命令发送方式，SNMPGET/SNMPWALK',
     MEASURE_TYPE VARCHAR(64) NOT NULL COMMENT '对应指标分类',
     PRIMARY KEY (MIB_VERSION, OID)
-)COMMENT = 'MIB指令集设置';
+) COMMENT = 'MIB指令集设置';
 
 DROP TABLE IF EXISTS SOP_COMMON_OID;
 CREATE TABLE SOP_COMMON_OID
 (
-    MIB_VERSION  VARCHAR(32) NOT NULL DEFAULT 'COMMON' COMMENT 'MIB版本',
-    OID          VARCHAR(64) NOT NULL COMMENT 'OID',
-    OID_NAME     VARCHAR(32) NOT NULL COMMENT 'OID名称',
-    MEASURE_NAME VARCHAR(64) NOT NULL COMMENT '对应指标名称',
-    OID_DATATYPE VARCHAR(16) NOT NULL DEFAULT 'STRING' COMMENT '数据类型',
+    MIB_VERSION  VARCHAR(32)  NOT NULL DEFAULT 'COMMON' COMMENT 'MIB版本',
+    OID          VARCHAR(64)  NOT NULL COMMENT 'OID',
+    OID_NAME     VARCHAR(32)  NOT NULL COMMENT 'OID名称',
+    MEASURE_NAME VARCHAR(64)  NOT NULL COMMENT '对应指标名称',
+    OID_DATATYPE VARCHAR(16)  NOT NULL DEFAULT 'STRING' COMMENT '数据类型',
     OID_DESC     VARCHAR(512) NULL COMMENT 'OID说明',
     PRIMARY KEY (MIB_VERSION, OID)
-)COMMENT = '通用MIB库OID列表设置';
+) COMMENT = '通用MIB库OID列表设置';
 ```
 
 ### 2023-05-30
@@ -183,7 +187,8 @@ CREATE TABLE `sop_block_command`
     `BLOCK_COMMAND`   varchar(255) DEFAULT NULL COMMENT '封堵命令模板',
     `DEBLOCK_COMMAND` varchar(255) DEFAULT NULL COMMENT '解封命令模板',
     PRIMARY KEY (`ASSET_ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='封堵命令配置';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb3 COMMENT ='封堵命令配置';
 ```
 
 ### 2023-06-08
@@ -204,21 +209,23 @@ CREATE TABLE `sop_log_normal_form`
     `UPDATE_BY`    varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '修改人',
     `DELETE_STATE` int                                                          DEFAULT '0' COMMENT '删除标记',
     PRIMARY KEY (`FIELD_ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='日志范式';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb3 COMMENT ='日志范式';
 
 CREATE TABLE `sop_log_field_mapping`
 (
     `RULE_RELA_ID`      varchar(32)                                                  NOT NULL COMMENT '日志解析规则关联关系编码',
     `SOURCE_FIELD_NAME` varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '源端日志项名称',
     `SOURCE_FIELD_DESC` varchar(255)                                                 DEFAULT NULL COMMENT '源端日志项描述',
-    `TARGET_FIELD_ID`   int                                                          DEFAULT NULL COMMENT '目标日志项ID',
+    `TARGET_FIELD_ID`   varchar(16) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '目标日志项ID',
     `CREATE_TIME`       varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '创建时间',
     `CREATE_BY`         varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '创建者',
     `UPDATE_TIME`       varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '修改时间',
     `UPDATE_BY`         varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '修改人',
     `DELETE_STATE`      int                                                          DEFAULT '0' COMMENT '删除标记',
     PRIMARY KEY (`RULE_RELA_ID`, `SOURCE_FIELD_NAME`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='日志字段映射';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb3 COMMENT ='日志字段映射';
 
 ```
 
@@ -226,21 +233,51 @@ CREATE TABLE `sop_log_field_mapping`
 
 ```SQL
 ALTER TABLE `loganalysis`.`sop_block_rule`
-    ADD COLUMN `ASSET_ID` varchar(32) NULL COMMENT '资产ID' AFTER `BLOCK_RULE_ID`,
-    ADD COLUMN `RULE_TYPE` int NULL COMMENT '规则类型（0按风险级别/1按IP归属地）' AFTER `BLOCK_RULE_DESC`,
-    ADD COLUMN `RISK_LEVEL` int NULL COMMENT '风险级别（1/2/3 低危/中危/高危）' AFTER `RULE_TYPE`,
-    ADD COLUMN `BLOCK_RANGE` int NULL COMMENT '封堵范围（1/2 国外/省外）' AFTER `RISK_LEVEL`;
+    ADD COLUMN `ASSET_ID`    varchar(32) NULL COMMENT '资产ID' AFTER `BLOCK_RULE_ID`,
+    ADD COLUMN `RULE_TYPE`   int         NULL COMMENT '规则类型（0按风险级别/1按IP归属地）' AFTER `BLOCK_RULE_DESC`,
+    ADD COLUMN `RISK_LEVEL`  int         NULL COMMENT '风险级别（1/2/3 低危/中危/高危）' AFTER `RULE_TYPE`,
+    ADD COLUMN `BLOCK_RANGE` int         NULL COMMENT '封堵范围（1/2 国外/省外）' AFTER `RISK_LEVEL`;
 
 ALTER TABLE `loganalysis`.`sop_event_type`
-DROP
-COLUMN `BLOCK_RULE_ID`,
-DROP
-PRIMARY KEY,
-ADD PRIMARY KEY (`EVENT_TYPE`, `EVENT_CLASS`) USING BTREE;
+    DROP
+        COLUMN `BLOCK_RULE_ID`,
+    DROP
+        PRIMARY KEY,
+    ADD PRIMARY KEY (`EVENT_TYPE`, `EVENT_CLASS`) USING BTREE;
 
 ALTER TABLE `loganalysis`.`sop_asset_risk`
     ADD COLUMN `RISK_LEVEL` int NULL COMMENT '风险等级(1/2/3 低危/中危/高危)' AFTER `SCAN_TIME`;
-
-
 ```
 
+#### 原始日志记录预览
+
+```SQL
+CREATE TABLE `sop_asset_log_preview`
+(
+    `HOST`      varchar(16) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '主机IP',
+    `SEVERITY`  varchar(16) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '日志优先级',
+    `FACILITY`  varchar(64) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '日志发生的子系统',
+    `TIMESTAMP` varchar(64)                                                    DEFAULT NULL COMMENT '时间戳',
+    `MESSAGE`   varchar(4096) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '日志消息体',
+    `TAG`       varchar(255)                                                   DEFAULT NULL COMMENT '消息标签'
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb3 COMMENT ='资产日志预览';
+```
+
+### 2023-06-09
+
+#### 事件记录保留源IP与目标IP
+
+```SQL
+ALTER TABLE `loganalysis`.`sop_asset_event`
+    ADD COLUMN `TARGET_IP` varchar(32) NULL COMMENT '目标IP' AFTER `SOURCE_IP`;
+```
+
+### 2023-06-11
+
+#### 日志范式属性添加Tag字段,用于标记特殊属性
+
+```SQL
+ALTER TABLE `loganalysis`.`sop_log_normal_form`
+    ADD COLUMN `FIELD_TAG` int NULL COMMENT '属性标签 (1/2/3/4 源IP/目标IP/事件类型/危险等级)' AFTER `LEVEL`;
+```

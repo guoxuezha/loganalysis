@@ -3,8 +3,8 @@ package com.gem.loganalysis.model;
 import com.github.pagehelper.Page;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -14,7 +14,6 @@ import java.util.List;
  */
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
 public class PageResponse<T> {
 
     private Integer total;
@@ -24,6 +23,11 @@ public class PageResponse<T> {
     public PageResponse(Page<T> page) {
         this.total = Math.toIntExact(page.getTotal());
         this.records = page.getResult();
+    }
+
+    public PageResponse() {
+        this.total = 0;
+        this.records = new ArrayList<>();
     }
 
 }

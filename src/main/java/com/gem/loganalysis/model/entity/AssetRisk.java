@@ -46,6 +46,12 @@ public class AssetRisk implements Serializable {
     private String scanTime;
 
     /**
+     * 风险告警级别(1/2/3 低危/中危/高危)
+     */
+    @TableField("RISK_LEVEL")
+    private Integer riskLevel;
+
+    /**
      * 关联事件唯一编码
      */
     @TableField("REF_EVENT_ID")

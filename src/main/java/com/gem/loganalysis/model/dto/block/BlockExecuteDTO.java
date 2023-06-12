@@ -1,4 +1,4 @@
-package com.gem.loganalysis.model.dto;
+package com.gem.loganalysis.model.dto.block;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

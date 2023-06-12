@@ -9,7 +9,8 @@ import cn.hutool.core.util.StrUtil;
 import com.gem.gemada.dal.db.pools.DAO;
 import com.gem.loganalysis.config.BusinessConfigInfo;
 import com.gem.loganalysis.model.BaseConstant;
-import com.gem.loganalysis.model.dto.BlockExecuteDTO;
+import com.gem.loganalysis.model.dto.block.BlockExecuteDTO;
+import com.gem.loganalysis.model.dto.block.BlockExecuteHelper;
 import com.gem.loganalysis.util.MinioUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -71,7 +72,6 @@ public class LogEventListener {
             for (LogAnalysisRuleBo analysisRule : logAnalysisRulePool.getLogAnalysisRuleBoMap().values()) {
                 if (analysisRule.isEnable()) {
                     analysisRule.scanAndStopEvent();
-                    // analysisRule.scanAndStartEvent();
                 }
             }
         }
@@ -104,7 +104,7 @@ public class LogEventListener {
                     log.info("事件类型:{}, 事件级别:{}, 对IP: {} 进行 {}, 封堵时长为: {} 分钟",
                             map.get("EVENT_TYPE"), map.get("EVENT_CLASS"), map.get("SOURCE_IP"),
                             "0".equals(map.get("BLOCK_TYPE")) ? "临时封堵" : "永久封堵", "0".equals(map.get("BLOCK_TYPE")) ? map.get("BLOCK_DURATION") : "∞");
-                    if (BlockExecutor.block(map)) {
+                    if (BlockExecutor.block(new BlockExecuteHelper(map.get("OPERATION_ASSET_ID"), map.get("EVENT_ID"), map.get("SOURCE_IP"), map.get("BLOCK_TYPE"), map.get("BLOCK_DURATION")))) {
                         handleStatus = 2;
                     } else {
                         log.warn("EventId 为 {} 的事件封堵执行失败!", map.get("EVENT_ID"));

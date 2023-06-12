@@ -3,6 +3,7 @@ package com.gem.loganalysis.kafka;
 import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.json.JSONUtil;
 import com.gem.loganalysis.config.BusinessConfigInfo;
+import com.gem.loganalysis.model.bo.AssetPreviewLogHandler;
 import com.gem.loganalysis.model.bo.LogAnalysisRuleBo;
 import com.gem.loganalysis.model.bo.LogAnalysisRulePool;
 import com.gem.loganalysis.model.bo.MergeLog;
@@ -43,12 +44,14 @@ public class KafkaConsumer {
         if (businessConfigInfo.getLogMonitorEnable()) {
             List<MergeLog> messageList = convertLogFormat(record);
             for (MergeLog mergelog : messageList) {
+                // 2023-06-09 新增:保存预览日志
+                AssetPreviewLogHandler.getInstance().append(mergelog);
+
                 LogAnalysisRuleBo logAnalysisRuleBoObject = logAnalysisRulePool.getLogAnalysisRuleObject(mergelog.getHost(), mergelog.getFacility(), mergelog.getSeverity());
                 if (logAnalysisRuleBoObject != null && logAnalysisRuleBoObject.isEnable()) {
-                    logAnalysisRuleBoObject.insertInCache(mergelog);
+                    logAnalysisRuleBoObject.analysisSourceLog(mergelog);
                 }
             }
-            //logAnalysisThreadPool.submit(new LogAnalysisThread(record));
         }
     }
 

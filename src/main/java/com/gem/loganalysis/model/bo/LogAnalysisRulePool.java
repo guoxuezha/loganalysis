@@ -18,14 +18,10 @@ import java.util.HashMap;
 public class LogAnalysisRulePool {
 
     @Getter
-    private final HashMap<String, LogAnalysisRuleBo> logAnalysisRuleBoMap;
+    private final HashMap<String, LogAnalysisRuleBo> logAnalysisRuleBoMap = new HashMap<>();
 
     @Resource
     private LogAnalysisRuleRelaMapper logAnalysisRuleRelaMapper;
-
-    private LogAnalysisRulePool() {
-        logAnalysisRuleBoMap = new HashMap<>();
-    }
 
     /**
      * 根据三项信息查询

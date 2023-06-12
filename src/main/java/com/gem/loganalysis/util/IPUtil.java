@@ -36,7 +36,7 @@ public class IPUtil {
     }
 
     public static void main(String[] args) throws Exception {
-        System.out.println(IPUtil.getInstance().getCityInfoByMemorySearch("123.249.94.31"));
+        System.out.println(IPUtil.getInstance().getCityInfoByMemorySearch("192.168.24.20"));
     }
 
     /**
