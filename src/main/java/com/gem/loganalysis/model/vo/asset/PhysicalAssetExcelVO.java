@@ -4,12 +4,20 @@ import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.write.style.ColumnWidth;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 import java.util.Date;
 
 @ApiModel("物理资产EXCEL导出 Response VO")
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Accessors(chain = false)
 public class PhysicalAssetExcelVO {
 
     @ExcelProperty(value = "*资产名称")
@@ -18,7 +26,7 @@ public class PhysicalAssetExcelVO {
 
     @ExcelProperty(value = "*资产型别")
     @ColumnWidth(value = 18)
-    private String assetType;
+    private String assetCategory;
 
     @ExcelProperty(value = "*资产类型")
     @ColumnWidth(value = 18)
@@ -60,33 +68,17 @@ public class PhysicalAssetExcelVO {
     @ColumnWidth(value = 10)
     private String servicePort;
 
-    @ExcelProperty(value = "*网管端口")
-    @ColumnWidth(value = 10)
-    private String nmPort;
-
-    @ExcelProperty(value = "*网管协议")
-    @ColumnWidth(value = 20)
-    private String nmProcotol;
-
-    @ExcelProperty(value = "*网管账号")
-    @ColumnWidth(value = 20)
-    private String nmAccount;
-
-    @ExcelProperty(value = "*网管密码")
-    @ColumnWidth(value = 20)
-    private String nmPassword;
-
     @ExcelProperty(value = "资产管理人")
     @ColumnWidth(value = 18)
-    private String assetManager;
+    private String assetManagerName;
 
     @ExcelProperty(value = "*资产部门")
     @ColumnWidth(value = 20)
-    private String assetOrg;
+    private String assetOrgName;
 
-    @ExcelProperty(value = "*资产分组")
+    @ExcelProperty(value = "资产分组")
     @ColumnWidth(value = 20)
-    private String assetGroup;
+    private String assetGroupName;
 
     @ExcelProperty(value = "资产标签")
     @ColumnWidth(value = 20)

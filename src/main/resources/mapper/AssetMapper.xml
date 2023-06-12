@@ -31,7 +31,8 @@
             asset.UPDATE_BY AS updateBy,
             asset.MIB_VERSION AS mibVersion,
             group.GROUP_NAME AS assetGroupName,
-            user.USER_NAME AS assetManagerName
+            user.ACCOUNT AS assetManagerName,
+            user.MOBILE AS assetManagerMobile
         FROM
             sop_asset AS asset
                 LEFT JOIN
@@ -99,7 +100,8 @@
             asset.UPDATE_BY AS updateBy,
             asset.MIB_VERSION AS mibVersion,
             group.GROUP_NAME AS assetGroupName,
-            user.USER_NAME AS assetManagerName
+            user.ACCOUNT AS assetManagerName,
+            user.MOBILE AS assetManagerMobile
         FROM
             sop_asset AS asset
                 LEFT JOIN

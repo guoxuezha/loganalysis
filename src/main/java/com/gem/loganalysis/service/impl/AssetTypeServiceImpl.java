@@ -62,7 +62,7 @@ public class AssetTypeServiceImpl extends ServiceImpl<AssetTypeMapper, AssetType
         List<AssetTypeVO> list = new ArrayList<>();
         Map<String, List<AssetTypeRespVO>> typeMap = getTypeMap(dto);
         typeMap.forEach((m,n)->{
-            list.add(new AssetTypeVO(m,n));
+            list.add(new AssetTypeVO(0,m,n));
         });
         return list;
     }
@@ -70,8 +70,9 @@ public class AssetTypeServiceImpl extends ServiceImpl<AssetTypeMapper, AssetType
     @Override
     public boolean editType(AssetTypeDTO dto) {
         AssetType type = AssetConvert.INSTANCE.convert(dto);
+        boolean b = this.saveOrUpdate(type);
         initLocalCache();
-        return this.saveOrUpdate(type);
+        return b;
     }
 
     @Override
@@ -85,6 +86,18 @@ public class AssetTypeServiceImpl extends ServiceImpl<AssetTypeMapper, AssetType
             return assetTypeRespVO.getAssetType()+"-"+assetTypeRespVO.getTypeName();
         }
         return "";
+    }
+
+    @Override
+    public AssetTypeRespVO getAssetTypeById(Integer typeId) {
+        if(typeId==null){
+            return null;
+        }
+        List<AssetTypeRespVO> collect = typeCache.stream().filter(e -> e.getTypeId().equals(typeId)).collect(Collectors.toList());
+        if(collect.size()>0){
+            return collect.get(0);
+        }
+        return  null;
     }
 
     @Override

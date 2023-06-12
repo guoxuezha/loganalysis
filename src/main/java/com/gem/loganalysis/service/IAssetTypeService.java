@@ -44,6 +44,14 @@ public interface IAssetTypeService extends IService<AssetType> {
      * @return
      */
     String getAssetTypeName(Integer typeId);
+
+    /**
+     * 根据ID获得资产类别类别
+     * @param dto
+     * @return
+     */
+    AssetTypeRespVO getAssetTypeById(Integer typeId);
+
     /**
      * 根据类别名称获取ID
      * @param dto

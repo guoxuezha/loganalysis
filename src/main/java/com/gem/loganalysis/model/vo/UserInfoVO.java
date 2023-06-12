@@ -37,6 +37,9 @@ public class UserInfoVO {
     @ApiModelProperty("所属组织编码")
     private String orgId;
 
+    @ApiModelProperty("组织(部门名称)")
+    private String orgName;
+
     @ApiModelProperty("性别")
     private Integer userSex;
 

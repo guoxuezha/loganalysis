@@ -19,6 +19,7 @@ import com.gem.loganalysis.model.entity.M4SsoPackageRole;
 import com.gem.loganalysis.model.entity.M4SsoUser;
 import com.gem.loganalysis.model.entity.M4SsoUserRole;
 import com.gem.loganalysis.model.vo.UserInfoVO;
+import com.gem.loganalysis.service.IM4SsoOrgService;
 import com.gem.loganalysis.service.IM4SsoPackageRoleService;
 import com.gem.loganalysis.service.IM4SsoUserRoleService;
 import com.gem.loganalysis.service.IM4SsoUserService;
@@ -50,6 +51,8 @@ public class UserController {
 
     private final IM4SsoUserRoleService im4SsoUserRoleService;
 
+    private final IM4SsoOrgService im4SsoOrgService;
+
     private DAO dao;
 
     @ApiOperation("获取加密结果")
@@ -70,13 +73,17 @@ public class UserController {
         Page<UserInfoVO> result = new Page<>(dto.getPageNum(), dto.getPageSize());
         LambdaQueryWrapperX<M4SsoUser> wrapperX = new LambdaQueryWrapperX<>();
         UserQueryDTO data = dto.getData();
-        wrapperX.eqIfPresent(M4SsoUser::getAccount, data.getAccount()).eqIfPresent(M4SsoUser::getOrgId, data.getOrgId()).eqIfPresent(M4SsoUser::getMobile, data.getMobile()).eqIfPresent(M4SsoUser::getEmail, data.getEmail());
+        wrapperX.eqIfPresent(M4SsoUser::getAccount, data.getAccount()).
+                eqIfPresent(M4SsoUser::getOrgId, data.getOrgId())
+                .eqIfPresent(M4SsoUser::getMobile, data.getMobile())
+                .eqIfPresent(M4SsoUser::getEmail, data.getEmail());
         Page<M4SsoUser> userPage = im4SsoUserService.page(new Page<>(dto.getPageNum(), dto.getPageSize()), wrapperX);
         result.setTotal(userPage.getTotal());
         List<UserInfoVO> records = new ArrayList<>();
         for (M4SsoUser record : userPage.getRecords()) {
             records.add(new UserInfoVO(record));
         }
+        records.forEach(e->e.setOrgName(im4SsoOrgService.changeOrgName(e.getOrgId())));//转义部门ID
         result.setRecords(records);
         return Result.ok(result);
     }
