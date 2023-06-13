@@ -1,6 +1,5 @@
 package com.gem.loganalysis.controller;
 
-
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -9,6 +8,7 @@ import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.Result;
 import com.gem.loganalysis.model.bo.LogAnalysisRuleBo;
 import com.gem.loganalysis.model.bo.LogAnalysisRulePool;
+import com.gem.loganalysis.model.bo.LogFormatter;
 import com.gem.loganalysis.model.bo.LogNormalFormTree;
 import com.gem.loganalysis.model.dto.DeleteDTO;
 import com.gem.loganalysis.model.dto.GetDTO;
@@ -19,6 +19,7 @@ import com.gem.loganalysis.model.dto.query.AnalysisRuleQueryDTO;
 import com.gem.loganalysis.model.entity.Asset;
 import com.gem.loganalysis.model.entity.LogAnalysisRule;
 import com.gem.loganalysis.model.entity.LogAnalysisRuleRela;
+import com.gem.loganalysis.model.vo.SopLogNormalFormNode;
 import com.gem.loganalysis.service.ILogAnalysisRuleRelaService;
 import com.gem.loganalysis.service.ILogAnalysisRuleService;
 import com.gem.loganalysis.service.impl.AssetServiceImpl;
@@ -57,6 +58,19 @@ public class LogAnalysisRuleController {
     @PostMapping("/showLogNormalForm")
     public Result<LogNormalFormTree> showLogNormalForm(@RequestBody GetDTO dto) {
         return Result.ok(iLogAnalysisRuleRelaService.showLogNormalForm(dto.getId()));
+    }
+
+    @ApiOperation("编辑日志范式树")
+    @PostMapping("/editLogNormalForm")
+    public Result<Object> editLogNormalForm(@RequestBody SopLogNormalFormNode dto) {
+
+        return Result.failed("该接口功能尚未实现! 入参格式需要进一步确定");
+    }
+
+    @ApiOperation("根据资产解析规则样例日志渲染树形结构")
+    @PostMapping("/buildSourceLogTree")
+    public Result<LogFormatter.SimpleTreeNode> buildSourceLogTree(@RequestBody GetDTO dto) {
+        return Result.ok(iLogAnalysisRuleRelaService.buildSourceLogTree(dto.getId()));
     }
 
     @ApiOperation("编辑解析规则日志字段映射关系")

@@ -42,7 +42,7 @@ public class EventOverviewVO {
     private List<TypeNum> targetIpTop5;
 
     @ApiModelProperty("时段内每日事件数")
-    private HashMap<Integer, List<TypeNum>> dailyEventNumMap;
+    private HashMap<String, List<TypeNum>> dailyEventNumMap;
 
     @ApiModelProperty("未处置事件列表")
     private List<AssetEventVO> undisposedEventList;
@@ -114,7 +114,7 @@ public class EventOverviewVO {
         }
     }
 
-    public void setDailyEventNumMap(HashMap<Integer, List<TypeNum>> dailyEventNumMap) {
+    public void setDailyEventNumMap(HashMap<String, List<TypeNum>> dailyEventNumMap) {
         this.dailyEventNumMap = dailyEventNumMap;
     }
 
@@ -137,5 +137,4 @@ public class EventOverviewVO {
             return COMPARATOR.compare(o, this);
         }
     }
-
 }

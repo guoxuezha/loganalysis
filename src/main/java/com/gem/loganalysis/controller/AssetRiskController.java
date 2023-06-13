@@ -38,7 +38,16 @@ public class AssetRiskController {
         return Result.ok(iAssetRiskService.geOverviewInfo(dto));
     }
 
-
-
+    /**
+     * TODO 目前风险模块没有查询价值,所呈现的信息与事件高度重合
+     *
+     * @param dto
+     * @return
+     */
+    @ApiOperation("风险分页查询")
+    @PostMapping("/pageList")
+    public Result<Object> pageList(@RequestBody OverviewQueryDTO dto) {
+        return Result.ok(iAssetRiskService.geOverviewInfo(dto));
+    }
 
 }

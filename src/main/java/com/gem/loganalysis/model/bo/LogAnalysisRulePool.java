@@ -19,6 +19,8 @@ public class LogAnalysisRulePool {
 
     @Getter
     private final HashMap<String, LogAnalysisRuleBo> logAnalysisRuleBoMap = new HashMap<>();
+
+    private final HashMap<String, LogAnalysisRuleBo> cache = new HashMap<>();
     /**
      * 忽略组合日志解析规则组合
      */
@@ -43,17 +45,37 @@ public class LogAnalysisRulePool {
     }
 
     /**
+     * 根据ruleRelaId查询日志解析规则业务对象
+     *
+     * @param ruleRelaId ID
+     * @return 日志解析规则业务对象
+     */
+    public LogAnalysisRuleBo getLogAnalysisRuleObject(String ruleRelaId) {
+        if (cache.get(ruleRelaId) == null) {
+            loadAnalysisRuleBO(ruleRelaId);
+        }
+        return cache.get(ruleRelaId);
+    }
+
+    /**
      * 加载安全设备信息
      *
      * @param key 业务唯一联合主键
      */
     private void loadAnalysisRuleBO(String key) {
-        String[] split = key.split("~");
-        HashMap<String, Object> ruleMap = logAnalysisRuleRelaMapper.getEquipAnalysisAndBlockRule(split[0], split[1], split[2]);
+        HashMap<String, Object> ruleMap;
+        if (key.contains("~")) {
+            String[] split = key.split("~");
+            ruleMap = logAnalysisRuleRelaMapper.getAssetLogAnalysisRule(split[0], split[1], split[2]);
+        } else {
+            ruleMap = logAnalysisRuleRelaMapper.getAssetLogAnalysisRuleById(key);
+        }
         if (CollUtil.isNotEmpty(ruleMap)) {
             LogAnalysisRuleBo equipmentBO = new LogAnalysisRuleBo(ruleMap);
             logAnalysisRuleBoMap.put(key, equipmentBO);
+            cache.put(equipmentBO.getRuleRelaId(), equipmentBO);
         }
+
         // 若加载后仍未发现该解析规则,则将该组合放入ignore列表,避免频繁访问数据库
         if (logAnalysisRuleBoMap.get(key) == null) {
             ignoreKeyMap.put(key, true);

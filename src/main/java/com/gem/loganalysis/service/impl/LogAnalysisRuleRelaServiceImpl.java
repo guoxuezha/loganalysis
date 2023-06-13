@@ -9,8 +9,7 @@ import com.gem.loganalysis.mapper.LogAnalysisRuleRelaMapper;
 import com.gem.loganalysis.model.BaseConstant;
 import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.PageResponse;
-import com.gem.loganalysis.model.bo.LogNormalFormTree;
-import com.gem.loganalysis.model.bo.MergeLog;
+import com.gem.loganalysis.model.bo.*;
 import com.gem.loganalysis.model.dto.edit.LogFieldMappingDTO;
 import com.gem.loganalysis.model.dto.query.AnalysisRuleQueryDTO;
 import com.gem.loganalysis.model.entity.LogAnalysisRuleRela;
@@ -45,20 +44,41 @@ public class LogAnalysisRuleRelaServiceImpl extends ServiceImpl<LogAnalysisRuleR
     @Resource
     private DAO dao;
 
+    @Resource
+    private LogAnalysisRulePool logAnalysisRulePool;
+
     @Override
     public LogNormalFormTree showLogNormalForm(String ruleRelaId) {
         String querySql;
         if (StrUtil.isNotEmpty(ruleRelaId)) {
-            querySql = "SELECT `FIELD_ID`, `FIELD_NAME`, `FIELD_DESC`, `PID`, `LEVEL`, `FIELD_TAG`, `SOURCE_FIELD_NAME` FROM `SOP_LOG_FIELD_MAPPING` A " +
+            querySql = "SELECT `FIELD_ID` AS `ID`, `FIELD_NAME` AS `LABEL`, `FIELD_DESC`, `PID`, `LEVEL`, `FIELD_TAG`, `SOURCE_FIELD_NAME` FROM `SOP_LOG_FIELD_MAPPING` A " +
                     "RIGHT JOIN `SOP_LOG_NORMAL_FORM` B ON A.TARGET_FIELD_ID = B.FIELD_ID " +
                     "WHERE RULE_RELA_ID = '" + ruleRelaId + "' ORDER BY LEVEL";
         } else {
-            querySql = "SELECT `FIELD_ID`, `FIELD_NAME`, `FIELD_DESC`, `PID`, `LEVEL`, `FIELD_TAG` FROM `SOP_LOG_NORMAL_FORM` ORDER BY LEVEL";
+            querySql = "SELECT `FIELD_ID` AS `ID`, `FIELD_NAME` AS `LABEL`, `FIELD_DESC`, `PID`, `LEVEL`, `FIELD_TAG` FROM `SOP_LOG_NORMAL_FORM` ORDER BY LEVEL";
         }
         ArrayList<HashMap<String, String>> dataSet = dao.getDataSet(BaseConstant.DEFAULT_POOL_NAME, querySql);
         if (CollUtil.isNotEmpty(dataSet)) {
             List<SopLogNormalFormNode> list = MapToBeanUtil.execute(dataSet, SopLogNormalFormNode.class);
             return new LogNormalFormTree(list);
+        }
+        return null;
+    }
+
+    @Override
+    public LogFormatter.SimpleTreeNode buildSourceLogTree(String ruleRelaId) {
+        // 原则上根据一类规则只会查询到一条预览数据
+        String querySql = "SELECT MAX(MESSAGE) AS MESSAGE FROM SOP_LOG_ANALYSIS_RULE_RELA A " +
+                "LEFT JOIN SOP_ASSET B ON A.ASSET_ID = B.ASSET_ID " +
+                "LEFT JOIN SOP_ASSET_LOG_PREVIEW C ON B.IP_ADDRESS = C.`HOST` " +
+                "WHERE A.RULE_RELA_ID = '" + ruleRelaId + "' " +
+                "GROUP BY C.`HOST`, C.SEVERITY, C.FACILITY";
+        ArrayList<HashMap<String, String>> dataSet = dao.getDataSet(BaseConstant.DEFAULT_POOL_NAME, querySql, 0, 0);
+        if (CollUtil.isNotEmpty(dataSet)) {
+            HashMap<String, String> map = dataSet.get(0);
+            LogAnalysisRuleBo analysisRuleObject = logAnalysisRulePool.getLogAnalysisRuleObject(ruleRelaId);
+            LogFormatter logFormatter = analysisRuleObject.getLogFormatter();
+            return logFormatter.formatSourceLog(map.get("MESSAGE"));
         }
         return null;
     }

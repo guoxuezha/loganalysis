@@ -18,7 +18,6 @@ import com.gem.loganalysis.model.entity.*;
 import com.gem.loganalysis.model.vo.ImportRespVO;
 import com.gem.loganalysis.model.vo.asset.*;
 import com.gem.loganalysis.service.*;
-import com.gem.loganalysis.util.AESUtil;
 import com.github.pagehelper.PageHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -418,7 +417,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     }
 
 
-    private AssetRespVO changeAssetName(AssetRespVO respVO){
+    public AssetRespVO changeAssetName(AssetRespVO respVO){
         //全部是从缓存里取的数据，缓存里取不到的转义都连表查了
         respVO.setAssetClassName(dictItemService.getDictData(DictType.ASSET_CLASS.getType(),respVO.getAssetClass()));
         respVO.setAssetStatusName(dictItemService.getDictData(DictType.ASSET_STATUS.getType(),respVO.getAssetStatus()));

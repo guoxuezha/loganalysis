@@ -1,7 +1,8 @@
 package com.gem.loganalysis.config;
 
-import cn.hutool.json.JSONUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gem.loganalysis.util.AESUtil;
+import lombok.SneakyThrows;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.ServerHttpRequest;
@@ -25,6 +26,9 @@ public class ResponseEncryptAdvice implements ResponseBodyAdvice {
     @Resource
     private BusinessConfigInfo businessConfigInfo;
 
+    @Resource
+    private ObjectMapper objectMapper;
+
     @Override
     public boolean supports(MethodParameter returnType, Class converterType) {
         // 根据响应类型对报文加密
@@ -36,10 +40,11 @@ public class ResponseEncryptAdvice implements ResponseBodyAdvice {
         }
     }
 
+    @SneakyThrows
     @Override
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType, Class selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
         HashMap<String, String> newResponse = new HashMap<>(2);
-        newResponse.put("response", AESUtil.aesEncrypt(JSONUtil.toJsonStr(body), businessConfigInfo.getAESKey()));
+        newResponse.put("response", AESUtil.aesEncrypt(objectMapper.writeValueAsString(body), businessConfigInfo.getAESKey()));
         return newResponse;
     }
 

@@ -113,6 +113,7 @@ public class LogAnalysisRuleBo {
      */
     private String severity;
 
+    @Getter
     private LogFormatter logFormatter;
 
     /**
@@ -283,7 +284,7 @@ public class LogAnalysisRuleBo {
         BlockFileUtil.writeLog(sourceMergeLog, this);
 
         // 5.将日志对象写入归并缓存（异步生成归并日志）
-        mergeLog.setMessage(logMessageTree.toJsonStr());
+        mergeLog.setMessage(logMessageTree.toJsonStr(false));
         MergeLog mLog = cacheMap.get(unionKeyStr);
         if (mLog == null) {
             cacheMap.put(unionKeyStr, mergeLog);

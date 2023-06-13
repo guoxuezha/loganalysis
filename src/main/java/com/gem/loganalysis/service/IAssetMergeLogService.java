@@ -3,11 +3,11 @@ package com.gem.loganalysis.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.PageResponse;
-import com.gem.loganalysis.model.bo.MergeLog;
 import com.gem.loganalysis.model.dto.query.LogContentQueryDTO;
-import com.gem.loganalysis.model.entity.Asset;
 import com.gem.loganalysis.model.entity.AssetMergeLog;
+import com.gem.loganalysis.model.vo.LogShowVO;
 import com.gem.loganalysis.model.vo.asset.AssetLogFileVO;
+import com.gem.loganalysis.model.vo.asset.AssetRespVO;
 
 import java.util.List;
 
@@ -29,9 +29,9 @@ public interface IAssetMergeLogService extends IService<AssetMergeLog> {
      */
     List<String> getSourceLog(LogContentQueryDTO dto);
 
-    PageResponse<Asset> getLogAsset(Integer pageNum, Integer pageSize);
+    PageResponse<AssetRespVO> getLogAsset(Integer pageNum, Integer pageSize);
 
-    PageResponse<MergeLog> getMergeLogByAsset(PageRequest<String> dto);
+    PageResponse<LogShowVO> getMergeLogByAsset(PageRequest<String> dto);
 
     PageResponse<AssetLogFileVO> getSourceLogFileByAsset(PageRequest<String> dto);
 
