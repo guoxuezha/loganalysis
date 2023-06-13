@@ -172,10 +172,10 @@ public class AssetOverviewVO {
         retired.put("assetStatus", "退役");
         retired.put("num", retiredCount);
         result.add(retired);
-        HashMap<String, Object> empty = new HashMap<>();
+       /* HashMap<String, Object> empty = new HashMap<>();
         empty.put("assetStatus", "未知");
         empty.put("num", emptyCount);
-        result.add(empty);
+        result.add(empty);*/
         this.assetStatusDistribution = result;
     }
 

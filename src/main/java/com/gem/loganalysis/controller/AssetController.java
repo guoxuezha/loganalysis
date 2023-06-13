@@ -362,16 +362,16 @@ public class AssetController {
                 .setEndpointDeviceTotalCount(12) // 终端设备总数
                 .setEndpointDeviceOnlineCount(12) // 终端设备在线数量
                 .setDateList(dateList) // 近七天日期集合
-                .setLowRiskCount(Arrays.asList(5, 6, 3, 8, 4, 4 ,3)) // 近七天低风险集合
-                .setMediumRiskCount(Arrays.asList(2, 3, 1, 4, 2)) // 近七天中风险集合
-                .setHighRiskCount(Arrays.asList(1, 0, 2, 1, 3)) // 近七天高风险集合
-                .setExportDeviceLoad(Arrays.asList(590, 640, 850, 730, 800,840,900)) // 近七天出口设备负荷(流量)
-                .setSecurityDeviceAssetScore(Arrays.asList(85, 90, 92, 88, 95 ,95,89))
-                .setNetworkDeviceAssetScore(Arrays.asList(82, 85, 89, 86, 88 ,90 ,88))
-                .setItDeviceAssetScore(Arrays.asList(80, 85, 90, 88, 86 ,86, 91))
-                .setLogicalAssetScore(Arrays.asList(90, 88, 92, 85, 91, 92, 89))
-                .setNonEndpointRiskAssetRanking(nonEndpointRiskAssetRanking)
-                .setEndpointRiskAssetRanking(endpointRiskAssetRanking);
+                .setLowRiskCount(Arrays.asList(5, 6, 3, 8, 4, 4, 3)) // 近七天低风险集合
+                .setMediumRiskCount(Arrays.asList(2, 3, 1, 4, 2, 2, 1)) // 近七天中风险集合
+                .setHighRiskCount(Arrays.asList(1, 0, 2, 1, 3, 0, 1)) // 近七天高风险集合
+                .setExportDeviceLoad(Arrays.asList(590, 640, 850, 730, 800, 840, 900)) // 近七天出口设备负荷(流量)
+                .setSecurityDeviceAssetScore(Arrays.asList(85, 90, 92, 88, 95 ,95, 89))//近七天安全设备资产评分集合
+                .setNetworkDeviceAssetScore(Arrays.asList(82, 85, 89, 86, 88 ,90 , 88))//近七天网络设备资产评分集合
+                .setItDeviceAssetScore(Arrays.asList(80, 85, 90, 88, 86 ,86, 91))//近七天IT设备资产评分集合
+                .setLogicalAssetScore(Arrays.asList(90, 88, 92, 85, 91, 92, 89))//近七天逻辑资产评分集合
+                .setNonEndpointRiskAssetRanking(nonEndpointRiskAssetRanking)//非终端风险资产排行
+                .setEndpointRiskAssetRanking(endpointRiskAssetRanking);//终端风险资产排行
         return Result.ok(homeOverview);
     }
 

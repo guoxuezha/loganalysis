@@ -9,7 +9,6 @@ import com.gem.loganalysis.model.dto.edit.MibConfigBaseDTO;
 import com.gem.loganalysis.model.dto.edit.MibConfigDTO;
 import com.gem.loganalysis.model.dto.query.MibConfigQueryDTO;
 import com.gem.loganalysis.model.entity.MibConfig;
-import com.gem.loganalysis.model.vo.asset.CommonOidRespVO;
 import com.gem.loganalysis.model.vo.asset.MibConfigRespVO;
 import com.gem.loganalysis.service.IMibConfigService;
 import com.github.pagehelper.Page;

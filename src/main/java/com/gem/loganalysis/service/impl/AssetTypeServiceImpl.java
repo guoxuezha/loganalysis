@@ -5,6 +5,7 @@ import com.gem.loganalysis.convert.AssetConvert;
 import com.gem.loganalysis.mapper.AssetTypeMapper;
 import com.gem.loganalysis.model.dto.asset.AssetTypeDTO;
 import com.gem.loganalysis.model.dto.asset.AssetTypeQueryDTO;
+import com.gem.loganalysis.model.dto.query.LambdaQueryWrapperX;
 import com.gem.loganalysis.model.entity.*;
 import com.gem.loganalysis.model.vo.asset.*;
 import com.gem.loganalysis.service.*;
@@ -29,12 +30,44 @@ public class AssetTypeServiceImpl extends ServiceImpl<AssetTypeMapper, AssetType
     @Getter
     //资产类型缓存
     private volatile List<AssetTypeRespVO> typeCache;
+    //排序
+    private static final Comparator<AssetType> comparator = (assetType1, assetType2) -> {
+        // 比较大类（assetType）
+        if ("其他".equals(assetType1.getAssetType())) {
+            return 1;  // assetType1为大类"其他"，放在后面
+        } else if ("其他".equals(assetType2.getAssetType())) {
+            return -1; // assetType2为大类"其他"，放在后面
+        } else {
+            // 大类相等，比较小类（typeName）
+            if ("其他".equals(assetType1.getTypeName()) && !"其他".equals(assetType2.getTypeName())) {
+                return 1;  // assetType1的小类为"其他"，放在后面
+            } else if (!"其他".equals(assetType1.getTypeName()) && "其他".equals(assetType2.getTypeName())) {
+                return -1; // assetType2的小类为"其他"，放在后面
+            } else {
+                return assetType1.getTypeName().compareTo(assetType2.getTypeName());
+            }
+        }
+    };
+
+
+    private static final Comparator<String> assetTypeComparator = (assetType1, assetType2) -> {
+        if ("其他".equals(assetType1)) {
+            return 1;  // assetType1为"其他"，放在后面
+        } else if ("其他".equals(assetType2)) {
+            return -1; // assetType2为"其他"，放在后面
+        } else {
+            return assetType1.compareTo(assetType2);
+        }
+    };
+
+
 
     @Override
     @PostConstruct
     public void initLocalCache() {
         // 第一步：查询数据
         List<AssetType> list = this.list();
+        list.sort(comparator);
         // 第二步：构建缓存
         typeCache = AssetConvert.INSTANCE.convertList13(list);
     }
@@ -54,7 +87,12 @@ public class AssetTypeServiceImpl extends ServiceImpl<AssetTypeMapper, AssetType
     public Map<String,List<AssetTypeRespVO>> getTypeMap(AssetTypeQueryDTO dto) {
         List<AssetTypeRespVO> list = getList(dto);
         Map<String,List<AssetTypeRespVO>> map = list.stream().collect(Collectors.groupingBy(AssetTypeRespVO::getAssetType));
-        return map;
+        //排序
+        Map<String, List<AssetTypeRespVO>> sortedMap = map.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey(assetTypeComparator))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+                        (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+        return sortedMap;
     }
 
     @Override
