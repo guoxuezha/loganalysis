@@ -304,8 +304,8 @@ public class AssetController {
     public Result<HomeOverviewVO> getHomeOverview(){
         List<String> dateList = new ArrayList<>();
         LocalDate currentDate = LocalDate.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy-MM-dd");
-        for (int i = 0; i < 6; i++) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd");
+        for (int i = 6; i >= 0 ; i--) {
             String date = currentDate.minusDays(i).format(formatter);
             dateList.add(date);
         }
@@ -313,16 +313,16 @@ public class AssetController {
         List<RiskAssetRankingVO> nonEndpointRiskAssetRanking = new ArrayList<>();
         List<RiskAssetRankingVO> endpointRiskAssetRanking = new ArrayList<>();
 
-        RiskAssetRankingVO nonEndpointRiskAsset1 = new RiskAssetRankingVO("192.168.0.1", 97);
-        RiskAssetRankingVO nonEndpointRiskAsset2 = new RiskAssetRankingVO("192.168.0.2", 95);
+        RiskAssetRankingVO nonEndpointRiskAsset1 = new RiskAssetRankingVO("192.168.0.11", 99);
+        RiskAssetRankingVO nonEndpointRiskAsset2 = new RiskAssetRankingVO("192.168.0.32", 95);
         RiskAssetRankingVO nonEndpointRiskAsset3 = new RiskAssetRankingVO("192.168.0.3", 92);
-        RiskAssetRankingVO nonEndpointRiskAsset4 = new RiskAssetRankingVO("192.168.0.4", 87);
-        RiskAssetRankingVO nonEndpointRiskAsset5 = new RiskAssetRankingVO("192.168.0.5", 85);
+        RiskAssetRankingVO nonEndpointRiskAsset4 = new RiskAssetRankingVO("192.168.0.24", 87);
+        RiskAssetRankingVO nonEndpointRiskAsset5 = new RiskAssetRankingVO("192.168.0.15", 85);
 
-        RiskAssetRankingVO endpointRiskAsset1 = new RiskAssetRankingVO("192.168.1.1", 97);
-        RiskAssetRankingVO endpointRiskAsset2 = new RiskAssetRankingVO("192.168.1.2", 97);
-        RiskAssetRankingVO endpointRiskAsset3 = new RiskAssetRankingVO("192.168.1.3", 96);
-        RiskAssetRankingVO endpointRiskAsset4 = new RiskAssetRankingVO("192.168.1.4", 88);
+        RiskAssetRankingVO endpointRiskAsset1 = new RiskAssetRankingVO("192.168.1.41", 97);
+        RiskAssetRankingVO endpointRiskAsset2 = new RiskAssetRankingVO("192.168.1.22", 97);
+        RiskAssetRankingVO endpointRiskAsset3 = new RiskAssetRankingVO("192.168.1.36", 96);
+        RiskAssetRankingVO endpointRiskAsset4 = new RiskAssetRankingVO("192.168.1.12", 88);
         RiskAssetRankingVO endpointRiskAsset5 = new RiskAssetRankingVO("192.168.1.5", 86);
 
         nonEndpointRiskAssetRanking.add(nonEndpointRiskAsset1);
@@ -361,17 +361,17 @@ public class AssetController {
                 .setItDeviceEventsPendingCount(3) // IT设备事件未处理次数
                 .setEndpointDeviceTotalCount(12) // 终端设备总数
                 .setEndpointDeviceOnlineCount(12) // 终端设备在线数量
-                .setDateList(dateList) // 近六天日期集合
-                .setLowRiskCount(Arrays.asList(5, 6, 3, 8, 4, 2)) // 近六天低风险集合
-                .setMediumRiskCount(Arrays.asList(2, 3, 1, 4, 2, 1)) // 近六天中风险集合
-                .setHighRiskCount(Arrays.asList(1, 0, 2, 1, 3, 2)) // 近六天高风险集合
-                .setExportDeviceLoad(Arrays.asList(590, 640, 850, 730, 800, 800)) // 近六天出口设备负荷(流量)
-                .setSecurityDeviceAssetScore(Arrays.asList(85, 90, 92, 88, 95, 91))
-                .setNetworkDeviceAssetScore(Arrays.asList(82, 85, 89, 86, 88, 90))
-                .setItDeviceAssetScore(Arrays.asList(80, 85, 90, 88, 86, 92))
-                .setLogicalAssetScore(Arrays.asList(90, 88, 92, 85, 91, 86))
-                .setNonEndpointRiskAssetRanking(nonEndpointRiskAssetRanking)
-                .setEndpointRiskAssetRanking(endpointRiskAssetRanking);
+                .setDateList(dateList) // 近七天日期集合
+                .setLowRiskCount(Arrays.asList(5, 6, 3, 8, 4, 4, 3)) // 近七天低风险集合
+                .setMediumRiskCount(Arrays.asList(2, 3, 1, 4, 2, 2, 1)) // 近七天中风险集合
+                .setHighRiskCount(Arrays.asList(1, 0, 2, 1, 3, 0, 1)) // 近七天高风险集合
+                .setExportDeviceLoad(Arrays.asList(590, 640, 850, 730, 800, 840, 900)) // 近七天出口设备负荷(流量)
+                .setSecurityDeviceAssetScore(Arrays.asList(85, 90, 92, 88, 95 ,95, 89))//近七天安全设备资产评分集合
+                .setNetworkDeviceAssetScore(Arrays.asList(82, 85, 89, 86, 88 ,90 , 88))//近七天网络设备资产评分集合
+                .setItDeviceAssetScore(Arrays.asList(80, 85, 90, 88, 86 ,86, 91))//近七天IT设备资产评分集合
+                .setLogicalAssetScore(Arrays.asList(90, 88, 92, 85, 91, 92, 89))//近七天逻辑资产评分集合
+                .setNonEndpointRiskAssetRanking(nonEndpointRiskAssetRanking)//非终端风险资产排行
+                .setEndpointRiskAssetRanking(endpointRiskAssetRanking);//终端风险资产排行
         return Result.ok(homeOverview);
     }
 

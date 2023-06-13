@@ -90,31 +90,31 @@ public class HomeOverviewVO {
     @ApiModelProperty(value = "终端设备在线数量")
     private Integer endpointDeviceOnlineCount;
 
-    @ApiModelProperty(value = "近六天日期集合")
+    @ApiModelProperty(value = "近七天日期集合")
     private List<String> dateList;
 
-    @ApiModelProperty(value = "近六天低风险集合")
+    @ApiModelProperty(value = "近七天低风险集合")
     private List<Integer> lowRiskCount;
 
-    @ApiModelProperty(value = "近六天低风险集合")
+    @ApiModelProperty(value = "近七天中风险集合")
     private List<Integer> mediumRiskCount;
 
-    @ApiModelProperty(value = "近六天低风险集合")
+    @ApiModelProperty(value = "近七天高风险集合")
     private List<Integer> highRiskCount;
 
-    @ApiModelProperty(value = "近六天出口设备负荷(流量)集合")
+    @ApiModelProperty(value = "近七天出口设备负荷(流量)集合")
     private List<Integer> exportDeviceLoad;
 
-    @ApiModelProperty(value = "近六天安全设备资产评分集合")
+    @ApiModelProperty(value = "近七天安全设备资产评分集合")
     private List<Integer> securityDeviceAssetScore;
 
-    @ApiModelProperty(value = "近六天网络设备资产评分集合")
+    @ApiModelProperty(value = "近七天网络设备资产评分集合")
     private List<Integer> networkDeviceAssetScore;
 
-    @ApiModelProperty(value = "近六天IT设备资产评分集合")
+    @ApiModelProperty(value = "近七天IT设备资产评分集合")
     private List<Integer> itDeviceAssetScore;
 
-    @ApiModelProperty(value = "近六天逻辑资产评分集合")
+    @ApiModelProperty(value = "近七天逻辑资产评分集合")
     private List<Integer> logicalAssetScore;
 
     @ApiModelProperty(value = "非终端风险资产排行")
