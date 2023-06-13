@@ -5,10 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Comparator.comparingInt;
@@ -23,8 +20,8 @@ import static java.util.Comparator.comparingInt;
 @Getter
 public class EventOverviewVO {
 
-    @ApiModelProperty("根据处置状态统计")
-    private List<TypeNum> handleStatusNum;
+    @ApiModelProperty("根据事件起源类型统计")
+    private List<TypeNum> evenOriginNum;
 
     @ApiModelProperty("根据事件类型统计")
     private List<TypeNum> eventTypeNum;
@@ -32,19 +29,28 @@ public class EventOverviewVO {
     @ApiModelProperty("根据事件级别统计")
     private List<TypeNum> eventClassNum;
 
+    @ApiModelProperty("根据处置状态统计")
+    private List<TypeNum> handleStatusNum;
+
     @ApiModelProperty("根据源端IP统计事件数Top5")
     private List<TypeNum> sourceIpTop5;
 
     @ApiModelProperty("根据设备ID统计事件数Top5")
     private List<TypeNum> assetEventTop5;
 
-    @ApiModelProperty("时段内每日事件数")
-    private List<TypeNum> dailyEventNumList;
+    @ApiModelProperty("根据目标IP统计事件数Top5")
+    private List<TypeNum> targetIpTop5;
 
-    public void setHandleStatusNum(Map<Integer, List<AssetEventVO>> map) {
-        this.handleStatusNum = new ArrayList<>();
+    @ApiModelProperty("时段内每日事件数")
+    private HashMap<Integer, List<TypeNum>> dailyEventNumMap;
+
+    @ApiModelProperty("未处置事件列表")
+    private List<AssetEventVO> undisposedEventList;
+
+    public void setEvenOriginNum(Map<Integer, List<AssetEventVO>> map) {
+        this.evenOriginNum = new ArrayList<>();
         for (Map.Entry<Integer, List<AssetEventVO>> entry : map.entrySet()) {
-            this.handleStatusNum.add(new TypeNum(entry.getKey().toString(), entry.getValue().size()));
+            this.evenOriginNum.add(new TypeNum(entry.getKey().toString(), entry.getValue().size()));
         }
     }
 
@@ -59,6 +65,13 @@ public class EventOverviewVO {
         this.eventClassNum = new ArrayList<>();
         for (Map.Entry<String, List<AssetEventVO>> entry : map.entrySet()) {
             this.eventClassNum.add(new TypeNum(entry.getKey(), entry.getValue().size()));
+        }
+    }
+
+    public void setHandleStatusNum(Map<Integer, List<AssetEventVO>> map) {
+        this.handleStatusNum = new ArrayList<>();
+        for (Map.Entry<Integer, List<AssetEventVO>> entry : map.entrySet()) {
+            this.handleStatusNum.add(new TypeNum(entry.getKey().toString(), entry.getValue().size()));
         }
     }
 
@@ -88,8 +101,25 @@ public class EventOverviewVO {
         }
     }
 
-    public void setDailyEventNumList(List<TypeNum> dailyEventNumList) {
-        this.dailyEventNumList = dailyEventNumList;
+    public void setTargetIpTop5(Map<String, List<AssetEventVO>> map) {
+        ArrayList<TypeNum> list = new ArrayList<>();
+        for (Map.Entry<String, List<AssetEventVO>> entry : map.entrySet()) {
+            list.add(new TypeNum(entry.getKey(), entry.getValue().size()));
+        }
+        List<TypeNum> collect = list.stream().sorted().collect(Collectors.toList());
+        if (collect.size() > 5) {
+            this.targetIpTop5 = collect.subList(0, 5);
+        } else {
+            this.targetIpTop5 = collect;
+        }
+    }
+
+    public void setDailyEventNumMap(HashMap<Integer, List<TypeNum>> dailyEventNumMap) {
+        this.dailyEventNumMap = dailyEventNumMap;
+    }
+
+    public void setUndisposedEventList(List<AssetEventVO> undisposedEventList) {
+        this.undisposedEventList = undisposedEventList;
     }
 
     @AllArgsConstructor

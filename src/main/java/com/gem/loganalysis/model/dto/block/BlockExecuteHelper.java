@@ -18,8 +18,8 @@ public class BlockExecuteHelper {
 
     private String sourceIp;
 
-    private String blockType;
+    private Integer blockType;
 
-    private String blockDuration;
+    private Integer blockDuration;
 
 }

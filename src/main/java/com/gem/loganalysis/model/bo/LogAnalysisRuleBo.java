@@ -13,6 +13,7 @@ import com.gem.loganalysis.mapper.AssetEventMapper;
 import com.gem.loganalysis.mapper.AssetMergeLogMapper;
 import com.gem.loganalysis.mapper.AssetRiskMapper;
 import com.gem.loganalysis.mapper.LogAnalysisRuleMapper;
+import com.gem.loganalysis.model.BaseConstant;
 import com.gem.loganalysis.model.dto.edit.LogAnalysisRuleRelaDTO;
 import com.gem.loganalysis.model.entity.Asset;
 import com.gem.loganalysis.model.entity.AssetEvent;
@@ -139,15 +140,6 @@ public class LogAnalysisRuleBo {
      */
     private Integer eventThreshold;
 
-    /**
-     * 关注的IP字段名
-     */
-    private String eventKeyWord;
-
-    private String eventTypeItem;
-
-    private String eventClassItem;
-
     public LogAnalysisRuleBo(HashMap<String, Object> ruleMap) {
         this.ruleRelaId = (String) ruleMap.get("RULE_RELA_ID");
 
@@ -189,15 +181,12 @@ public class LogAnalysisRuleBo {
         this.mergeWindowTime = (Integer) ruleMap.get("MERGE_WINDOW_TIME");
         this.eventWindowTime = (Integer) ruleMap.get("EVENT_WINDOW_TIME");
         this.eventThreshold = (Integer) ruleMap.get("EVENT_THRESHOLD");
-        this.eventKeyWord = (String) ruleMap.get("EVENT_KEYWORD");
-        this.eventTypeItem = (String) ruleMap.get("EVENT_TYPE_ITEM");
-        this.eventClassItem = (String) ruleMap.get("EVENT_CLASS_ITEM");
 
         this.logFormatter = new LogFormatter(ruleRelaId);
 
         this.blockFileDay = DateUtil.format(new Date(), DatePattern.PURE_DATE_PATTERN);
         String fileName = ruleRelaId + blockFileDay;
-        this.blockFile = new BlockFile(getBlockFileRootPath(), fileName + ".DAT", fileName + ".IDX", true, 3, 64);
+        this.blockFile = new BlockFile(getBlockFileRootPath(), fileName + ".DAT", fileName + ".IDX", true, 1, 64);
         this.enable = true;
     }
 
@@ -221,9 +210,6 @@ public class LogAnalysisRuleBo {
         this.mergeWindowTime = dto.getMergeWindowTime();
         this.eventWindowTime = dto.getEventWindowTime();
         this.eventThreshold = dto.getEventThreshold();
-        this.eventKeyWord = dto.getEventKeyword();
-        this.eventTypeItem = dto.getEventTypeItem();
-        this.eventClassItem = dto.getEventClassItem();
 
         // 若绑定的解析规则发生了变更,再执行关联修改
         this.logFormatter = new LogFormatter(ruleRelaId);
@@ -309,7 +295,7 @@ public class LogAnalysisRuleBo {
         String sourceIp = logMessageTree.getFieldValue(eventParamConfig.getSourceIpItem());
         if (BlockRuleServer.getInstance().judgeNeedRegionBlock(this.asset.getAssetId(), sourceIp)) {
             // 生成中危事件记录及风险记录
-            eventStart(mergeLog, sourceIp, logMessageTree.getFieldValue(eventParamConfig.getTargetIpItem()), "(国/省/市)域外访问", "2");
+            eventStart(mergeLog, sourceIp, logMessageTree.getFieldValue(eventParamConfig.getTargetIpItem()), BaseConstant.EXTRA_TERRITORIAL_ACCESS, "2");
         } else {
             // 进入阈值计算分支
             logIncrAndStartEvent(mLog, unionKeyStr, logMessageTree);
@@ -504,12 +490,11 @@ public class LogAnalysisRuleBo {
             log.warn("缓存中的logId被删除！");
             return;
         }
-        AssetEvent assetEvent =
-                AssetEvent.builder().endTime(DatePattern.PURE_DATETIME_FORMAT.format(new Date())).build();
+        AssetEvent assetEvent = AssetEvent.builder().endTime(DatePattern.PURE_DATETIME_FORMAT.format(new Date())).build();
         LambdaQueryWrapper<AssetEvent> updateWrapper = new LambdaQueryWrapper<>();
         updateWrapper.eq(AssetEvent::getEventOrigin, 1).eq(AssetEvent::getOriginId, mergeLogId);
         int updateResult = assetEventMapper.update(assetEvent, updateWrapper);
-        if (updateResult <= 0) {
+        if (updateResult < 0) {
             log.warn("MergeLogId为 {} 的事件结束时间修改失败!", mergeLogId);
         }
     }

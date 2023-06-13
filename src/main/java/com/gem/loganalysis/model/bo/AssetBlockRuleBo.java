@@ -4,11 +4,12 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.gem.gemada.dal.db.pools.DAO;
 import com.gem.loganalysis.model.BaseConstant;
+import com.gem.loganalysis.model.dto.block.BlockExecuteHelper;
 import com.gem.loganalysis.model.entity.BlockRule;
-import com.gem.loganalysis.snmpmonitor.SNMPMonitorServer;
 import com.gem.loganalysis.util.IPUtil;
 import com.gem.loganalysis.util.MapToBeanUtil;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
  * @version 1.0
  * @date 2023/6/9 17:41
  */
+@Slf4j
 public class AssetBlockRuleBo {
 
     private final String assetId;
@@ -58,13 +60,16 @@ public class AssetBlockRuleBo {
      * @param ruleList 封堵规则列表
      */
     private void init(List<BlockRule> ruleList) {
-        String assetIp = SNMPMonitorServer.getInstance().getAssetMap().get(this.assetId).getIpAddress();
-        this.localRegin = new RegionInfo(assetIp);
+        ArrayList<HashMap<String, String>> dataSet = new DAO().getDataSet(BaseConstant.DEFAULT_POOL_NAME, "SELECT IP_ADDRESS FROM SOP_ASSET WHERE ASSET_ID = '" + this.assetId + "' LIMIT 1", 1, 1);
+        if (CollUtil.isNotEmpty(dataSet)) {
+            String assetIp = dataSet.get(0).get("IP_ADDRESS");
+            this.localRegin = new RegionInfo(assetIp);
 
-        Map<Integer, List<BlockRule>> collect = ruleList.stream().collect(Collectors.groupingBy(BlockRule::getRuleType));
-        this.riskBlockRuleList = collect.get(0);
-        this.regionBlockRuleList = collect.get(1);
-        this.haveIp2RegionRule = CollUtil.isNotEmpty(this.regionBlockRuleList);
+            Map<Integer, List<BlockRule>> collect = ruleList.stream().collect(Collectors.groupingBy(BlockRule::getRuleType));
+            this.riskBlockRuleList = collect.get(0);
+            this.regionBlockRuleList = collect.get(1);
+            this.haveIp2RegionRule = CollUtil.isNotEmpty(this.regionBlockRuleList);
+        }
     }
 
     public void refresh() {
@@ -84,7 +89,8 @@ public class AssetBlockRuleBo {
      * @return 是否需要执行封堵
      */
     public boolean needRegionBlock(String sourceIp) {
-        if (haveIp2RegionRule) {
+        // 内网IP解析到的国家及省份为"0",而非"中国",添加特判以跳过内网IP的属地判断
+        if (haveIp2RegionRule && !"0".equals(this.localRegin.country)) {
             RegionInfo sourceIpRegionInfo = new RegionInfo(sourceIp);
             boolean needRegionBlock = false;
             for (BlockRule blockRule : this.regionBlockRuleList) {
@@ -102,6 +108,37 @@ public class AssetBlockRuleBo {
                 }
             }
             return needRegionBlock;
+        }
+        return false;
+    }
+
+    /**
+     * 执行封堵操作
+     *
+     * @param eventId   风险关联的事件ID
+     * @param sourceIp  要封堵的IP
+     * @param riskLevel 风险级别
+     * @param eventType 事件类型(供属地封堵规则特判)
+     * @return 封堵结果
+     */
+    protected boolean executeBlock(String eventId, String sourceIp, Integer riskLevel, String eventType) {
+        // 判断应采取哪条封堵规则
+        BlockRule rule = null;
+        if (BaseConstant.EXTRA_TERRITORIAL_ACCESS.equals(eventType)) {
+            rule = CollUtil.isNotEmpty(regionBlockRuleList) ? regionBlockRuleList.get(0) : null;
+        } else {
+            for (BlockRule blockRule : riskBlockRuleList) {
+                if (blockRule.getRiskLevel().equals(riskLevel)) {
+                    rule = blockRule;
+                    break;
+                }
+            }
+        }
+        if (rule != null && StrUtil.isNotEmpty(rule.getOperationAssetId())) {
+            BlockExecuteHelper helper = new BlockExecuteHelper(rule.getOperationAssetId(), eventId, sourceIp, rule.getBlockType(), rule.getBlockDuration());
+            return BlockExecutor.block(helper);
+        } else {
+            log.warn("未找到与该风险匹配的封堵规则,或封堵规则未指定操作设备! assetId: {}, riskLevel: {}, eventType: {}", assetId, riskLevel, eventType);
         }
         return false;
     }

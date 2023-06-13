@@ -59,13 +59,15 @@ public class AssetPreviewLogHandler {
      */
     public void append(MergeLog mergeLog) {
         String key = mergeLog.getHost() + mergeLog.getSeverity() + mergeLog.getFacility();
-        if (previewLogNumMap.get(key) == null || previewLogNumMap.get(key).get() < 10) {
+        if (previewLogNumMap.get(key) == null) {
+            previewLogNumMap.put(key, new AtomicInteger(0));
+        }
+        if (previewLogNumMap.get(key).get() < 10) {
             String insertSql = String.format("INSERT INTO `SOP_ASSET_LOG_PREVIEW` (`HOST`, `SEVERITY`, `FACILITY`, `TIMESTAMP`, `MESSAGE`, `TAG`) " +
-                    "VALUES (%s, %s, %s, %s, %s, %s)", mergeLog.getHost(), mergeLog.getSeverity(), mergeLog.getFacility(), mergeLog.getTimestamp(), mergeLog.getMessage(), mergeLog.getTag());
+                    "VALUES ('%s', '%s', '%s', '%s', '%s', '%s')", mergeLog.getHost(), mergeLog.getSeverity(), mergeLog.getFacility(), mergeLog.getTimestamp(), mergeLog.getMessage(), mergeLog.getTag());
             new DAO().execCommand(BaseConstant.DEFAULT_POOL_NAME, insertSql);
             previewLogNumMap.get(key).incrementAndGet();
         }
     }
-
 
 }

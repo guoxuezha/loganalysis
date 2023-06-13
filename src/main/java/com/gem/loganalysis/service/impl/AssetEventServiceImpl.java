@@ -74,13 +74,17 @@ public class AssetEventServiceImpl extends ServiceImpl<AssetEventMapper, AssetEv
         ArrayList<HashMap<String, String>> dataSet = dao.getDataSet(BaseConstant.DEFAULT_POOL_NAME, querySql.toString(), 0, 0);
         if (CollUtil.isNotEmpty(dataSet)) {
             List<AssetEventVO> list = MapToBeanUtil.execute(dataSet, AssetEventVO.class);
-            result.setHandleStatusNum(list.stream().collect(Collectors.groupingBy(AssetEventVO::getHandleStatus)));
+            result.setEvenOriginNum(list.stream().collect(Collectors.groupingBy(AssetEventVO::getEventOrigin)));
             result.setEventTypeNum(list.stream().collect(Collectors.groupingBy(AssetEventVO::getEventType)));
             result.setEventClassNum(list.stream().collect(Collectors.groupingBy(AssetEventVO::getEventClass)));
+            result.setHandleStatusNum(list.stream().collect(Collectors.groupingBy(AssetEventVO::getHandleStatus)));
             result.setSourceIpTop5(list.stream().collect(Collectors.groupingBy(AssetEventVO::getSourceIp)));
             result.setAssetEventTop5(list.stream().collect(Collectors.groupingBy(AssetEventVO::getAssetName)));
+            result.setTargetIpTop5(list.stream().collect(Collectors.groupingBy(AssetEventVO::getTargetIp)));
+
             Map<String, List<AssetEventVO>> dailyNum = list.stream().collect(Collectors.groupingBy(e -> e.getBeginTime().substring(0, 8)));
-            result.setDailyEventNumList(dailyDataPadding(startTime, dailyNum));
+            result.setDailyEventNumMap(dailyDataPadding(startTime, dailyNum));
+            result.setUndisposedEventList(list.stream().filter(e -> e.getHandleStatus() == 0).collect(Collectors.toList()));
         }
         return result;
     }
@@ -146,19 +150,26 @@ public class AssetEventServiceImpl extends ServiceImpl<AssetEventMapper, AssetEv
         return eventMonitorVO;
     }
 
-    private List<EventOverviewVO.TypeNum> dailyDataPadding(DateTime startDate, Map<String, List<AssetEventVO>> typeRiskListMap) {
+    private HashMap<Integer, List<EventOverviewVO.TypeNum>> dailyDataPadding(DateTime startDate, Map<String, List<AssetEventVO>> typeRiskListMap) {
+        HashMap<Integer, List<EventOverviewVO.TypeNum>> result = new HashMap<>(4);
         List<String> betweenDateList = getBetweenDateList(startDate != null ? startDate : new DateTime(), new DateTime());
-        List<EventOverviewVO.TypeNum> result = new ArrayList<>(betweenDateList.size());
-        for (String date : betweenDateList) {
-            List<AssetEventVO> voList = typeRiskListMap.get(date.replaceAll("-", ""));
-            if (CollUtil.isNotEmpty(voList)) {
-                result.add(new EventOverviewVO.TypeNum(date, voList.size()));
-            } else {
-                result.add(new EventOverviewVO.TypeNum(date, 0));
+        for (int i = 1; i <= 3; i++) {
+            List<EventOverviewVO.TypeNum> list = new ArrayList<>(betweenDateList.size());
+            for (String date : betweenDateList) {
+                String eventClass = String.valueOf(i);
+                List<AssetEventVO> assetEventVOS = typeRiskListMap.get(date.replaceAll("-", ""));
+                EventOverviewVO.TypeNum typeNum = new EventOverviewVO.TypeNum(date, 0);
+                if (CollUtil.isNotEmpty(assetEventVOS)) {
+                    List<AssetEventVO> voList = assetEventVOS.stream().filter(e -> eventClass.equals(e.getEventClass())).collect(Collectors.toList());
+                    if (CollUtil.isNotEmpty(voList)) {
+                        typeNum = new EventOverviewVO.TypeNum(date, voList.size());
+                    }
+                }
+                list.add(typeNum);
             }
+            result.put(i, list);
         }
         return result;
     }
-
 
 }

@@ -7,7 +7,6 @@ import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.PageResponse;
 import com.gem.loganalysis.model.Result;
 import com.gem.loganalysis.model.bo.MergeLog;
-import com.gem.loganalysis.model.dto.GetDTO;
 import com.gem.loganalysis.model.dto.query.LogContentQueryDTO;
 import com.gem.loganalysis.model.dto.query.LogFileQueryDTO;
 import com.gem.loganalysis.model.entity.Asset;
@@ -118,11 +117,9 @@ public class MergeLogController {
 
     @ApiOperation("根据日志文件查看内容")
     @PostMapping("/getSourceLogFileContent")
-    public Result<String> getSourceLogFileContent(@RequestBody GetDTO dto) {
-
-        return Result.ok();
+    public Result<PageResponse<String>> getSourceLogFileContent(@RequestBody PageRequest<String> dto) {
+        PageResponse<String> result = iAssetMergeLogService.getSourceLogFileContent(dto);
+        return Result.ok(result);
     }
-
-
 
 }

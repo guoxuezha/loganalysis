@@ -35,6 +35,9 @@ public class AssetEventVO {
     @ApiModelProperty(value = "源端IP")
     private String sourceIp;
 
+    @ApiModelProperty(value = "目标IP")
+    private String targetIp;
+
     @ApiModelProperty(value = "事件起始时间")
     private String beginTime;
 

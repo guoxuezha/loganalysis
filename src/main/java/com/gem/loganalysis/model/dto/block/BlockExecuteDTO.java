@@ -58,12 +58,12 @@ public class BlockExecuteDTO {
      */
     private String deBlockCommand;
 
-    public BlockExecuteDTO(HashMap<String, String> map) {
+    public BlockExecuteDTO(HashMap<String, String> map, String blockIp) {
         this.operationHost = map.get("IP_ADDRESS");
         this.blockPort = Integer.parseInt(map.get("NM_PORT"));
         this.userName = map.get("NM_ACCOUNT");
         this.password = map.get("NM_PASSWORD");
-        this.blockIp = map.get("SOURCE_IP");
+        this.blockIp = blockIp;
         this.blockCommand = map.get("BLOCK_COMMAND");
         this.deBlockCommand = map.get("DEBLOCK_COMMAND");
     }

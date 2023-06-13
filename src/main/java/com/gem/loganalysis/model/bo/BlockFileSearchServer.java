@@ -67,7 +67,7 @@ public class BlockFileSearchServer {
         }
         for (String name : fileNameSet) {
             if (name.endsWith(".DAT") && ruleRelaId.equals(name.substring(0, name.length() - 12))) {
-                result.add(new AssetLogFileVO(severity, facility, name.substring(name.length() - 12, name.length() - 4), name));
+                result.add(new AssetLogFileVO(severity, facility, name.substring(name.length() - 12, name.length() - 4), name.substring(0, name.length() - 4)));
             }
         }
         return result;

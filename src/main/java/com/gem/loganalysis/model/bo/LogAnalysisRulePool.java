@@ -19,7 +19,10 @@ public class LogAnalysisRulePool {
 
     @Getter
     private final HashMap<String, LogAnalysisRuleBo> logAnalysisRuleBoMap = new HashMap<>();
-
+    /**
+     * 忽略组合日志解析规则组合
+     */
+    private final HashMap<String, Boolean> ignoreKeyMap = new HashMap<>();
     @Resource
     private LogAnalysisRuleRelaMapper logAnalysisRuleRelaMapper;
 
@@ -33,7 +36,7 @@ public class LogAnalysisRulePool {
      */
     public LogAnalysisRuleBo getLogAnalysisRuleObject(String ip, String facility, String severity) {
         String key = ip + "~" + facility + "~" + severity;
-        if (logAnalysisRuleBoMap.get(key) == null) {
+        if (ignoreKeyMap.get(key) == null && logAnalysisRuleBoMap.get(key) == null) {
             loadAnalysisRuleBO(key);
         }
         return logAnalysisRuleBoMap.get(key);
@@ -51,7 +54,27 @@ public class LogAnalysisRulePool {
             LogAnalysisRuleBo equipmentBO = new LogAnalysisRuleBo(ruleMap);
             logAnalysisRuleBoMap.put(key, equipmentBO);
         }
+        // 若加载后仍未发现该解析规则,则将该组合放入ignore列表,避免频繁访问数据库
+        if (logAnalysisRuleBoMap.get(key) == null) {
+            ignoreKeyMap.put(key, true);
+        }
     }
 
+    /**
+     * 提供清空ignoreKeyMap方法
+     */
+    public void clearIgnoreKeyMap() {
+        this.ignoreKeyMap.clear();
+    }
 
+    /**
+     * 移除特定组合的日志解析规则映射ignoreKey,该方法应在新增某条解析规则映射后主动调用
+     *
+     * @param ip       IP
+     * @param facility 日志提供方
+     * @param severity 安全等级
+     */
+    private void removeIgnoreKey(String ip, String facility, String severity) {
+        this.ignoreKeyMap.remove(ip + "~" + facility + "~" + severity);
+    }
 }

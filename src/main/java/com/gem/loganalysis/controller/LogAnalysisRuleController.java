@@ -9,6 +9,7 @@ import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.Result;
 import com.gem.loganalysis.model.bo.LogAnalysisRuleBo;
 import com.gem.loganalysis.model.bo.LogAnalysisRulePool;
+import com.gem.loganalysis.model.bo.LogNormalFormTree;
 import com.gem.loganalysis.model.dto.DeleteDTO;
 import com.gem.loganalysis.model.dto.GetDTO;
 import com.gem.loganalysis.model.dto.edit.LogAnalysisRuleDTO;
@@ -54,7 +55,7 @@ public class LogAnalysisRuleController {
 
     @ApiOperation("查看日志范式树")
     @PostMapping("/showLogNormalForm")
-    public Result<Object> showLogNormalForm(@RequestBody GetDTO dto) {
+    public Result<LogNormalFormTree> showLogNormalForm(@RequestBody GetDTO dto) {
         return Result.ok(iLogAnalysisRuleRelaService.showLogNormalForm(dto.getId()));
     }
 

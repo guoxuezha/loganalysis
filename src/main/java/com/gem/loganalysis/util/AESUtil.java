@@ -2,6 +2,7 @@ package com.gem.loganalysis.util;
 
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.util.StrUtil;
+import com.gem.utils.crypto.AES;
 import com.gem.utils.crypto.MD5;
 import sun.misc.BASE64Decoder;
 
@@ -34,10 +35,10 @@ public class AESUtil {
         String encrypt = aesEncrypt(content, KEY);
         System.out.println("加密后：" + encrypt);
 
-        String response =
-                "caHzoC1ZOpgmSR50l5$yBPXWBg1UECXVnJDFSvexc4z2q8nNh24w45Hf6qLZoyOQGy3L5EFiK$aLRm+6moM954gvIqAs8PH3rhMCHllYRnFasb0kB0JWz6N0GXTvmUbkLzgc3jvk0uaEwO1FDzY7Q+$0+25HBccpG9L804hLmqOv5pWqvmV$R7MpeuKgB74r6KfGRaSarVb+RJ+RbC+uCNMJp3YFK4A9$DP91qaqoA7k0XNkxGjudZiz4pssGBg21WUDO4bU+y4nT0aPbp8Vq9L$mVhjtRl+zUoNF+MhfbFkAvcfFWb$bhUlGd5Dv5qYQdVtzj94LMt6znF5iq+diMEruW1CCs0JS0dCph43ZPkHqmB+NQvs$o07FlTMJW6ODTfTT73E8UbP$rbZPQn8Iw6XnImHcJAGv05kuTt8a20=";
-        String decrypt = aesDecrypt(response, KEY);
-        System.out.println("解密后：" + decrypt);
+        String response = "09F9D6268F2B29B8066C3E8A7D3DF636AE9D7AEB";
+        System.out.println(AES.decryptAES(response));
+        /*String decrypt = aesDecrypt(response, KEY);
+        System.out.println("解密后：" + decrypt);*/
     }
 
     /**

@@ -10,6 +10,7 @@ import com.gem.loganalysis.model.BaseConstant;
 import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.Result;
 import com.gem.loganalysis.model.dto.DeleteDTO;
+import com.gem.loganalysis.model.dto.edit.PasswordResetDTO;
 import com.gem.loganalysis.model.dto.edit.RoleAllocationDTO;
 import com.gem.loganalysis.model.dto.edit.RoleDTO;
 import com.gem.loganalysis.model.dto.edit.UserDTO;
@@ -24,6 +25,7 @@ import com.gem.loganalysis.service.IM4SsoPackageRoleService;
 import com.gem.loganalysis.service.IM4SsoUserRoleService;
 import com.gem.loganalysis.service.IM4SsoUserService;
 import com.gem.loganalysis.util.AESUtil;
+import com.gem.utils.crypto.MD5;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
@@ -83,7 +85,7 @@ public class UserController {
         for (M4SsoUser record : userPage.getRecords()) {
             records.add(new UserInfoVO(record));
         }
-        records.forEach(e->e.setOrgName(im4SsoOrgService.changeOrgName(e.getOrgId())));//转义部门ID
+        records.forEach(e -> e.setOrgName(im4SsoOrgService.changeOrgName(e.getOrgId())));//转义部门ID
         result.setRecords(records);
         return Result.ok(result);
     }
@@ -107,6 +109,32 @@ public class UserController {
             dao.execBatch(BaseConstant.DEFAULT_POOL_NAME, insertTemplate, types, records, 10);
         }
         return result ? Result.ok("编辑成功!") : Result.failed("编辑失败!");
+    }
+
+    public static void main(String[] args) {
+        System.out.println(MD5.encryptPwd("admin", "654321", "GEM#SHA512"));
+    }
+
+    @ApiOperation("重置用户密码")
+    @PostMapping("/user/resetPwd")
+    public Result<Object> resetPwd(@RequestBody PasswordResetDTO dto) {
+        M4SsoUser byId = im4SsoUserService.getById(dto.getUserId());
+        if (byId != null) {
+            String userName = byId.getUserName();
+            LambdaQueryWrapper<M4SsoUser> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(M4SsoUser::getUserId, dto.getUserId())
+                    .eq(M4SsoUser::getPassword, MD5.encryptPwd(userName, dto.getOldPassword(), "GEM#SHA512"));
+            List<M4SsoUser> list = im4SsoUserService.list(wrapper);
+            if (CollUtil.isNotEmpty(list)) {
+                M4SsoUser m4SsoUser = list.get(0);
+                m4SsoUser.setPassword(MD5.encryptPwd(userName, dto.getNewPassword(), "GEM#SHA512"));
+                boolean b = im4SsoUserService.updateById(m4SsoUser);
+                if (b) {
+                    return Result.ok("修改成功!");
+                }
+            }
+        }
+        return Result.failed("修改失败!");
     }
 
     @ApiOperation("删除用户")
