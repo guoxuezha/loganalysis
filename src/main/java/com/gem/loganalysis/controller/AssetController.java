@@ -313,16 +313,16 @@ public class AssetController {
         List<RiskAssetRankingVO> nonEndpointRiskAssetRanking = new ArrayList<>();
         List<RiskAssetRankingVO> endpointRiskAssetRanking = new ArrayList<>();
 
-        RiskAssetRankingVO nonEndpointRiskAsset1 = new RiskAssetRankingVO("192.168.0.1", 97);
-        RiskAssetRankingVO nonEndpointRiskAsset2 = new RiskAssetRankingVO("192.168.0.2", 95);
+        RiskAssetRankingVO nonEndpointRiskAsset1 = new RiskAssetRankingVO("192.168.0.11", 97);
+        RiskAssetRankingVO nonEndpointRiskAsset2 = new RiskAssetRankingVO("192.168.0.32", 95);
         RiskAssetRankingVO nonEndpointRiskAsset3 = new RiskAssetRankingVO("192.168.0.3", 92);
-        RiskAssetRankingVO nonEndpointRiskAsset4 = new RiskAssetRankingVO("192.168.0.4", 87);
-        RiskAssetRankingVO nonEndpointRiskAsset5 = new RiskAssetRankingVO("192.168.0.5", 85);
+        RiskAssetRankingVO nonEndpointRiskAsset4 = new RiskAssetRankingVO("192.168.0.24", 87);
+        RiskAssetRankingVO nonEndpointRiskAsset5 = new RiskAssetRankingVO("192.168.0.15", 85);
 
-        RiskAssetRankingVO endpointRiskAsset1 = new RiskAssetRankingVO("192.168.1.1", 97);
-        RiskAssetRankingVO endpointRiskAsset2 = new RiskAssetRankingVO("192.168.1.2", 97);
-        RiskAssetRankingVO endpointRiskAsset3 = new RiskAssetRankingVO("192.168.1.3", 96);
-        RiskAssetRankingVO endpointRiskAsset4 = new RiskAssetRankingVO("192.168.1.4", 88);
+        RiskAssetRankingVO endpointRiskAsset1 = new RiskAssetRankingVO("192.168.1.41", 97);
+        RiskAssetRankingVO endpointRiskAsset2 = new RiskAssetRankingVO("192.168.1.22", 97);
+        RiskAssetRankingVO endpointRiskAsset3 = new RiskAssetRankingVO("192.168.1.36", 96);
+        RiskAssetRankingVO endpointRiskAsset4 = new RiskAssetRankingVO("192.168.1.12", 88);
         RiskAssetRankingVO endpointRiskAsset5 = new RiskAssetRankingVO("192.168.1.5", 86);
 
         nonEndpointRiskAssetRanking.add(nonEndpointRiskAsset1);

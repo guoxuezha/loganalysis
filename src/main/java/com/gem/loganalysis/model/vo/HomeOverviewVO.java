@@ -96,10 +96,10 @@ public class HomeOverviewVO {
     @ApiModelProperty(value = "近六天低风险集合")
     private List<Integer> lowRiskCount;
 
-    @ApiModelProperty(value = "近六天低风险集合")
+    @ApiModelProperty(value = "近六天中风险集合")
     private List<Integer> mediumRiskCount;
 
-    @ApiModelProperty(value = "近六天低风险集合")
+    @ApiModelProperty(value = "近六天高风险集合")
     private List<Integer> highRiskCount;
 
     @ApiModelProperty(value = "近六天出口设备负荷(流量)集合")
