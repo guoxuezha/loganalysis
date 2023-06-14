@@ -21,6 +21,11 @@ public class Scanner {
     // 日志
     private static Logger logger = Logger.getLogger("Scanner");
 
+    private static int[] commonPorts = {20, 21, 22, 23, 25, 53, 67, 68, 80, 110, 139, 143, 161, 389, 443, 445, 512, 513, 514, 873, 1080, 1352, 1433, 1521, 2049, 2181, 2375, 3306, 3389, 4848, 5000, 5432, 5632, 5900, 6379, 7001, 7002, 8069, 8161, 8080, 8081, 8082, 8083, 8084, 8085, 8086, 8087, 8088, 8089, 8090, 8443, 8888, 9000, 9090, 9200, 9300, 11211, 27017, 27018};
+
+
+
+
     // 使用多线程扫描
     private static ThreadPoolExecutor poolExecutor = new ThreadPoolExecutor(20*cpuCores
             ,40*cpuCores,1000,
@@ -69,6 +74,24 @@ public class Scanner {
     }
 
     /**
+     * 开始方法
+     * @param ips 输入的待扫描ip列表
+     */
+    public static void startCommon(String ips,String scanTime,String orgId) {
+        scanCommonPort(ips,scanTime,orgId);
+        try{
+            while(true){
+                if(poolExecutor.getActiveCount() == 0){
+                    logger.info(ips+" Common Scan job all finish");
+                    break;
+                }
+                Thread.sleep(1000);
+            }
+        }catch (Exception ex){
+            logger.warning("End with exeception, ex: " + ex.getMessage());
+        }
+    }
+    /**
      * 扫描某ip的对应端口
      * @param ip ip地址
      * @param portStart 开始扫描的的端口
@@ -77,6 +100,24 @@ public class Scanner {
     public static void scanAllPort(String ip, int portStart, int portEnd,String scanTime,String orgId)  {
         for (int port = portStart; port <= portEnd; port++){
             scan(ip,port,scanTime,orgId);
+            if(poolExecutor.getQueue().size()>2000){
+                try {
+                    Thread.sleep(5*1000);//防止阻塞队列过长内存溢出，限制开启的速率
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+
+    /**
+     * 快速扫描，扫描常用端口
+     * @param ip ip地址
+     */
+    public static void scanCommonPort(String ip,String scanTime,String orgId)  {
+        for (int commonPort : commonPorts) {
+            scan(ip,commonPort,scanTime,orgId);
             if(poolExecutor.getQueue().size()>2000){
                 try {
                     Thread.sleep(5*1000);//防止阻塞队列过长内存溢出，限制开启的速率

@@ -12,10 +12,14 @@ import com.gem.loganalysis.model.dto.query.LambdaQueryWrapperX;
 import com.gem.loganalysis.model.entity.Asset;
 import com.gem.loganalysis.model.entity.LogicalAssetTemp;
 import com.gem.loganalysis.model.entity.PhysicalAssetTemp;
+import com.gem.loganalysis.model.vo.PhysicalScannerVO;
+import com.gem.loganalysis.model.vo.asset.PhysicalAssetScannerRespVO;
 import com.gem.loganalysis.service.IPhysicalAssetTempService;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -27,29 +31,18 @@ import java.util.List;
  */
 @Service
 public class PhysicalAssetTempServiceImpl extends ServiceImpl<PhysicalAssetTempMapper, PhysicalAssetTemp> implements IPhysicalAssetTempService {
-
-
-    @Override
-    public Page<PhysicalAssetTemp> getPhysicalAssetPage(PageRequest<PhysicalAssetQueryDTO> dto) {
-        Page<PhysicalAssetTemp> page = new Page<>(dto.getPageNum(), dto.getPageSize());
-        PhysicalAssetQueryDTO data = dto.getData();
-        LambdaQueryWrapperX<PhysicalAssetTemp> wrapper = new LambdaQueryWrapperX<PhysicalAssetTemp>()
-                .eqIfPresent(PhysicalAssetTemp::getIpAddress, data.getIpAddress())
-                .eqIfPresent(PhysicalAssetTemp::getAssetStatus, data.getAssetStatus())
-                .eqIfPresent(PhysicalAssetTemp::getAssetOrg, data.getAssetOrg())
-                .betweenIfPresent(PhysicalAssetTemp::getScanTime,data.getBeginScanTime(), data.getEndScanTime())
-                .orderByDesc(PhysicalAssetTemp::getScanTime);
-        return this.page(page, wrapper);
-    }
+    @Resource
+    private PhysicalAssetTempMapper physicalAssetTempMapper;
 
     @Override
-    public List<PhysicalAssetTemp> getPhysicalAssetList(PhysicalAssetQueryDTO dto) {
-        LambdaQueryWrapperX<PhysicalAssetTemp> wrapper = new LambdaQueryWrapperX<PhysicalAssetTemp>()
-                .eqIfPresent(PhysicalAssetTemp::getIpAddress, dto.getIpAddress())
-                .eqIfPresent(PhysicalAssetTemp::getAssetStatus, dto.getAssetStatus())
-                .eqIfPresent(PhysicalAssetTemp::getAssetOrg, dto.getAssetOrg())
-                .betweenIfPresent(PhysicalAssetTemp::getScanTime,dto.getBeginScanTime(), dto.getEndScanTime())
-                .orderByDesc(PhysicalAssetTemp::getScanTime);
-        return this.list(wrapper);
+    public PhysicalScannerVO getPhysicalAssetList(PhysicalAssetQueryDTO dto) {
+        dto.setAssetStatus(1);//只查存在的
+        PhysicalScannerVO result = new PhysicalScannerVO();
+        List<PhysicalAssetScannerRespVO> physicalAssetList = physicalAssetTempMapper.getPhysicalAssetList(dto);
+        result.setUnmanagedList(physicalAssetList.stream()
+                .filter(e->e.getExistsInAssetTable()==1).collect(Collectors.toList()));//未纳管
+        result.setManagedList(physicalAssetList.stream()
+                .filter(e->e.getExistsInAssetTable()==0).collect(Collectors.toList()));//已纳管
+        return result;
     }
 }

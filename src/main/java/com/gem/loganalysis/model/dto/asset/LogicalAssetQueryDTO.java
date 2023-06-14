@@ -17,9 +17,6 @@ public class LogicalAssetQueryDTO {
     @ApiModelProperty(value = "可用端口号")
     private String enablePort;
 
-    @ApiModelProperty(value = "推测的资产类型")
-    private String assetType;
-
     @ApiModelProperty(value = "资产扫描批次开始时间")
     private String beginScanTime;
 

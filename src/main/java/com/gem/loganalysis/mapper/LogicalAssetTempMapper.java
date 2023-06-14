@@ -1,8 +1,12 @@
 package com.gem.loganalysis.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.gem.loganalysis.model.dto.asset.LogicalAssetQueryDTO;
 import com.gem.loganalysis.model.entity.LogicalAssetTemp;
+import com.gem.loganalysis.model.vo.asset.LogicalAssetScannerRespVO;
 import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
 
 /**
  * <p>
@@ -15,4 +19,5 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface LogicalAssetTempMapper extends BaseMapper<LogicalAssetTemp> {
 
+    List<LogicalAssetScannerRespVO> getLogicalAssetList(LogicalAssetQueryDTO dto);
 }

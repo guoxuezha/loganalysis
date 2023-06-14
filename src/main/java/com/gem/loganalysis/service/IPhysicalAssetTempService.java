@@ -6,6 +6,7 @@ import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.dto.asset.LogicalAssetQueryDTO;
 import com.gem.loganalysis.model.dto.asset.PhysicalAssetQueryDTO;
 import com.gem.loganalysis.model.entity.PhysicalAssetTemp;
+import com.gem.loganalysis.model.vo.PhysicalScannerVO;
 
 import java.util.List;
 
@@ -20,7 +21,5 @@ import java.util.List;
 public interface IPhysicalAssetTempService extends IService<PhysicalAssetTemp> {
 
 
-    Page<PhysicalAssetTemp> getPhysicalAssetPage(PageRequest<PhysicalAssetQueryDTO> dto);
-
-    List<PhysicalAssetTemp> getPhysicalAssetList(PhysicalAssetQueryDTO dto);
+    PhysicalScannerVO getPhysicalAssetList(PhysicalAssetQueryDTO dto);
 }

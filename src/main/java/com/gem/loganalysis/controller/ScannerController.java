@@ -5,12 +5,15 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gem.loganalysis.convert.AssetConvert;
 import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.Result;
+import com.gem.loganalysis.model.ScannerDTO;
 import com.gem.loganalysis.model.dto.GetDTO;
 import com.gem.loganalysis.model.dto.IpDTO;
 import com.gem.loganalysis.model.dto.IpSectionDTO;
 import com.gem.loganalysis.model.dto.asset.*;
 import com.gem.loganalysis.model.entity.Asset;
 import com.gem.loganalysis.model.entity.OrgVlan;
+import com.gem.loganalysis.model.vo.LogicalScannerVO;
+import com.gem.loganalysis.model.vo.PhysicalScannerVO;
 import com.gem.loganalysis.model.vo.asset.AssetRespVO;
 import com.gem.loganalysis.model.vo.asset.LogicalAssetScannerRespVO;
 import com.gem.loganalysis.model.vo.asset.OrgVlanRespVO;
@@ -65,6 +68,27 @@ public class ScannerController {
         return Result.ok("扫描成功");
     }
 
+    @PostMapping("/scannerAllPort")
+    @ApiOperation("扫描全部资产端口")
+    public Result<String> scannerAllPort(@Valid @RequestBody ScannerDTO dto) {
+        List<Asset> list = assetService.list();
+        if("ALL".equals(dto.getScannerType())){
+            list.forEach(e->{
+                Scanner.start(e.getIpAddress(),"1-65535",
+                        DateUtil.format(new Date(),"yyyyMMddHHmmss"),getLoginUserOrgId());
+            });
+        }else if("SIMPLE".equals(dto.getScannerType())){
+            list.forEach(e->{
+                Scanner.startCommon(e.getIpAddress(),
+                        DateUtil.format(new Date(),"yyyyMMddHHmmss"),getLoginUserOrgId());
+            });
+        }
+        //TODO 改成异步 先返回扫描成功再开启扫描
+        return Result.ok("扫描成功");
+    }
+
+
+
     @PostMapping("/scannerIpPort")
     @ApiOperation("IP端口扫描，需提供单个IP")
     public Result<String> scannerPort(@Valid @RequestBody IpDTO dto) {
@@ -101,28 +125,16 @@ public class ScannerController {
         return Result.ok("扫描成功");
     }
 
-    @PostMapping("/logicalAssetPage")
-    @ApiOperation("逻辑资产扫描结果分页")
-    public Result<Page<LogicalAssetScannerRespVO>> getLogicalAssetPage(@RequestBody PageRequest<LogicalAssetQueryDTO> dto) {
-        return Result.ok(AssetConvert.INSTANCE.convertPage02(logicalAssetTempService.getLogicalAssetPage(dto)));
-    }
-
-    @PostMapping("/physicalAssetPage")
-    @ApiOperation("IP物理资产扫描结果分页")
-    public Result<Page<PhysicalAssetScannerRespVO>> getPhysicalAssetPage(@RequestBody PageRequest<PhysicalAssetQueryDTO> dto) {
-        return Result.ok(AssetConvert.INSTANCE.convertPage03(physicalAssetTempService.getPhysicalAssetPage(dto)));
-    }
-
     @PostMapping("/logicalAssetList")
     @ApiOperation("逻辑资产扫描结果列表")
-    public Result<List<LogicalAssetScannerRespVO>> getLogicalAssetList(@RequestBody LogicalAssetQueryDTO dto) {
-        return Result.ok(AssetConvert.INSTANCE.convertList02(logicalAssetTempService.getLogicalAssetList(dto)));
+    public Result<LogicalScannerVO> getLogicalAssetList(@RequestBody LogicalAssetQueryDTO dto) {
+        return Result.ok(logicalAssetTempService.getLogicalAssetList(dto));
     }
 
     @PostMapping("/physicalAssetList")
     @ApiOperation("IP物理资产扫描结果列表")
-    public Result<List<PhysicalAssetScannerRespVO>> getPhysicalAssetList(@RequestBody PhysicalAssetQueryDTO dto) {
-        return Result.ok(AssetConvert.INSTANCE.convertList03(physicalAssetTempService.getPhysicalAssetList(dto)));
+    public Result<PhysicalScannerVO> getPhysicalAssetList(@RequestBody PhysicalAssetQueryDTO dto) {
+        return Result.ok(physicalAssetTempService.getPhysicalAssetList(dto));
     }
 
 

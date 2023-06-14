@@ -58,7 +58,7 @@
             resultType="com.gem.loganalysis.model.vo.TerminalEquipmentVO">
         SELECT
             count(0) AS totalNumber,
-            COUNT(CASE WHEN a.ASSET_STATUS = '2' THEN 1 END) AS onlineNumber
+            COUNT(CASE WHEN a.ASSET_STATUS = '0' THEN 1 END) AS onlineNumber
         FROM
             SOP_ASSET AS a
                 LEFT JOIN

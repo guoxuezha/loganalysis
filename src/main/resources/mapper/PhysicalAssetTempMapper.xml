@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gem.loganalysis.mapper.PhysicalAssetTempMapper">
+
+
+    <select id="getPhysicalAssetList"
+            resultType="com.gem.loganalysis.model.vo.asset.PhysicalAssetScannerRespVO">
+        SELECT
+            pat.IP_ADDRESS AS ipAddress,
+            pat.RECORD_ID AS recordId,
+            pat.ASSET_ORG AS assetOrg,
+            pat.ASSET_STATUS AS assetStatus,
+            pat.SCAN_TIME AS scanTime,
+            CASE
+                WHEN a.IP_ADDRESS IS NULL THEN 1
+                ELSE 0
+                END AS existsInAssetTable
+        FROM
+            sop_physical_asset_temp AS pat
+                LEFT JOIN
+            sop_asset AS a
+            ON
+                a.IP_ADDRESS = pat.IP_ADDRESS AND a.DELETE_STATE = 0
+        <where>
+        <if test="assetOrg!=null and assetOrg.trim()!='' ">
+            AND pat.ASSET_ORG = #{assetOrg}
+        </if>
+        <if test="ipAddress!=null and ipAddress.trim()!='' ">
+            AND pat.IP_ADDRESS like concat('%',#{ipAddress},'%')
+        </if>
+        <if test="assetStatus!=null">
+            AND pat.ASSET_STATUS = #{assetStatus}
+        </if>
+        <if test="beginScanTime != null and beginScanTime.trim()!=''">
+            AND pat.SCAN_TIME  <![CDATA[>=]]> CONCAT(SUBSTR(#{beginScanTime}, 1, 4), '-', SUBSTR(#{beginScanTime}, 5, 2), '-', SUBSTR(#{beginScanTime}, 7, 2))
+        </if>
+        <if test="endScanTime != null and endScanTime.trim()!=''">
+            AND pat.SCAN_TIME <![CDATA[<=]]> CONCAT(SUBSTR(#{endScanTime}, 1, 4), '-', SUBSTR(#{endScanTime}, 5, 2), '-', SUBSTR(#{endScanTime}, 7, 2))
+        </if>
+        </where>
+    </select>
+</mapper>

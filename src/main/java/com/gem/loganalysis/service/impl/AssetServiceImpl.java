@@ -15,6 +15,7 @@ import com.gem.loganalysis.model.dto.asset.AssetDTO;
 import com.gem.loganalysis.model.dto.asset.AssetQueryDTO;
 import com.gem.loganalysis.model.dto.query.LambdaQueryWrapperX;
 import com.gem.loganalysis.model.entity.*;
+import com.gem.loganalysis.model.vo.AssetEventHomeOverviewVO;
 import com.gem.loganalysis.model.vo.HomeOverviewVO;
 import com.gem.loganalysis.model.vo.ImportRespVO;
 import com.gem.loganalysis.model.vo.RiskAssetRankingVO;
@@ -285,14 +286,19 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     public HomeOverviewVO getHomeOverview() {
 
         HomeOverviewVO homeOverview = assetMapper.getAssetHomeOverview();
-
-        List<String> dateList = new ArrayList<>();
-        LocalDate currentDate = LocalDate.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd");
-        for (int i = 6; i >= 0 ; i--) {
-            String date = currentDate.minusDays(i).format(formatter);
-            dateList.add(date);
-        }
+        List<AssetEventHomeOverviewVO> event = assetMapper.getEventHomeOverview();
+        event.forEach(e->{
+            if(e.getAssetType().equals("安全设备")){
+                homeOverview.setSecurityDeviceEventsResolvedCount(e.getTotalEventCount()) // 当日安全设备事件总次数
+                        .setSecurityDeviceEventsPendingCount(e.getPendingEventCount()); // 当日安全设备事件未处理次数
+            }else if(e.getAssetType().equals("网络设备")){
+                homeOverview.setNetworkDeviceEventsResolvedCount(e.getTotalEventCount()) // 当日网络设备事件已处理次数
+                        .setNetworkDeviceEventsPendingCount(e.getPendingEventCount()); // 当日网络设备事件未处理次数
+            }else if(e.getAssetType().equals("服务器")){
+                homeOverview.setItDeviceEventsResolvedCount(e.getTotalEventCount()) // 当日IT设备事件总次数
+                        .setItDeviceEventsPendingCount(e.getPendingEventCount()); // 当日IT设备事件未处理次数
+            }
+        });
         // 示例数据
         List<RiskAssetRankingVO> nonEndpointRiskAssetRanking = new ArrayList<>();
         List<RiskAssetRankingVO> endpointRiskAssetRanking = new ArrayList<>();
@@ -329,13 +335,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 .setCloudAssetRiskCount(52) // 云资产风险数量
                 .setBaselineRiskCount(10) // 基线风险数量
                 .setTotalRiskCount(117) // 风险总数
-                .setNetworkDeviceEventsResolvedCount(2) // 当日网络设备事件已处理次数
-                .setNetworkDeviceEventsPendingCount(1) // 当日网络设备事件未处理次数
-                .setSecurityDeviceEventsResolvedCount(1) // 当日安全设备事件总次数
-                .setSecurityDeviceEventsPendingCount(0) // 当日安全设备事件未处理次数
-                .setItDeviceEventsResolvedCount(3) // 当日IT设备事件总次数
-                .setItDeviceEventsPendingCount(3) // 当日IT设备事件未处理次数
-                .setDateList(dateList) // 近七天日期集合
+                .setDateList(weekDateList()) // 近七天日期集合
                 .setLowRiskCount(Arrays.asList(5, 6, 3, 8, 4, 4, 3)) // 近七天低风险集合
                 .setMediumRiskCount(Arrays.asList(2, 3, 1, 4, 2, 2, 1)) // 近七天中风险集合
                 .setHighRiskCount(Arrays.asList(1, 0, 2, 1, 3, 0, 1)) // 近七天高风险集合
@@ -347,6 +347,17 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 .setNonEndpointRiskAssetRanking(nonEndpointRiskAssetRanking)//非终端风险资产排行
                 .setEndpointRiskAssetRanking(endpointRiskAssetRanking);//终端风险资产排行
         return homeOverview;
+    }
+
+    private List<String> weekDateList(){
+        List<String> dateList = new ArrayList<>();
+        LocalDate currentDate = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd");
+        for (int i = 6; i >= 0 ; i--) {
+            String date = currentDate.minusDays(i).format(formatter);
+            dateList.add(date);
+        }
+        return dateList;
     }
 
     @Override

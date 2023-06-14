@@ -125,6 +125,21 @@
             SUM(CASE WHEN sop_asset_type.ASSET_TYPE = '终端设备' THEN 1 ELSE 0 END) AS endpointDeviceTotalCount,
             SUM(CASE WHEN sop_asset_type.ASSET_TYPE = '终端设备' AND sop_asset.ASSET_STATUS = 0  THEN 1 ELSE 0 END) AS endpointDeviceOnlineCount
         FROM sop_asset
-                 LEFT JOIN sop_asset_type ON sop_asset.ASSET_TYPE = sop_asset_type.TYPE_ID;
+                 LEFT JOIN sop_asset_type ON sop_asset.ASSET_TYPE = sop_asset_type.TYPE_ID
+        WHERE
+            sop_asset.DELETE_STATE = 0;
+    </select>
+    <select id="getEventHomeOverview" resultType="com.gem.loganalysis.model.vo.AssetEventHomeOverviewVO">
+        SELECT
+            t.ASSET_TYPE AS assetType,
+            IFNULL(COUNT(e.EVENT_ID), 0) AS totalEventCount,
+            IFNULL(COUNT(CASE WHEN e.HANDLE_STATUS IN (0, 1) THEN e.EVENT_ID END), 0) AS pendingEventCount
+        FROM
+            sop_asset a
+                RIGHT JOIN sop_asset_type t ON t.TYPE_ID = a.ASSET_TYPE
+                LEFT JOIN sop_asset_event e ON a.ASSET_ID = e.ASSET_ID AND SUBSTRING(e.BEGIN_TIME, 1, 8) = DATE_FORMAT(NOW(), '%Y%m%d')
+        WHERE
+            t.ASSET_TYPE IN ('安全设备', '网络设备', '服务器','存储设备')
+        GROUP BY t.ASSET_TYPE;
     </select>
 </mapper>
