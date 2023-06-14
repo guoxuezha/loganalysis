@@ -8,6 +8,7 @@ import com.gem.loganalysis.model.Result;
 import com.gem.loganalysis.model.dto.asset.AssetDTO;
 import com.gem.loganalysis.model.dto.asset.AssetQueryDTO;
 import com.gem.loganalysis.model.entity.Asset;
+import com.gem.loganalysis.model.vo.HomeOverviewVO;
 import com.gem.loganalysis.model.vo.ImportRespVO;
 import com.gem.loganalysis.model.vo.asset.*;
 
@@ -59,4 +60,10 @@ public interface IAssetService extends IService<Asset> {
      * @return
      */
     ImportRespVO importPhysicalExcel(List<PhysicalAssetExcelVO> list);
+
+    /**
+     * 首页
+     * @return
+     */
+    HomeOverviewVO getHomeOverview();
 }

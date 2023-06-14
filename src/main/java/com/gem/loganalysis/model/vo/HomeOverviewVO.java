@@ -66,19 +66,19 @@ public class HomeOverviewVO {
     @ApiModelProperty(value = "风险总数")
     private Integer totalRiskCount;
 
-    @ApiModelProperty(value = "网络设备事件已处理次数")
+    @ApiModelProperty(value = "网络设备事件总次数")
     private Integer networkDeviceEventsResolvedCount;
 
     @ApiModelProperty(value = "网络设备事件未处理次数")
     private Integer networkDeviceEventsPendingCount;
 
-    @ApiModelProperty(value = "安全设备事件已处理次数")
+    @ApiModelProperty(value = "安全设备事件总次数")
     private Integer securityDeviceEventsResolvedCount;
 
     @ApiModelProperty(value = "安全设备事件未处理次数")
     private Integer securityDeviceEventsPendingCount;
 
-    @ApiModelProperty(value = "IT设备事件已处理次数")
+    @ApiModelProperty(value = "IT设备事件总次数")
     private Integer itDeviceEventsResolvedCount;
 
     @ApiModelProperty(value = "IT设备事件未处理次数")

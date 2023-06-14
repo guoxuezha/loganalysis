@@ -112,4 +112,19 @@
                  asset.ASSET_MANAGER = user.USER_ID
         WHERE asset.ASSET_ID = #{id}
     </select>
+    <select id="getAssetHomeOverview" resultType="com.gem.loganalysis.model.vo.HomeOverviewVO">
+        SELECT
+            COUNT(*) AS assetTotalCount,
+            SUM(CASE WHEN ASSET_CLASS = 0 THEN 1 ELSE 0 END) AS logicalAssetCount,
+            SUM(CASE WHEN sop_asset_type.ASSET_TYPE = '安全设备' THEN 1 ELSE 0 END) AS securityDeviceTotalCount,
+            SUM(CASE WHEN sop_asset_type.ASSET_TYPE = '安全设备' AND sop_asset.ASSET_STATUS = 0 THEN 1 ELSE 0 END) AS securityDeviceAliveCount,
+            SUM(CASE WHEN sop_asset_type.ASSET_TYPE = '服务器' OR sop_asset_type.ASSET_TYPE = '存储设备' THEN 1 ELSE 0 END) AS itDeviceTotalCount,
+            SUM(CASE WHEN (sop_asset_type.ASSET_TYPE = '服务器' OR sop_asset_type.ASSET_TYPE = '存储设备') AND sop_asset.ASSET_STATUS = 0 THEN 1 ELSE 0 END) AS itDeviceAliveCount,
+            SUM(CASE WHEN sop_asset_type.ASSET_TYPE = '网络设备' THEN 1 ELSE 0 END) AS networkDeviceTotalCount,
+            SUM(CASE WHEN sop_asset_type.ASSET_TYPE = '网络设备' AND sop_asset.ASSET_STATUS = 0  THEN 1 ELSE 0 END) AS networkDeviceAliveCount,
+            SUM(CASE WHEN sop_asset_type.ASSET_TYPE = '终端设备' THEN 1 ELSE 0 END) AS endpointDeviceTotalCount,
+            SUM(CASE WHEN sop_asset_type.ASSET_TYPE = '终端设备' AND sop_asset.ASSET_STATUS = 0  THEN 1 ELSE 0 END) AS endpointDeviceOnlineCount
+        FROM sop_asset
+                 LEFT JOIN sop_asset_type ON sop_asset.ASSET_TYPE = sop_asset_type.TYPE_ID;
+    </select>
 </mapper>

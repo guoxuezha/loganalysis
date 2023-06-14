@@ -161,7 +161,7 @@ public class AssetOverviewVO {
         this.assetCategoryDistribution = result;
     }
 
-    //放入资产状态
+/*    //放入资产状态
     //在役 =在役 + 在线 + 离线  退役=退役
     public void setAssetStatusDistribution(Map<String, List<AssetRespVO>> map) {
         List<HashMap<String, Object>> result = new ArrayList<>();
@@ -171,7 +171,7 @@ public class AssetOverviewVO {
         int unmanagedCount = 0; // 未纳管个数 = 退役+空
         for (Map.Entry<String, List<AssetRespVO>> entry : map.entrySet()) {
             // 统计各个状态的个数
-            if (entry.getKey().equals("在役") || entry.getKey().equals("在线")) {
+            if (entry.getKey().equals("在线")) {
                 managedOnlineCount += entry.getValue().size();
             } else if (entry.getKey().equals("离线")) {
                 managedOfflineCount += entry.getValue().size();
@@ -180,11 +180,11 @@ public class AssetOverviewVO {
             }
         }
         HashMap<String, Object> active = new HashMap<>();
-        active.put("assetStatus", "已纳管_在线");
+        active.put("assetStatus", "在线");
         active.put("num", managedOnlineCount);
         result.add(active);
         HashMap<String, Object> retired = new HashMap<>();
-        retired.put("assetStatus", "已纳管_离线");
+        retired.put("assetStatus", "离线");
         retired.put("num", managedOfflineCount);
         result.add(retired);
         HashMap<String, Object> empty = new HashMap<>();
@@ -192,7 +192,7 @@ public class AssetOverviewVO {
         empty.put("num", unmanagedCount);
         result.add(empty);
         this.assetStatusDistribution = result;
-    }
+    }*/
 
     //放入资产在线状态
     public void setAssetOnlineStatusDistribution(Map<String, List<AssetRespVO>> map) {
@@ -219,10 +219,10 @@ public class AssetOverviewVO {
         offline.put("assetStatus", "离线");
         offline.put("num", offlineCount);
         result.add(offline);
-        HashMap<String, Object> empty = new HashMap<>();
+/*        HashMap<String, Object> empty = new HashMap<>();
         empty.put("assetStatus", "未知");
         empty.put("num", emptyCount);
-        result.add(empty);
+        result.add(empty);*/
         this.assetOnlineStatusDistribution = result;
     }
 

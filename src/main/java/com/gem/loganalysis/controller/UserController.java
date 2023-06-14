@@ -10,6 +10,7 @@ import com.gem.loganalysis.model.BaseConstant;
 import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.Result;
 import com.gem.loganalysis.model.dto.DeleteDTO;
+import com.gem.loganalysis.model.dto.GetDTO;
 import com.gem.loganalysis.model.dto.edit.PasswordResetDTO;
 import com.gem.loganalysis.model.dto.edit.RoleAllocationDTO;
 import com.gem.loganalysis.model.dto.edit.RoleDTO;
@@ -19,6 +20,7 @@ import com.gem.loganalysis.model.dto.query.UserQueryDTO;
 import com.gem.loganalysis.model.entity.M4SsoPackageRole;
 import com.gem.loganalysis.model.entity.M4SsoUser;
 import com.gem.loganalysis.model.entity.M4SsoUserRole;
+import com.gem.loganalysis.model.vo.UserAuthorityVO;
 import com.gem.loganalysis.model.vo.UserInfoVO;
 import com.gem.loganalysis.service.IM4SsoOrgService;
 import com.gem.loganalysis.service.IM4SsoPackageRoleService;
@@ -33,6 +35,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -151,6 +154,21 @@ public class UserController {
         LambdaQueryWrapperX<M4SsoPackageRole> wrapperX = new LambdaQueryWrapperX<>();
         wrapperX.eqIfPresent(M4SsoPackageRole::getRoleName, dto.getData());
         return Result.ok(im4SsoPackageRoleService.page(page, wrapperX));
+    }
+
+    @ApiOperation("用户权限")
+    @PostMapping("/user/authority")
+    public Result<UserAuthorityVO> getUserAuthority(@RequestBody GetDTO dto) {
+        UserAuthorityVO userAuthorityVO = new UserAuthorityVO();
+        List<String> roleIdList = new ArrayList<>();
+        ArrayList<HashMap<String, String>> dataSet = new DAO().getDataSet(BaseConstant.DEFAULT_POOL_NAME, "SELECT ROLE_ID FROM m4_sso_user_role WHERE USER_ID = '" + dto.getId() + "' AND PACKAGE_ID = '01'", 0, 0);
+        if (CollUtil.isNotEmpty(dataSet)) {
+            for (HashMap<String, String> map : dataSet) {
+                roleIdList.add(map.get("ROLE_ID"));
+            }
+        }
+        userAuthorityVO.setRoleIdList(roleIdList);
+        return Result.ok(userAuthorityVO);
     }
 
     @ApiOperation("编辑角色")
