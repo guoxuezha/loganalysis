@@ -44,6 +44,9 @@ public class AssetOverviewVO {
     @ApiModelProperty(value = "资产在线情况分布")
     private List<HashMap<String, Object>> assetOnlineStatusDistribution;
 
+    @ApiModelProperty(value = "资产类别分布")
+    private List<HashMap<String, Object>> assetCategoryDistribution;
+
     @ApiModelProperty(value = "最近新增资产(10条)")
     private List<NewAssetList> newAssetList;
 
@@ -146,36 +149,48 @@ public class AssetOverviewVO {
     }
 
 
+    //放入资产类别
+    public void setAssetCategoryDistribution(Map<String, List<AssetRespVO>> map) {
+        List<HashMap<String, Object>> result = new ArrayList<>();
+        for (Map.Entry<String, List<AssetRespVO>> entry : map.entrySet()) {
+            HashMap<String, Object> m = new HashMap<>();
+            m.put("name", entry.getKey());
+            m.put("num", entry.getValue().size());
+            result.add(m);
+        }
+        this.assetCategoryDistribution = result;
+    }
+
     //放入资产状态
     //在役 =在役 + 在线 + 离线  退役=退役
     public void setAssetStatusDistribution(Map<String, List<AssetRespVO>> map) {
         List<HashMap<String, Object>> result = new ArrayList<>();
-        int activeOnlineOfflineCount = 0; // 在役 + 在线 + 离线的个数
-        int retiredCount = 0; // 退役的个数
-        int emptyCount = 0; // 空的个数
+        //已纳管_在线   已纳管_离线  未纳管 三种状态
+        int managedOnlineCount = 0; // 已纳管_在线 =在役 + 在线 的个数
+        int managedOfflineCount = 0; // 已纳管_离线的个数 = 离线
+        int unmanagedCount = 0; // 未纳管个数 = 退役+空
         for (Map.Entry<String, List<AssetRespVO>> entry : map.entrySet()) {
             // 统计各个状态的个数
-            if (entry.getKey().equals("在役") || entry.getKey().equals("在线") || entry.getKey().equals("离线")) {
-                activeOnlineOfflineCount += entry.getValue().size();
-            } else if (entry.getKey().equals("退役")) {
-                retiredCount += entry.getValue().size();
-            } else if (entry.getKey().equals("")) {
-                emptyCount += entry.getValue().size();
+            if (entry.getKey().equals("在役") || entry.getKey().equals("在线")) {
+                managedOnlineCount += entry.getValue().size();
+            } else if (entry.getKey().equals("离线")) {
+                managedOfflineCount += entry.getValue().size();
+            } else if (entry.getKey().equals("")|| entry.getKey().equals("退役")) {
+                unmanagedCount += entry.getValue().size();
             }
         }
-
         HashMap<String, Object> active = new HashMap<>();
-        active.put("assetStatus", "在役");
-        active.put("num", activeOnlineOfflineCount);
+        active.put("assetStatus", "已纳管_在线");
+        active.put("num", managedOnlineCount);
         result.add(active);
         HashMap<String, Object> retired = new HashMap<>();
-        retired.put("assetStatus", "退役");
-        retired.put("num", retiredCount);
+        retired.put("assetStatus", "已纳管_离线");
+        retired.put("num", managedOfflineCount);
         result.add(retired);
-       /* HashMap<String, Object> empty = new HashMap<>();
-        empty.put("assetStatus", "未知");
-        empty.put("num", emptyCount);
-        result.add(empty);*/
+        HashMap<String, Object> empty = new HashMap<>();
+        empty.put("assetStatus", "未纳管");
+        empty.put("num", unmanagedCount);
+        result.add(empty);
         this.assetStatusDistribution = result;
     }
 

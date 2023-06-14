@@ -32,19 +32,24 @@ public class AssetTypeServiceImpl extends ServiceImpl<AssetTypeMapper, AssetType
     private volatile List<AssetTypeRespVO> typeCache;
     //排序
     private static final Comparator<AssetType> comparator = (assetType1, assetType2) -> {
-        // 比较大类（assetType）
-        if ("其他".equals(assetType1.getAssetType())) {
-            return 1;  // assetType1为大类"其他"，放在后面
-        } else if ("其他".equals(assetType2.getAssetType())) {
-            return -1; // assetType2为大类"其他"，放在后面
+        // 大类排序
+        if (assetType1.getAssetType().equals("其他")) {
+            return 1; // 将大类为其他的放在后面
+        } else if (assetType2.getAssetType().equals("其他")) {
+            return -1; // 将大类为其他的放在后面
         } else {
-            // 大类相等，比较小类（typeName）
-            if ("其他".equals(assetType1.getTypeName()) && !"其他".equals(assetType2.getTypeName())) {
-                return 1;  // assetType1的小类为"其他"，放在后面
-            } else if (!"其他".equals(assetType1.getTypeName()) && "其他".equals(assetType2.getTypeName())) {
-                return -1; // assetType2的小类为"其他"，放在后面
+            int assetTypeComparison = assetType1.getAssetType().compareTo(assetType2.getAssetType());
+            if (assetTypeComparison != 0) {
+                return assetTypeComparison; // 大类不相等，按大类排序
             } else {
-                return assetType1.getTypeName().compareTo(assetType2.getTypeName());
+                // 大类相等，小类排序
+                if (assetType1.getTypeName().equals("其他")) {
+                    return 1; // 将小类为其他的放在后面
+                } else if (assetType2.getTypeName().equals("其他")) {
+                    return -1; // 将小类为其他的放在后面
+                } else {
+                    return assetType1.getTypeName().compareTo(assetType2.getTypeName()); // 按小类排序
+                }
             }
         }
     };

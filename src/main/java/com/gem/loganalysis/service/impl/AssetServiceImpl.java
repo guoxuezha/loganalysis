@@ -307,20 +307,25 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 .filter(e->e.getAssetClass().equals("0")).count());
         //逻辑资产类型分布
         Map<String, List<AssetRespVO>> logicalAsset = assetList.stream()
-                .filter(e -> e.getAssetClass().equals("0"))
+                .filter(e -> e.getAssetClass().equals("0")&&StringUtils.isNotBlank(e.getAssetTypeName()))
                 .collect(Collectors.groupingBy(AssetRespVO::getAssetTypeName));
         assetOverviewVO.setLogicalAssetDistribution(logicalAsset);
         //物理资产类型分布
         Map<String, List<AssetRespVO>> physicalType = assetList.stream()
-                .filter(e -> e.getAssetClass().equals("1"))
-                .collect(Collectors.groupingBy(AssetRespVO::getAssetTypeName));
+                .filter(e -> e.getAssetClass().equals("1")&&StringUtils.isNotBlank(e.getTypeName()))
+                .collect(Collectors.groupingBy(AssetRespVO::getTypeName));
         assetOverviewVO.setPhysicalAssetTypeDistribution(physicalType);
         //资产状态分布
         Map<String, List<AssetRespVO>> assetStatus = assetList.stream()
                 .collect(Collectors.groupingBy(AssetRespVO::getAssetStatusName));
         assetOverviewVO.setAssetStatusDistribution(assetStatus);
         assetOverviewVO.setAssetOnlineStatusDistribution(assetStatus);
-        //最近新增资产(10条)
+        //资产类别分布
+        Map<String, List<AssetRespVO>> assetCategory = assetList.stream()
+                .filter(e -> e.getAssetClass().equals("1")&&StringUtils.isNotBlank(e.getAssetCategory()))
+                .collect(Collectors.groupingBy(AssetRespVO::getAssetCategory));
+        assetOverviewVO.setAssetCategoryDistribution(assetCategory);
+     /*   //最近新增资产(10条)
         //TODO 这个不要了 统计的没意义到时候删掉
         List<AssetRespVO> sorted = assetList.stream()
                 .sorted(Comparator.comparing(AssetRespVO::getCreateTime,Comparator.reverseOrder()))
@@ -333,9 +338,9 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 .eq(PhysicalAssetTemp::getAssetStatus, 1)
                 .orderByDesc(PhysicalAssetTemp::getScanTime)
                 .last("LIMIT 5"));
-        assetOverviewVO.setNewAssetScanList(AssetConvert.INSTANCE.convertList06(newAssetScanner));
+        assetOverviewVO.setNewAssetScanList(AssetConvert.INSTANCE.convertList06(newAssetScanner));*/
         //主机开放端口Top5
-        //TODO 改成了高危端口，不知道咋取值
+        //TODO 改成了高危端口TOP5，不知道咋取值
         Map<String, List<AssetRespVO>> ip = assetList.stream()
                 .filter(e -> e.getAssetClass().equals("0")&&StringUtils.isNotEmpty(e.getIpAddress()))
                 .collect(Collectors.groupingBy(AssetRespVO::getIpAddress));
