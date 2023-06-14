@@ -3,7 +3,6 @@ package com.gem.loganalysis.util;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.http.ContentType;
-import cn.hutool.json.JSONUtil;
 import com.gem.loganalysis.model.bo.LogAnalysisRuleBo;
 import com.gem.loganalysis.model.bo.MergeLog;
 import com.gem.utils.file.BlockData;
@@ -51,7 +50,8 @@ public class BlockFileUtil {
             analysisRuleBo.setBlockFileDay(DateUtil.format(new Date(), DatePattern.PURE_DATE_PATTERN));
             analysisRuleBo.setBlockFile(new BlockFile(getBlockFileRootPath(), analysisRuleBo.getRuleRelaId() + analysisRuleBo.getBlockFileDay() + ".DAT", analysisRuleBo.getRuleRelaId() + analysisRuleBo.getBlockFileDay() + ".IDX", true, 3, 64));
         }
-        analysisRuleBo.getBlockFile().writeData(mergeLog.getLogId(), JSONUtil.toJsonStr(mergeLog));
+        // 2023-06-13修改: 日志文件只保留message原始信息,剔除rsyslog与Merge格式化信息
+        analysisRuleBo.getBlockFile().writeData(mergeLog.getLogId(), mergeLog.getMessage());
     }
 
     /**

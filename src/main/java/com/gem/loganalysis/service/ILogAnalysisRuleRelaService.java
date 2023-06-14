@@ -3,6 +3,7 @@ package com.gem.loganalysis.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.PageResponse;
+import com.gem.loganalysis.model.bo.LogFormatter;
 import com.gem.loganalysis.model.bo.LogNormalFormTree;
 import com.gem.loganalysis.model.bo.MergeLog;
 import com.gem.loganalysis.model.dto.edit.LogFieldMappingDTO;
@@ -21,6 +22,8 @@ import com.gem.loganalysis.model.vo.AssetAnalysisRuleVO;
 public interface ILogAnalysisRuleRelaService extends IService<LogAnalysisRuleRela> {
 
     LogNormalFormTree showLogNormalForm(String ruleRelaId);
+
+    LogFormatter.SimpleTreeNode buildSourceLogTree(String ruleRelaId);
 
     Boolean editLogFieldMapping(LogFieldMappingDTO dto);
 

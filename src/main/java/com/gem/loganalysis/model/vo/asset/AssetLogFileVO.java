@@ -1,5 +1,6 @@
 package com.gem.loganalysis.model.vo.asset;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -17,21 +18,25 @@ public class AssetLogFileVO {
     /**
      * 安全等级
      */
+    @ApiModelProperty("安全等级")
     private String severity;
 
     /**
      * 输出子系统
      */
+    @ApiModelProperty("输出子系统")
     private String facility;
 
     /**
      * 文件日期
      */
+    @ApiModelProperty("文件日期")
     private String fileDate;
 
     /**
      * 文件名称
      */
+    @ApiModelProperty("文件名称")
     private String fileName;
 
 }

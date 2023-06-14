@@ -8,9 +8,12 @@ import com.gem.gemada.dal.db.pools.DAO;
 import com.gem.loganalysis.model.BaseConstant;
 import com.gem.loganalysis.service.ILogAnalysisRuleRelaService;
 import com.gem.loganalysis.util.SpringContextUtil;
+import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 日志范式化
@@ -87,7 +90,35 @@ public class LogFormatter {
         LogNormalFormTree newTree = tree.newInstance();
         newTree.formulation(messageInfoMap);
         return newTree;
+    }
 
+    public SimpleTreeNode formatSourceLog(String message) {
+        HashMap<String, Object> infoMap = getMessageInfoMap(message);
+        SimpleTreeNode root = new SimpleTreeNode();
+        root.setId("root");
+        root.setLabel("root");
+        root.setChildren(loadSourceLogInNode(infoMap));
+        return root;
+    }
+
+    private List<SimpleTreeNode> loadSourceLogInNode(HashMap<String, Object> infoMap) {
+        List<SimpleTreeNode> nodes = new ArrayList<>();
+        for (Map.Entry<String, Object> entry : infoMap.entrySet()) {
+            SimpleTreeNode node = new SimpleTreeNode();
+            String key = entry.getKey();
+            Object value = entry.getValue();
+            if (value instanceof Map) {
+                if (node.getChildren() == null) {
+                    node.setChildren(new ArrayList<>());
+                }
+                HashMap<String, Object> childMap = (HashMap<String, Object>) value;
+                node.setChildren(loadSourceLogInNode(childMap));
+            }
+            node.setId(key);
+            node.setLabel(key);
+            nodes.add(node);
+        }
+        return nodes;
     }
 
     /**
@@ -134,5 +165,15 @@ public class LogFormatter {
         return map;
     }
 
+    @Data
+    public static class SimpleTreeNode {
+
+        private String id;
+
+        private String label;
+
+        private List<SimpleTreeNode> children;
+
+    }
 
 }

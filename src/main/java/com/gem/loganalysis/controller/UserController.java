@@ -112,7 +112,7 @@ public class UserController {
     }
 
     public static void main(String[] args) {
-        System.out.println(MD5.encryptPwd("admin", "654321", "GEM#SHA512"));
+        System.out.println(MD5.encryptPwd("admin", "Ag!Sf3964@_", "GEM#SHA512"));
     }
 
     @ApiOperation("重置用户密码")

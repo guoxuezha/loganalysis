@@ -150,8 +150,8 @@ public class AssetEventServiceImpl extends ServiceImpl<AssetEventMapper, AssetEv
         return eventMonitorVO;
     }
 
-    private HashMap<Integer, List<EventOverviewVO.TypeNum>> dailyDataPadding(DateTime startDate, Map<String, List<AssetEventVO>> typeRiskListMap) {
-        HashMap<Integer, List<EventOverviewVO.TypeNum>> result = new HashMap<>(4);
+    private HashMap<String, List<EventOverviewVO.TypeNum>> dailyDataPadding(DateTime startDate, Map<String, List<AssetEventVO>> typeRiskListMap) {
+        HashMap<String, List<EventOverviewVO.TypeNum>> result = new HashMap<>(4);
         List<String> betweenDateList = getBetweenDateList(startDate != null ? startDate : new DateTime(), new DateTime());
         for (int i = 1; i <= 3; i++) {
             List<EventOverviewVO.TypeNum> list = new ArrayList<>(betweenDateList.size());
@@ -167,7 +167,21 @@ public class AssetEventServiceImpl extends ServiceImpl<AssetEventMapper, AssetEv
                 }
                 list.add(typeNum);
             }
-            result.put(i, list);
+            String key;
+            switch (i) {
+                case 1:
+                    key = "low";
+                    break;
+                case 2:
+                    key = "medium";
+                    break;
+                case 3:
+                    key = "high";
+                    break;
+                default:
+                    key = null;
+            }
+            result.put(key, list);
         }
         return result;
     }
