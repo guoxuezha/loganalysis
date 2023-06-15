@@ -28,7 +28,16 @@ public class HomeOverviewVO {
     private Integer assetTotalCount;
 
     @ApiModelProperty(value = "资产总评分")
-    private Integer assetTotalScore;
+    private Double assetTotalScore;
+
+    @ApiModelProperty(value = "低危漏洞个数")
+    private Integer lowVulnerabilityCount;
+
+    @ApiModelProperty(value = "中危险漏洞个数")
+    private Integer mediumVulnerabilityCount;
+
+    @ApiModelProperty(value = "高危漏洞个数")
+    private Integer highVulnerabilityCount;
 
     @ApiModelProperty(value = "安全设备全部数量")
     private Integer securityDeviceTotalCount;
