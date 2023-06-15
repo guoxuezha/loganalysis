@@ -1,6 +1,8 @@
 package com.gem.loganalysis.kafka;
 
 import cn.hutool.json.JSONUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gem.loganalysis.config.BusinessConfigInfo;
 import com.gem.loganalysis.model.bo.MergeLog;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +25,7 @@ import java.util.List;
  */
 @Component
 @Slf4j
-public class MyKafkaConsumer {
+public class MainKafkaConsumer {
 
     @Resource
     private KafkaTemplate<String, Object> kafkaTemplate;
@@ -34,7 +36,10 @@ public class MyKafkaConsumer {
     @Resource
     private KafkaAutoTableHandler kafkaAutoTableHandler;
 
-    @KafkaListener(topics = {"${business-config.kafkaMainTopic}"})
+    @Resource
+    private ObjectMapper objectMapper;
+
+    @KafkaListener(topics = {"logRepo4"})
     void onMessage(String record) {
         if (businessConfigInfo.getLogMonitorEnable()) {
             List<MergeLog> messageList = convertLogFormat(record);
@@ -42,7 +47,11 @@ public class MyKafkaConsumer {
                 // 根据IP分发到不同的Topic下
                 String host = mergelog.getHost();
                 NewTopic topic = kafkaAutoTableHandler.getTopic(host);
-                kafkaTemplate.send(topic.name(), mergelog);
+                try {
+                    kafkaTemplate.send(topic.name(), objectMapper.writeValueAsString(mergelog));
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     }

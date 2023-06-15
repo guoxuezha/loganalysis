@@ -3,6 +3,7 @@ package com.gem.loganalysis.config;
 import com.gem.gemada.dal.db.pools.ConnectionPools;
 import com.gem.gemada.dal.db.pools.DAO;
 import com.gem.gemada.dal.db.pools.PoolParameters;
+import com.gem.loganalysis.kafka.KafkaAutoTableHandler;
 import com.gem.loganalysis.snmpmonitor.SNMPMonitorServer;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,8 @@ public class ManagerStartup implements CommandLineRunner {
     private final PoolParameter poolParameter;
 
     private final BusinessConfigInfo businessConfigInfo;
+
+    private final KafkaAutoTableHandler kafkaAutoTableHandler;
 
     @Override
     public void run(String... args) {
@@ -63,8 +66,8 @@ public class ManagerStartup implements CommandLineRunner {
         pool.sshJdbcURL = poolParameter.getSshJdbcURL();
 
         // DAL数据库连接池初始化
-        ConnectionPools instance = ConnectionPools.getInstance();
-        instance.createRepositoryConnPool(pool);
+        ConnectionPools connectionPools = ConnectionPools.getInstance();
+        connectionPools.createRepositoryConnPool(pool);
 //        instance.createConnPools();
 
         // Gem-utils 调度器启动
@@ -72,6 +75,12 @@ public class ManagerStartup implements CommandLineRunner {
         if (businessConfigInfo.getSnmpMonitorEnable()) {
             SNMPMonitorServer.getInstance().createThreadPool();
         }
+
+        // 初始化子Topic监听线程
+        kafkaAutoTableHandler.initTopicListener();
+
+        /*GSAClientAgent gsaClientAgent = GSAClientAgent.getInstance();
+        boolean inited = gsaClientAgent.init();*/
 
     }
 

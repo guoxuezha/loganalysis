@@ -11,7 +11,7 @@
     </parent>
     <groupId>com.gem</groupId>
     <artifactId>loganalysis</artifactId>
-    <version>0.43</version>
+    <version>0.44</version>
     <name>logAnalysis</name>
     <packaging>jar</packaging>
     <description>Demo project for Spring Boot</description>
@@ -103,6 +103,12 @@
             <groupId>com.gem</groupId>
             <artifactId>gemadad-sso</artifactId>
             <version>0.0.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.gem</groupId>
+            <artifactId>gsaclient</artifactId>
+            <version>23.06.15</version>
         </dependency>
 
         <dependency>
@@ -264,6 +270,12 @@
             <version>2.7.0</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.jsoup/jsoup -->
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.15.3</version>
+        </dependency>
 
     </dependencies>
 

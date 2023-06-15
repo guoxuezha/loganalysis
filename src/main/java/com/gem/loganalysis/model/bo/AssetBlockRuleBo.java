@@ -89,9 +89,12 @@ public class AssetBlockRuleBo {
      * @return 是否需要执行封堵
      */
     public boolean needRegionBlock(String sourceIp) {
-        // 内网IP解析到的国家及省份为"0",而非"中国",添加特判以跳过内网IP的属地判断
-        if (haveIp2RegionRule && !"0".equals(this.localRegin.country)) {
+        if (haveIp2RegionRule) {
             RegionInfo sourceIpRegionInfo = new RegionInfo(sourceIp);
+            // 内网IP解析到的国家及省份为"0",而非"中国",添加特判以跳过内网IP的属地判断
+            if ("0".equals(sourceIpRegionInfo.country)) {
+                return false;
+            }
             boolean needRegionBlock = false;
             for (BlockRule blockRule : this.regionBlockRuleList) {
                 // 逐条判断是否符合属地封堵规则

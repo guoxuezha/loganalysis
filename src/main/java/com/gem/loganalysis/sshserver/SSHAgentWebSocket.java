@@ -26,7 +26,7 @@ public class SSHAgentWebSocket extends WebSocket {
 
     public SSHAgentWebSocket() {
         super();
-     //   this.setDecryptKey("SKVNMEIHJLOANSKI");
+        this.setDecryptKey("SKVNMEIHJLOANSKI");
         System.out.println("SSHAgentWebSocket=================================================>");
     }
 
@@ -64,7 +64,6 @@ public class SSHAgentWebSocket extends WebSocket {
         if (sshShell != null && message != null) {
             sshShell.writeToTerm(message);
         }
-
     }
 
     @Override

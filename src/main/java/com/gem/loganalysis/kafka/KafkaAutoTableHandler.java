@@ -32,10 +32,6 @@ public class KafkaAutoTableHandler {
     @Autowired
     private ChildKafkaConsumer childKafkaConsumer;
 
-    /*public KafkaAutoTableHandler() {
-        initTopicListener();
-    }*/
-
     /**
      * 初始化Topic监听线程和newTopic对象缓存
      */
@@ -46,19 +42,19 @@ public class KafkaAutoTableHandler {
             for (String topic : names.get()) {
                 if (topic.startsWith(BaseConstant.CHILD_TOPIC_PREFIX)) {
                     // 判断子主题监听线程是否创建
-                    if (!KafkaTopicFactory.KAFKA_CONSUMER_RUNNABLE_POOL.containsKey(topic)) {
+                    if (!kafkaTopicFactory.exitConsumer(topic)) {
                         KafkaConsumerRunnable consumerRunnable = new KafkaConsumerRunnable();
                         consumerRunnable.setConsumerConfigs(kafkaTopicFactory.consumerConfigs());
                         consumerRunnable.setTopicName(topic);
                         consumerRunnable.setChildKafkaConsumer(childKafkaConsumer);
-                        KafkaTopicFactory.KAFKA_CONSUMER_RUNNABLE_POOL.put(topic, consumerRunnable);
+                        kafkaTopicFactory.appendConsumer(topic, consumerRunnable);
                         consumerRunnable.start();
                     }
                     // 判断newTopic对象是否维护
                     String host = topic.split(BaseConstant.CHILD_TOPIC_PREFIX)[1];
                     if (TOPIC_MAP.get(host) == null) {
                         String topicName = BaseConstant.CHILD_TOPIC_PREFIX + host;
-                        NewTopic newTopic = new NewTopic(topicName, 1, (short) 1);
+                        NewTopic newTopic = new NewTopic(topicName, 2, (short) 1);
                         TOPIC_MAP.put(host, newTopic);
                     }
                 }
@@ -77,7 +73,7 @@ public class KafkaAutoTableHandler {
     public NewTopic getTopic(String host) {
         if (TOPIC_MAP.get(host) == null) {
             String topicName = BaseConstant.CHILD_TOPIC_PREFIX + host;
-            NewTopic newTopic = new NewTopic(topicName, 1, (short) 1);
+            NewTopic newTopic = new NewTopic(topicName, 2, (short) 1);
             TOPIC_MAP.put(host, newTopic);
             initTopicListener();
         }

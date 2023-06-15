@@ -37,7 +37,7 @@ public class KafkaConsumerRunnable extends Thread {
 
     @Override
     public void run() {
-        log.error("注册开始KafkaConfigRunnable {} ", topicName);
+        log.info("注册开始KafkaConfigRunnable {} ", topicName);
         if (StringUtils.isNotBlank(groupId)) {
             consumerConfigs.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         }
@@ -63,7 +63,7 @@ public class KafkaConsumerRunnable extends Thread {
         } finally {
             // 异常先关闭
             consumer.close();
-            KafkaTopicFactory.KAFKA_CONSUMER_RUNNABLE_POOL.remove(topicName);
+            KafkaTopicFactory.removeConsumer(topicName);
         }
     }
 }

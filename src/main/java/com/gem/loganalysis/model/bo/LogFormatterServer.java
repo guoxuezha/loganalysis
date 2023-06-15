@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import com.gem.gemada.dal.db.pools.DAO;
 import com.gem.loganalysis.model.BaseConstant;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,7 +14,7 @@ import java.util.Map;
  * @version 1.0
  * @date 2023/6/13 11:25
  */
-public class LogFormatterServer {
+public class LogFormatterServer implements Serializable  {
 
     private static LogFormatterServer INSTANCE = new LogFormatterServer();
 

@@ -31,7 +31,8 @@ public class WebConfig implements WebMvcConfigurer {
                     .addPathPatterns("/sop/**")
                     .addPathPatterns("/logAnalysis/**")
                     .addPathPatterns("/system/**")
-                    .excludePathPatterns("/websocket/**");
+                    .excludePathPatterns("/websocket/**")
+                    .excludePathPatterns("tempConsumer/**");
         }
     }
 
