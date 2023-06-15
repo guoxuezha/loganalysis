@@ -1,5 +1,6 @@
 package com.gem.loganalysis.model.vo;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,8 +8,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class HostVO {
-    private String severity;
+public class HostsSeverityVO {
+    private double severity;
     private String gvmAssetId;
     private String modificationTime;
     private String ip;

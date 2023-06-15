@@ -34,7 +34,7 @@ public class GSAClientAgentService {
         return instance.getHostsSeverity();
     }
 
-    //获取主机脆弱性
+    //根据reportId获取指定扫描报告
     public GVMScanReport getGVMScanReport(String reportId) {
         // 调用 GSAClientAgent 的方法并返回结果
         return instance.getGVMScanReport(reportId);

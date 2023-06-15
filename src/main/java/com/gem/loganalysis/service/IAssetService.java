@@ -10,6 +10,7 @@ import com.gem.loganalysis.model.entity.Asset;
 import com.gem.loganalysis.model.vo.HomeOverviewVO;
 import com.gem.loganalysis.model.vo.ImportRespVO;
 import com.gem.loganalysis.model.vo.asset.*;
+import org.json.JSONException;
 
 import java.util.List;
 
@@ -64,5 +65,5 @@ public interface IAssetService extends IService<Asset> {
      * 首页
      * @return
      */
-    HomeOverviewVO getHomeOverview();
+    HomeOverviewVO getHomeOverview() throws JSONException;
 }

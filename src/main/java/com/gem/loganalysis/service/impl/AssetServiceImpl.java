@@ -3,6 +3,7 @@ package com.gem.loganalysis.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gem.loganalysis.config.BusinessConfigInfo;
+import com.gem.loganalysis.config.GSAClientAgentService;
 import com.gem.loganalysis.convert.AssetConvert;
 import com.gem.loganalysis.enmu.AssetClass;
 import com.gem.loganalysis.enmu.DictType;
@@ -15,14 +16,13 @@ import com.gem.loganalysis.model.dto.asset.AssetDTO;
 import com.gem.loganalysis.model.dto.asset.AssetQueryDTO;
 import com.gem.loganalysis.model.dto.query.LambdaQueryWrapperX;
 import com.gem.loganalysis.model.entity.*;
-import com.gem.loganalysis.model.vo.AssetEventHomeOverviewVO;
-import com.gem.loganalysis.model.vo.HomeOverviewVO;
-import com.gem.loganalysis.model.vo.ImportRespVO;
-import com.gem.loganalysis.model.vo.RiskAssetRankingVO;
+import com.gem.loganalysis.model.vo.*;
 import com.gem.loganalysis.model.vo.asset.*;
 import com.gem.loganalysis.service.*;
 import com.github.pagehelper.PageHelper;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -61,6 +61,10 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     private IM4SsoUserService userService;
     @Resource
     private BusinessConfigInfo businessConfigInfo;
+    @Resource
+    private VulnerabilityService vulnerabilityService;
+    @Resource
+    private IAssetRiskService riskService;
 
     /**
      * 获取最近X个月日期
@@ -303,7 +307,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     }
 
     @Override
-    public HomeOverviewVO getHomeOverview() {
+    public HomeOverviewVO getHomeOverview() throws JSONException {
 
         HomeOverviewVO homeOverview = assetMapper.getAssetHomeOverview();
         List<AssetEventHomeOverviewVO> event = assetMapper.getEventHomeOverview();
@@ -320,44 +324,39 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             }
         });
         // 示例数据
-        List<RiskAssetRankingVO> nonEndpointRiskAssetRanking = new ArrayList<>();
-        List<RiskAssetRankingVO> endpointRiskAssetRanking = new ArrayList<>();
+        List<RiskAssetRankingVO> nonEndpointRiskAssetRanking = new ArrayList<>();//网络安全设备脆弱性
+        List<RiskAssetRankingVO> endpointRiskAssetRanking = new ArrayList<>();//IT设备脆弱性
 
-        RiskAssetRankingVO nonEndpointRiskAsset1 = new RiskAssetRankingVO("192.168.0.11", 99);
-        RiskAssetRankingVO nonEndpointRiskAsset2 = new RiskAssetRankingVO("192.168.0.32", 95);
-        RiskAssetRankingVO nonEndpointRiskAsset3 = new RiskAssetRankingVO("192.168.0.3", 92);
-        RiskAssetRankingVO nonEndpointRiskAsset4 = new RiskAssetRankingVO("192.168.0.24", 87);
-        RiskAssetRankingVO nonEndpointRiskAsset5 = new RiskAssetRankingVO("192.168.0.15", 85);
+        List<Map.Entry<String, Double>> netSecurityDeviceTop5 = vulnerabilityService.getNetSecurityDeviceTop5();
+        for (Map.Entry<String, Double> entry : netSecurityDeviceTop5) {
+            String ipAddress = entry.getKey();
+            Double severity = entry.getValue();
+            nonEndpointRiskAssetRanking.add(new RiskAssetRankingVO(ipAddress, severity));
+        }
 
-        RiskAssetRankingVO endpointRiskAsset1 = new RiskAssetRankingVO("192.168.1.41", 97);
-        RiskAssetRankingVO endpointRiskAsset2 = new RiskAssetRankingVO("192.168.1.22", 97);
-        RiskAssetRankingVO endpointRiskAsset3 = new RiskAssetRankingVO("192.168.1.36", 96);
-        RiskAssetRankingVO endpointRiskAsset4 = new RiskAssetRankingVO("192.168.1.12", 88);
-        RiskAssetRankingVO endpointRiskAsset5 = new RiskAssetRankingVO("192.168.1.5", 86);
-
-        nonEndpointRiskAssetRanking.add(nonEndpointRiskAsset1);
-        nonEndpointRiskAssetRanking.add(nonEndpointRiskAsset2);
-        nonEndpointRiskAssetRanking.add(nonEndpointRiskAsset3);
-        nonEndpointRiskAssetRanking.add(nonEndpointRiskAsset4);
-        nonEndpointRiskAssetRanking.add(nonEndpointRiskAsset5);
-
-        endpointRiskAssetRanking.add(endpointRiskAsset1);
-        endpointRiskAssetRanking.add(endpointRiskAsset2);
-        endpointRiskAssetRanking.add(endpointRiskAsset3);
-        endpointRiskAssetRanking.add(endpointRiskAsset4);
-        endpointRiskAssetRanking.add(endpointRiskAsset5);
-
-        //TODO 明天把能取到的取到
+        List<HostsSeverityVO> deviceTop = vulnerabilityService.getDeviceTop();
+        List<AssetRespVO> assetList = getAssetList(new AssetQueryDTO());
+        //所有数据和IT设备比对，放入IT设备
+        List<HostsSeverityVO> filteredData = deviceTop.stream()
+                .filter(device -> assetList.stream()
+                        .anyMatch(asset -> asset.getIpAddress().equals(device.getIp()) && asset.getAssetCategory().equals("服务器")))
+                .limit(5)
+                .collect(Collectors.toList());
+        filteredData.forEach(e->{
+            endpointRiskAssetRanking.add(new RiskAssetRankingVO(e.getIp(), e.getSeverity()));
+        });
+        //漏洞
+        VulnDataVO vulnDataVO = vulnerabilityService.getAggregateForVulnBySeverity();
+        Integer totalVuln = vulnDataVO.getLow()+vulnDataVO.getMiddle()+vulnDataVO.getHigh();
+        //风险 目前漏洞没有放到风险里 所以风险个数为漏洞+风险
+        int riskCount =(int) riskService.count();
         homeOverview
-                .setAssetTotalScore(69.72) // 资产总评分
-                .setLowVulnerabilityCount(4)//低危漏洞
-                .setMediumVulnerabilityCount(16)//中危漏洞
-                .setHighVulnerabilityCount(1)//高危漏洞
-                .setSecurityVulnerabilityCount(21) // 安全漏洞数量
-                .setComplianceVulnerabilityCount(0) // 合规漏洞数量
-                .setCloudAssetRiskCount(0) // 云资产风险数量
-                .setBaselineRiskCount(0) // 基线风险数量
-                .setTotalRiskCount(21) // 风险总数
+                .setAssetTotalScore(vulnDataVO.getScore()) // 资产总评分
+                .setLowVulnerabilityCount(vulnDataVO.getLow())//低危漏洞
+                .setMediumVulnerabilityCount(vulnDataVO.getMiddle())//中危漏洞
+                .setHighVulnerabilityCount(vulnDataVO.getHigh())//高危漏洞
+                .setSecurityVulnerabilityCount(totalVuln) // 安全漏洞数量
+                .setTotalRiskCount(riskCount+totalVuln) // 风险总数
                 .setDateList(weekDateList()) // 近七天日期集合
                 .setLowRiskCount(Arrays.asList(5, 6, 3, 8, 4, 4, 4)) // 近七天低风险集合
                 .setMediumRiskCount(Arrays.asList(15, 14, 13, 14, 14, 15, 16)) // 近七天中风险集合
@@ -367,8 +366,8 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 .setNetworkDeviceAssetScore(Arrays.asList(82, 85, 89, 86, 88 ,90 , 88))//近七天网络设备资产评分集合
                 .setItDeviceAssetScore(Arrays.asList(80, 85, 90, 88, 86 ,86, 91))//近七天IT设备资产评分集合
                 .setLogicalAssetScore(Arrays.asList(90, 88, 92, 85, 91, 92, 89))//近七天逻辑资产评分集合
-                .setNonEndpointRiskAssetRanking(nonEndpointRiskAssetRanking)//非终端风险资产排行
-                .setEndpointRiskAssetRanking(endpointRiskAssetRanking);//终端风险资产排行
+                .setNonEndpointRiskAssetRanking(nonEndpointRiskAssetRanking)//网络安全设备脆弱性
+                .setEndpointRiskAssetRanking(endpointRiskAssetRanking);//IT设备脆弱性
         return homeOverview;
     }
 

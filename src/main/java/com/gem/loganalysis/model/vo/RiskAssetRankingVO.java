@@ -18,5 +18,5 @@ public class RiskAssetRankingVO {
     private String name;
 
     @ApiModelProperty(value = "评分")
-    private Integer score;
+    private Double score;
 }
