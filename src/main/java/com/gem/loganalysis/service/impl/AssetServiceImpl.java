@@ -103,11 +103,19 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     }
 
     @Override
-    public PageResponse<AssetRespVO> getPageList(PageRequest<AssetQueryDTO> dto) {
+    public PageResponse<AssetRespVO> getPageList(PageRequest<AssetQueryDTO> dto) throws JSONException {
         com.github.pagehelper.Page<AssetRespVO> result = PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
         assetMapper.getAssetList(dto.getData());
         //转义
+        List<HostsSeverityVO> deviceTop = vulnerabilityService.getDeviceTop();
         result.forEach(e -> {
+            String ip = e.getIpAddress();
+            for (HostsSeverityVO hostsSeverityVO : deviceTop) {
+                if (ip.equals(hostsSeverityVO.getIp())) {
+                    e.setSeverity(hostsSeverityVO.getSeverity());
+                    break; // 找到匹配的 IP 后退出内层循环
+                }
+            }
             //TODO 资产的安全状态目前先全部放安全，等待之后风险部分完成再放入
             e.setAssetSecurityStatus("2");
             changeAssetName(e);
@@ -120,10 +128,19 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     }
 
     @Override
-    public List<AssetRespVO> getAssetList(AssetQueryDTO dto) {
+    public List<AssetRespVO> getAssetList(AssetQueryDTO dto) throws JSONException {
         List<AssetRespVO> assetRespVOList = assetMapper.getAssetList(dto);
+        List<HostsSeverityVO> deviceTop = vulnerabilityService.getDeviceTop();
+        System.out.println("deviceTop"+deviceTop);
         //转义
         assetRespVOList.forEach(e -> {
+            String ip = e.getIpAddress();
+            for (HostsSeverityVO hostsSeverityVO : deviceTop) {
+                if (ip.equals(hostsSeverityVO.getIp())) {
+                    e.setSeverity(hostsSeverityVO.getSeverity());
+                    break; // 找到匹配的 IP 后退出内层循环
+                }
+            }
             //TODO 资产的安全状态目前先全部放安全，等待之后风险部分完成再放入
             e.setAssetSecurityStatus("2");
             changeAssetName(e);
@@ -372,6 +389,11 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     @Override
     public ScreeShowVO screenShow() {
         ScreeShowVO result = new ScreeShowVO();
+        HomeOverviewVO homeOverview = assetMapper.getAssetHomeOverview();
+        result.setSafeEquipmentNum(homeOverview.getSecurityDeviceTotalCount());
+        result.setNetworkEquipmentNum(homeOverview.getNetworkDeviceTotalCount());
+        result.setITEquipmentNum(homeOverview.getItDeviceTotalCount());
+        result.setTerminalEquipmentNum(homeOverview.getEndpointDeviceTotalCount());
         return result;
     }
 
@@ -401,7 +423,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     }
 
     @Override
-    public AssetOverviewVO getOverviewInfo() {
+    public AssetOverviewVO getOverviewInfo() throws JSONException {
         AssetOverviewVO assetOverviewVO = new AssetOverviewVO();
         List<AssetRespVO> assetList = getAssetList(new AssetQueryDTO());
         //内存中进行计算

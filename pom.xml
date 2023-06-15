@@ -90,7 +90,7 @@
         <dependency>
             <groupId>com.gem</groupId>
             <artifactId>gemel-utils</artifactId>
-            <version>23.06.01.001</version>
+            <version>23.06.16.001</version>
         </dependency>
 
         <dependency>
@@ -108,7 +108,7 @@
         <dependency>
             <groupId>com.gem</groupId>
             <artifactId>gsaclient</artifactId>
-            <version>23.06.15.002</version>
+            <version>23.06.15.003</version>
         </dependency>
 
         <dependency>

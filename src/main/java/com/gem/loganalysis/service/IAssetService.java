@@ -36,7 +36,7 @@ public interface IAssetService extends IService<Asset> {
      * @param dto
      * @return
      */
-    PageResponse<AssetRespVO> getPageList(PageRequest<AssetQueryDTO> dto);
+    PageResponse<AssetRespVO> getPageList(PageRequest<AssetQueryDTO> dto) throws JSONException;
 
     AssetRespVO getAsset(String id);
 
@@ -47,9 +47,9 @@ public interface IAssetService extends IService<Asset> {
      *
      * @return
      */
-    AssetOverviewVO getOverviewInfo();
+    AssetOverviewVO getOverviewInfo() throws JSONException;
 
-    List<AssetRespVO> getAssetList(AssetQueryDTO dto);
+    List<AssetRespVO> getAssetList(AssetQueryDTO dto) throws JSONException;
 
     /**
      * 导入逻辑资产

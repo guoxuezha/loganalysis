@@ -125,7 +125,7 @@ public class GSAClientAgentService {
     }
 
     //getTask
-    public String getTask(String taskId) {
+    public JSONObject getTask(String taskId) {
         // 调用 GSAClientAgent 的方法并返回结果
         return instance.getTask(taskId);
     }
@@ -137,7 +137,7 @@ public class GSAClientAgentService {
     }
 
     //getReport
-    public String getReport(String reportId) {
+    public JSONObject getReport(String reportId) {
         // 调用 GSAClientAgent 的方法并返回结果
         return instance.getReport(reportId);
     }
@@ -196,7 +196,27 @@ public class GSAClientAgentService {
         return instance.getTaskMap();
     }
 
+    //executeTaskByHostIP
+    public boolean executeTaskByHostIP(String hostIP) {
+        // 调用 GSAClientAgent 的方法并返回结果
+        return instance.executeTaskByHostIP(hostIP);
+    }
 
+    //getTaskProgressByHostIP
+    public String getTaskProgressByHostIP(String hostIP) {
+        // 调用 GSAClientAgent 的方法并返回结果
+        return instance.getTaskProgressByHostIP(hostIP);
+    }
 
+    //getReportByHostIP
+    public JSONObject getReportByHostIP(String hostIP) {
+        // 调用 GSAClientAgent 的方法并返回结果
+        return instance.getReportByHostIP(hostIP);
+    }
 
+    //getReportByHostIP
+    public JSONObject getTaskByHostIP(String hostIP) {
+        // 调用 GSAClientAgent 的方法并返回结果
+        return instance.getTaskByHostIP(hostIP);
+    }
 }

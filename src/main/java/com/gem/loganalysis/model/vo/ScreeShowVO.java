@@ -50,10 +50,6 @@ public class ScreeShowVO {
     private List<TypeNum> blackAndWhiteList;
 
     public ScreeShowVO() {
-        safeEquipmentNum = 1632;
-        networkEquipmentNum = 632;
-        ITEquipmentNum = 1342;
-        terminalEquipmentNum = 32;
         DAO dao = new DAO();
 
         riskAssetTop = new ArrayList<>();

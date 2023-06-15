@@ -77,14 +77,14 @@ public class AssetController {
 
     @PostMapping("/pageList")
     @ApiOperation("分页查询安全管理资产")
-    public Result<PageResponse<AssetRespVO>> pageList(@RequestBody PageRequest<AssetQueryDTO> dto) {
+    public Result<PageResponse<AssetRespVO>> pageList(@RequestBody PageRequest<AssetQueryDTO> dto) throws JSONException {
         dto.getData().setAssetManagerId(getAuthorityUserId());//鉴权
         return Result.ok(assetService.getPageList(dto));
     }
 
     @PostMapping("/list")
     @ApiOperation("查询安全管理资产列表")
-    public Result<List<AssetRespVO>> pageList(@RequestBody AssetQueryDTO dto) {
+    public Result<List<AssetRespVO>> pageList(@RequestBody AssetQueryDTO dto) throws JSONException {
         dto.setAssetManagerId(getAuthorityUserId());//鉴权
         return Result.ok(assetService.getAssetList(dto));
     }
@@ -118,7 +118,7 @@ public class AssetController {
 
     @PostMapping("/overview")
     @ApiOperation("资产总览")
-    public Result<AssetOverviewVO> overview() {
+    public Result<AssetOverviewVO> overview() throws JSONException {
         return Result.ok(assetService.getOverviewInfo());
     }
 
@@ -267,7 +267,7 @@ public class AssetController {
 
     @PostMapping("/export-physical")
     @ApiOperation("导出物理资产")
-    public void exportPhysical(HttpServletResponse response) throws IOException {
+    public void exportPhysical(HttpServletResponse response) throws IOException, JSONException {
         List<AssetRespVO> assetList = assetService.getAssetList(new AssetQueryDTO().setAssetClass(AssetClass.PHYSICAL.getId()));
         // 输出
         ExcelUtils.write(response, "物理资产列表.xlsx", "物理资产"
@@ -276,7 +276,7 @@ public class AssetController {
 
     @PostMapping("/export-logical")
     @ApiOperation("导出逻辑资产")
-    public void exportLogical(HttpServletResponse response) throws IOException {
+    public void exportLogical(HttpServletResponse response) throws IOException, JSONException {
         List<AssetRespVO> assetList = assetService.getAssetList(new AssetQueryDTO().setAssetClass(AssetClass.LOGICAL.getId()));
         // 输出
         ExcelUtils.write(response, "逻辑资产列表.xlsx", "逻辑资产"

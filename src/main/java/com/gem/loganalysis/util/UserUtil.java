@@ -1,6 +1,7 @@
 package com.gem.loganalysis.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -24,6 +25,9 @@ public class UserUtil {
     public static String getAuthorityUserId() {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
         String roleIdList = request.getHeader("roleIdList");
+        if(StringUtils.isBlank(roleIdList)){
+            return null;
+        }
         List<String> roleIds = Arrays.asList(roleIdList.split(","));
         if (roleIds.isEmpty() || !roleIds.contains("1")) {
            return getLoginUserId();
