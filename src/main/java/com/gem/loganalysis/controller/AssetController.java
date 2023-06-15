@@ -19,6 +19,7 @@ import com.gem.loganalysis.model.entity.M4SsoOrg;
 import com.gem.loganalysis.model.vo.DictItemRespVO;
 import com.gem.loganalysis.model.vo.HomeOverviewVO;
 import com.gem.loganalysis.model.vo.ImportRespVO;
+import com.gem.loganalysis.model.vo.ScreeShowVO;
 import com.gem.loganalysis.model.vo.asset.*;
 import com.gem.loganalysis.service.*;
 import com.gem.loganalysis.util.ExcelUtils;
@@ -26,7 +27,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
-import org.json.JSONException;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -306,10 +306,15 @@ public class AssetController {
 
     @PostMapping("/homeOverview")
     @ApiOperation("首页总览")
-    public Result<HomeOverviewVO> getHomeOverview() throws JSONException {
+    public Result<HomeOverviewVO> getHomeOverview() {
         HomeOverviewVO homeOverview = assetService.getHomeOverview();
         return Result.ok(homeOverview);
     }
 
+    @PostMapping("/screenShow")
+    @ApiOperation("大屏展示")
+    public Result<ScreeShowVO> screenShow() {
+        return Result.ok(assetService.screenShow());
+    }
 
 }

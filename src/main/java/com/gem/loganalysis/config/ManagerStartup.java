@@ -72,16 +72,13 @@ public class ManagerStartup implements CommandLineRunner {
 
         // Gem-utils 调度器启动
 //        Schedule.getInstance().start();
+
         if (businessConfigInfo.getSnmpMonitorEnable()) {
             SNMPMonitorServer.getInstance().createThreadPool();
         }
 
         // 初始化子Topic监听线程
         kafkaAutoTableHandler.initTopicListener();
-
-        /*GSAClientAgent gsaClientAgent = GSAClientAgent.getInstance();
-        boolean inited = gsaClientAgent.init();*/
-
     }
 
     @Bean

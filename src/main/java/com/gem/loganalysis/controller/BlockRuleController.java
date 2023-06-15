@@ -1,6 +1,5 @@
 package com.gem.loganalysis.controller;
 
-
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
@@ -117,25 +116,26 @@ public class BlockRuleController {
         Page<BlockRecord> page = new Page<>(dto.getPageNum(), dto.getPageSize());
         BlockRecordQueryDTO data = dto.getData();
         LambdaQueryWrapperX<BlockRecord> wrapperX = new LambdaQueryWrapperX<>();
-        wrapperX.eq(BlockRecord::getBlockState, data.getRecordType())
-                .eqIfPresent(BlockRecord::getAssetId, data.getAssetId())
+        wrapperX.eqIfPresent(BlockRecord::getAssetId, data.getAssetId())
                 .eqIfPresent(BlockRecord::getBlockType, data.getBlockType())
                 .eqIfPresent(BlockRecord::getBlockMode, data.getBlockMode())
                 .eqIfPresent(BlockRecord::getBlockIp, data.getBlockOffIp());
-        switch (data.getRecordType()) {
-            case 1:
-                wrapperX.geIfPresent(BlockRecord::getBlockBeginTime, format(data.getStartTime()))
-                        .leIfPresent(BlockRecord::getBlockBeginTime, format(data.getEndTime()));
-                break;
-            case 2:
-                wrapperX.geIfPresent(BlockRecord::getBlockEndTime, format(data.getStartTime()))
-                        .leIfPresent(BlockRecord::getBlockEndTime, format(data.getEndTime()));
-                break;
-            default:
-                return Result.failed("参数异常!");
+        if (data.getRecordType() != null) {
+            wrapperX.eq(BlockRecord::getBlockState, data.getRecordType());
+            switch (data.getRecordType()) {
+                case 1:
+                    wrapperX.geIfPresent(BlockRecord::getBlockBeginTime, format(data.getStartTime()))
+                            .leIfPresent(BlockRecord::getBlockBeginTime, format(data.getEndTime()));
+                    break;
+                case 2:
+                    wrapperX.geIfPresent(BlockRecord::getBlockEndTime, format(data.getStartTime()))
+                            .leIfPresent(BlockRecord::getBlockEndTime, format(data.getEndTime()));
+                    break;
+                default:
+                    break;
+            }
         }
         return Result.ok(iBlockRecordService.page(page, wrapperX));
     }
-
 
 }

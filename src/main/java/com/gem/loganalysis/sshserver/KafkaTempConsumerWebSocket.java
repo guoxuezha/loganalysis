@@ -15,6 +15,8 @@ import javax.websocket.server.ServerEndpoint;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static java.lang.Thread.State.NEW;
+
 /**
  * 临时消费者
  *
@@ -46,7 +48,10 @@ public class KafkaTempConsumerWebSocket extends WebSocket {
             if (tempConsumerRunnable == null) {
                 return "不存在目标Topic!";
             }
-            tempConsumerRunnable.start();
+            Thread.State state = tempConsumerRunnable.getState();
+            if (NEW.equals(state)) {
+                tempConsumerRunnable.start();
+            }
             return "订阅成功!";
         }
         return "不存在目标资产!";

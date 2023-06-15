@@ -4,7 +4,7 @@ business-config:
   authenticationEnable: false
   responseEncryptEnable: false
   AESKey: SKVNMEIHJLOANSKI
-  logMonitorEnable: true
+  logMonitorEnable: false
   adadDefaultPackage: "defaultPackage"
   logBlockFileRetentionDays: 7
   snmpMonitorEnable: false
