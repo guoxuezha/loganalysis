@@ -63,6 +63,8 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     private VulnerabilityService vulnerabilityService;
     @Resource
     private IAssetRiskService riskService;
+    @Resource
+    private IDailyDataService dailyDataService;
 
     /**
      * 获取最近X个月日期
@@ -131,7 +133,6 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     public List<AssetRespVO> getAssetList(AssetQueryDTO dto) throws JSONException {
         List<AssetRespVO> assetRespVOList = assetMapper.getAssetList(dto);
         List<HostsSeverityVO> deviceTop = vulnerabilityService.getDeviceTop();
-        System.out.println("deviceTop"+deviceTop);
         //转义
         assetRespVOList.forEach(e -> {
             String ip = e.getIpAddress();
@@ -338,9 +339,60 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                         .setItDeviceEventsPendingCount(e.getPendingEventCount()); // 当日IT设备事件未处理次数
             }
         });
-        // 示例数据
+        // 数据
         List<RiskAssetRankingVO> nonEndpointRiskAssetRanking = new ArrayList<>();//网络安全设备脆弱性
         List<RiskAssetRankingVO> endpointRiskAssetRanking = new ArrayList<>();//IT设备脆弱性
+
+        //备用数据
+    /*    RiskAssetRankingVO asset15 = new RiskAssetRankingVO();
+        asset15.setName("172.16.208.31");
+        asset15.setScore(10.0);
+        endpointRiskAssetRanking.add(asset15);
+
+        RiskAssetRankingVO asset25 = new RiskAssetRankingVO();
+        asset25.setName("192.168.24.30");
+        asset25.setScore(7.5);
+        endpointRiskAssetRanking.add(asset25);
+
+        RiskAssetRankingVO asset35 = new RiskAssetRankingVO();
+        asset35.setName("192.168.5.93");
+        asset35.setScore(7.5);
+        endpointRiskAssetRanking.add(asset35);
+
+        RiskAssetRankingVO asset45 = new RiskAssetRankingVO();
+        asset45.setName("192.168.6.15");
+        asset45.setScore(6.4);
+        endpointRiskAssetRanking.add(asset45);
+
+        RiskAssetRankingVO asset55 = new RiskAssetRankingVO();
+        asset55.setName("192.168.6.12");
+        asset55.setScore(5.9);
+        endpointRiskAssetRanking.add(asset55);
+
+        RiskAssetRankingVO asset1 = new RiskAssetRankingVO();
+        asset1.setName("172.16.200.75");
+        asset1.setScore(6.4);
+        nonEndpointRiskAssetRanking.add(asset1);
+
+        RiskAssetRankingVO asset2 = new RiskAssetRankingVO();
+        asset2.setName("172.16.200.77");
+        asset2.setScore(6.4);
+        nonEndpointRiskAssetRanking.add(asset2);
+
+        RiskAssetRankingVO asset3 = new RiskAssetRankingVO();
+        asset3.setName("172.16.200.78");
+        asset3.setScore(6.4);
+        nonEndpointRiskAssetRanking.add(asset3);
+
+        RiskAssetRankingVO asset4 = new RiskAssetRankingVO();
+        asset4.setName("172.16.200.76");
+        asset4.setScore(5.3);
+        nonEndpointRiskAssetRanking.add(asset4);
+
+        RiskAssetRankingVO asset5 = new RiskAssetRankingVO();
+        asset5.setName("172.16.200.54");
+        asset5.setScore(5.3);
+        nonEndpointRiskAssetRanking.add(asset5);*/
 
         List<Map.Entry<String, Double>> netSecurityDeviceTop5 = vulnerabilityService.getNetSecurityDeviceTop5();
         for (Map.Entry<String, Double> entry : netSecurityDeviceTop5) {
@@ -371,7 +423,54 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 .setMediumVulnerabilityCount(vulnDataVO.getMiddle())//中危漏洞
                 .setHighVulnerabilityCount(vulnDataVO.getHigh())//高危漏洞
                 .setSecurityVulnerabilityCount(totalVuln) // 安全漏洞数量
-                .setTotalRiskCount(riskCount+totalVuln) // 风险总数
+                .setTotalRiskCount(riskCount+totalVuln); // 风险总数
+
+        //备用数据
+    /*    int riskCount =(int) riskService.count();
+        homeOverview
+                .setAssetTotalScore(68.92) // 资产总评分
+                .setLowVulnerabilityCount(5)//低危漏洞
+                .setMediumVulnerabilityCount(24)//中危漏洞
+                .setHighVulnerabilityCount(3)//高危漏洞
+                .setSecurityVulnerabilityCount(32) // 安全漏洞数量
+                .setTotalRiskCount(riskCount+32); // 风险总数*/
+
+        List<DailyData> list = dailyDataService.list(new LambdaQueryWrapperX<DailyData>().orderByAsc(DailyData::getDateTime).last("LIMIT 7"));
+        List<String> dateList = new ArrayList<>(); // 近七天日期集合
+        List<Integer> lowRiskCountList = new ArrayList<>(); // 近七天低风险集合
+        List<Integer> mediumRiskCountList = new ArrayList<>(); // 近七天中风险集合
+        List<Integer> highRiskCountList = new ArrayList<>(); // 近七天高风险集合
+        List<Double> exportDeviceLoadList = new ArrayList<>(); // 近七天出口设备负荷(流量)
+        List<Double> securityDeviceAssetScoreList = new ArrayList<>(); // 近七天安全设备资产评分集合
+        List<Double> networkDeviceAssetScoreList = new ArrayList<>(); // 近七天网络设备资产评分集合
+        List<Double> itDeviceAssetScoreList = new ArrayList<>(); // 近七天IT设备资产评分集合
+        List<Double> logicalAssetScoreList = new ArrayList<>(); // 近七天逻辑资产评分集合
+        list.forEach(e -> {
+            dateList.add(e.getDateTime() != null ? e.getDateTime() : "0");
+            lowRiskCountList.add(e.getLowRiskCount() != null ? e.getLowRiskCount() : 0);
+            mediumRiskCountList.add(e.getMediumRiskCount() != null ? e.getMediumRiskCount() : 0);
+            highRiskCountList.add(e.getHighRiskCount() != null ? e.getHighRiskCount() : 0);
+            exportDeviceLoadList.add(e.getExportDeviceLoad() != null ? e.getExportDeviceLoad() : 0.0);
+            securityDeviceAssetScoreList.add(e.getSecurityDeviceAssetScore() != null ? e.getSecurityDeviceAssetScore() : 0.0);
+            networkDeviceAssetScoreList.add(e.getNetworkDeviceAssetScore() != null ? e.getNetworkDeviceAssetScore() : 0.0);
+            itDeviceAssetScoreList.add(e.getItDeviceAssetScore() != null ? e.getItDeviceAssetScore() : 0.0);
+            logicalAssetScoreList.add(e.getLogicalAssetScore() != null ? e.getLogicalAssetScore() : 0.0);
+        });
+
+        homeOverview
+                .setDateList(dateList) // 近七天日期集合
+                .setLowRiskCount(lowRiskCountList) // 近七天低风险集合
+                .setMediumRiskCount(mediumRiskCountList) // 近七天中风险集合
+                .setHighRiskCount(highRiskCountList) // 近七天高风险集合
+                .setExportDeviceLoad(exportDeviceLoadList) // 近七天出口设备负荷(流量)
+                .setSecurityDeviceAssetScore(securityDeviceAssetScoreList)//近七天安全设备资产评分集合
+                .setNetworkDeviceAssetScore(networkDeviceAssetScoreList)//近七天网络设备资产评分集合
+                .setItDeviceAssetScore(itDeviceAssetScoreList)//近七天IT设备资产评分集合
+                .setLogicalAssetScore(logicalAssetScoreList)//近七天逻辑资产评分集合
+                .setNonEndpointRiskAssetRanking(nonEndpointRiskAssetRanking)//网络安全设备脆弱性
+                .setEndpointRiskAssetRanking(endpointRiskAssetRanking);//IT设备脆弱性
+
+      /*  homeOverview
                 .setDateList(weekDateList()) // 近七天日期集合
                 .setLowRiskCount(Arrays.asList(5, 6, 3, 8, 4, 4, 4)) // 近七天低风险集合
                 .setMediumRiskCount(Arrays.asList(15, 14, 13, 14, 14, 15, 16)) // 近七天中风险集合
@@ -382,18 +481,101 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 .setItDeviceAssetScore(Arrays.asList(80, 85, 90, 88, 86 ,86, 91))//近七天IT设备资产评分集合
                 .setLogicalAssetScore(Arrays.asList(90, 88, 92, 85, 91, 92, 89))//近七天逻辑资产评分集合
                 .setNonEndpointRiskAssetRanking(nonEndpointRiskAssetRanking)//网络安全设备脆弱性
-                .setEndpointRiskAssetRanking(endpointRiskAssetRanking);//IT设备脆弱性
+                .setEndpointRiskAssetRanking(endpointRiskAssetRanking);//IT设备脆弱性*/
         return homeOverview;
     }
 
     @Override
-    public ScreeShowVO screenShow() {
+    public ScreeShowVO screenShow() throws JSONException {
         ScreeShowVO result = new ScreeShowVO();
         HomeOverviewVO homeOverview = assetMapper.getAssetHomeOverview();
         result.setSafeEquipmentNum(homeOverview.getSecurityDeviceTotalCount());
         result.setNetworkEquipmentNum(homeOverview.getNetworkDeviceTotalCount());
         result.setITEquipmentNum(homeOverview.getItDeviceTotalCount());
         result.setTerminalEquipmentNum(homeOverview.getEndpointDeviceTotalCount());
+
+        List<HostsSeverityVO> deviceTop = vulnerabilityService.getDeviceTop();
+        List<Asset> assetList = this.list();
+        Map<String, String> ipToAssetNameMap = new HashMap<>();
+        // 创建一个Map，以IP作为键，资产名称作为值
+        for (Asset asset : assetList) {
+            ipToAssetNameMap.put(asset.getIpAddress(), asset.getAssetName());
+        }
+        // 遍历deviceTop列表，并根据IP匹配资产名称
+        for (HostsSeverityVO device : deviceTop) {
+            String ipAddress = device.getIp();
+            String assetName = ipToAssetNameMap.get(ipAddress);
+            // 将匹配到的资产名称设置到device对象中
+            device.setAssetName(assetName);
+        }
+        List<HostsSeverityVO> collect = deviceTop.stream().limit(10)
+                .collect(Collectors.toList());
+        result.setRiskAsset(collect);
+
+        //备用数据
+       /* List<HostsSeverityVO> hostSeverityList = new ArrayList<>();
+
+        HostsSeverityVO host1 = new HostsSeverityVO();
+        host1.setAssetName("办公-windows7");
+        host1.setIp("172.16.208.31");
+        host1.setSeverity(10);
+        hostSeverityList.add(host1);
+
+        HostsSeverityVO host2 = new HostsSeverityVO();
+        host2.setAssetName("Master节点");
+        host2.setIp("192.168.24.30");
+        host2.setSeverity(7.5);
+        hostSeverityList.add(host2);
+
+        HostsSeverityVO host3 = new HostsSeverityVO();
+        host3.setAssetName("疫情防控系统004");
+        host3.setIp("192.168.5.93");
+        host3.setSeverity(7.5);
+        hostSeverityList.add(host3);
+
+        HostsSeverityVO host4 = new HostsSeverityVO();
+        host4.setAssetName("绿盟综合威胁探针");
+        host4.setIp("172.16.200.75");
+        host4.setSeverity(6.4);
+        hostSeverityList.add(host4);
+
+        HostsSeverityVO host5 = new HostsSeverityVO();
+        host5.setAssetName("绿盟入侵防御1");
+        host5.setIp("172.16.200.77");
+        host5.setSeverity(6.4);
+        hostSeverityList.add(host5);
+
+        HostsSeverityVO host6 = new HostsSeverityVO();
+        host6.setAssetName("翼安居平台服务器5");
+        host6.setIp("192.168.6.15");
+        host6.setSeverity(6.4);
+        hostSeverityList.add(host6);
+
+        HostsSeverityVO host7 = new HostsSeverityVO();
+        host7.setAssetName("绿盟入侵防御2");
+        host7.setIp("172.16.200.78");
+        host7.setSeverity(6.4);
+        hostSeverityList.add(host7);
+
+        HostsSeverityVO host8 = new HostsSeverityVO();
+        host8.setAssetName("devops004");
+        host8.setIp("192.168.5.121");
+        host8.setSeverity(5.3);
+        hostSeverityList.add(host8);
+
+        HostsSeverityVO host9 = new HostsSeverityVO();
+        host9.setAssetName("一期存储磁阵");
+        host9.setIp("172.16.200.60");
+        host9.setSeverity(5.3);
+        hostSeverityList.add(host9);
+
+        HostsSeverityVO host10 = new HostsSeverityVO();
+        host10.setAssetName("门禁系统001");
+        host10.setIp("192.168.5.174");
+        host10.setSeverity(5.3);
+        hostSeverityList.add(host10);
+        result.setRiskAsset(hostSeverityList);*/
+
         return result;
     }
 

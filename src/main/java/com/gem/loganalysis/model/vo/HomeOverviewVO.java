@@ -112,19 +112,19 @@ public class HomeOverviewVO {
     private List<Integer> highRiskCount;
 
     @ApiModelProperty(value = "近七天出口设备负荷(流量)集合")
-    private List<Integer> exportDeviceLoad;
+    private List<Double> exportDeviceLoad;
 
     @ApiModelProperty(value = "近七天安全设备资产评分集合")
-    private List<Integer> securityDeviceAssetScore;
+    private List<Double> securityDeviceAssetScore;
 
     @ApiModelProperty(value = "近七天网络设备资产评分集合")
-    private List<Integer> networkDeviceAssetScore;
+    private List<Double> networkDeviceAssetScore;
 
     @ApiModelProperty(value = "近七天IT设备资产评分集合")
-    private List<Integer> itDeviceAssetScore;
+    private List<Double> itDeviceAssetScore;
 
     @ApiModelProperty(value = "近七天逻辑资产评分集合")
-    private List<Integer> logicalAssetScore;
+    private List<Double> logicalAssetScore;
 
     @ApiModelProperty(value = "非终端风险资产排行")
     private List<RiskAssetRankingVO> nonEndpointRiskAssetRanking;

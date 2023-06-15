@@ -40,7 +40,11 @@ public class LogicalAssetTempServiceImpl extends ServiceImpl<LogicalAssetTempMap
         LogicalScannerVO result = new LogicalScannerVO();
         List<LogicalAssetScannerRespVO> logicalAssetList = logicalAssetTempMapper.getLogicalAssetList(dto);
         result.setUnmanagedList(logicalAssetList.stream()
-                .filter(e->e.getExistsInAssetTable()==1).collect(Collectors.toList()));//未纳管
+                .filter(e->e.getExistsInAssetTable()==1) .collect(Collectors.collectingAndThen(
+                        Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(asset ->
+                                asset.getIpAddress() + asset.getEnablePort()))),
+                        ArrayList::new
+                )));//未纳管
         result.setManagedList(logicalAssetList.stream()
                 .filter(e->e.getExistsInAssetTable()==0)
                 .collect(Collectors.collectingAndThen(

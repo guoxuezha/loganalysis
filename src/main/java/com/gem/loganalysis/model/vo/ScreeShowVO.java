@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.gem.gemada.dal.db.pools.DAO;
 import com.gem.loganalysis.model.BaseConstant;
+import com.gem.loganalysis.model.vo.asset.AssetRespVO;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,6 +12,7 @@ import lombok.Data;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 大屏显示数据视图类
@@ -51,15 +53,6 @@ public class ScreeShowVO {
 
     public ScreeShowVO() {
         DAO dao = new DAO();
-
-        riskAssetTop = new ArrayList<>();
-        String s1 = "SELECT ASSET_NAME FROM SOP_ASSET LIMIT 10";
-        ArrayList<HashMap<String, String>> dataSet1 = dao.getDataSet(BaseConstant.DEFAULT_POOL_NAME, s1);
-        if (CollUtil.isNotEmpty(dataSet1)) {
-            for (HashMap<String, String> map : dataSet1) {
-                riskAssetTop.add(new RiskAsset(map.get("ASSET_NAME")));
-            }
-        }
 
         riskTypeDistribution = new ArrayList<>();
         String s2 = "SELECT B.EVENT_TYPE, COUNT(1) AS NUM FROM SOP_ASSET_RISK A LEFT JOIN SOP_ASSET_EVENT B ON A.REF_EVENT_ID = B.EVENT_ID GROUP BY B.EVENT_TYPE";
@@ -131,6 +124,8 @@ public class ScreeShowVO {
 
         private String assetName;
 
+        private String ip;
+
         private Double weakMeasure;
 
         private Integer highNum;
@@ -139,13 +134,19 @@ public class ScreeShowVO {
 
         private Integer lowNum;
 
-        public RiskAsset(String name) {
-            assetName = name;
-            weakMeasure = RandomUtil.randomDouble(0, 10);
-            highNum = RandomUtil.randomInt(0, 32);
-            mediumNum = RandomUtil.randomInt(0, 32);
-            lowNum = RandomUtil.randomInt(0, 32);
-        }
+    }
+
+    //放入风险资产
+    public void setRiskAsset(List<HostsSeverityVO> list) {
+        List<RiskAsset> result = new ArrayList<>();
+        list.forEach(e->{
+            RiskAsset r = new RiskAsset();
+            r.setAssetName(e.getAssetName());
+            r.setWeakMeasure(e.getSeverity());
+            r.setIp(e.getIp());
+            result.add(r);
+        });
+        this.riskAssetTop = result;
     }
 
     @Data

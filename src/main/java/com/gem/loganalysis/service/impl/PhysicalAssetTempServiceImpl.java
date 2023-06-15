@@ -44,7 +44,11 @@ public class PhysicalAssetTempServiceImpl extends ServiceImpl<PhysicalAssetTempM
         PhysicalScannerVO result = new PhysicalScannerVO();
         List<PhysicalAssetScannerRespVO> physicalAssetList = physicalAssetTempMapper.getPhysicalAssetList(dto);
         result.setUnmanagedList(physicalAssetList.stream()
-                .filter(e->e.getExistsInAssetTable()==1).collect(Collectors.toList()));//未纳管
+                .filter(e->e.getExistsInAssetTable()==1).collect(Collectors.collectingAndThen(
+                        Collectors.toCollection(() ->
+                                new TreeSet<>(Comparator.comparing(PhysicalAssetScannerRespVO::getIpAddress))),
+                        ArrayList::new
+                )));//未纳管
         result.setManagedList(physicalAssetList.stream()
                 .filter(e->e.getExistsInAssetTable()==0) .collect(Collectors.collectingAndThen(
                         Collectors.toCollection(() ->
