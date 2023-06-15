@@ -65,6 +65,7 @@ public class ScannerController {
         }
         //TODO 改成异步 先返回扫描成功再开启扫描
         Scanner.start(byId.getIpAddress(),"1-65535",DateUtil.format(new Date(),"yyyyMMddHHmmss"),getLoginUserOrgId());
+        //Scanner.startCommon(byId.getIpAddress(),DateUtil.format(new Date(),"yyyyMMddHHmmss"),getLoginUserOrgId());
         return Result.ok("扫描成功");
     }
 
@@ -120,8 +121,11 @@ public class ScannerController {
                 return Result.failed("请输入正确的IP格式");
             }
         }
+        if(!"ALL".equals(dto.getScannerType())&&!"SIMPLE".equals(dto.getScannerType())){
+            return Result.failed("请输入正确的扫描类型,ALL或SIMPLE");
+        }
         //TODO 改成异步 先返回扫描成功再开启扫描
-        IpScanner.scannerIpSection(dto.getVlanList(),DateUtil.format(new Date(),"yyyyMMddHHmmss"),getLoginUserOrgId());
+        IpScanner.scannerIpSection(dto.getVlanList(),DateUtil.format(new Date(),"yyyyMMddHHmmss"),getLoginUserOrgId(),dto.getScannerType());
         return Result.ok("扫描成功");
     }
 
@@ -129,6 +133,18 @@ public class ScannerController {
     @ApiOperation("逻辑资产扫描结果列表")
     public Result<LogicalScannerVO> getLogicalAssetList(@RequestBody LogicalAssetQueryDTO dto) {
         return Result.ok(logicalAssetTempService.getLogicalAssetList(dto));
+    }
+
+    @PostMapping("/deleteLogical")
+    @ApiOperation("删除逻辑资产扫描结果")
+    public Result<String> deleteLogical(@RequestBody GetDTO dto) {
+        return logicalAssetTempService.removeById(dto.getId())?Result.ok("删除成功"):Result.failed("删除失败");
+    }
+
+    @PostMapping("/deletePhysical")
+    @ApiOperation("删除物理资产扫描结果")
+    public Result<String> getLogicalAssetList(@RequestBody GetDTO dto) {
+        return physicalAssetTempService.removeById(dto.getId())?Result.ok("删除成功"):Result.failed("删除失败");
     }
 
     @PostMapping("/physicalAssetList")
@@ -141,12 +157,14 @@ public class ScannerController {
     @PostMapping("/vlanPage")
     @ApiOperation("VLAN设置界面分页")
     public Result<Page<OrgVlanRespVO>> getVlanPage(@Valid @RequestBody PageRequest<OrgVlanQueryDTO> dto) {
+        dto.getData().setOrgId(getLoginUserOrgId());
         return Result.ok(orgVlanService.getVlanPage(dto));
     }
 
     @PostMapping("/vlanList")
     @ApiOperation("VLAN设置界面列表")
     public Result<List<OrgVlanRespVO>> getVlanList(@Valid @RequestBody OrgVlanQueryDTO dto) {
+        dto.setOrgId(getLoginUserOrgId());
         return Result.ok(orgVlanService.getVlanList(dto));
     }
 
@@ -155,9 +173,9 @@ public class ScannerController {
     public Result<String> editVlan(@Valid @RequestBody OrgVlanDTO dto) {
         String regex = "^([1-9]|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])(\\.(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])){3}$";
         List<VlanDTO> vlanList = dto.getVlanList();
-        if(vlanList.size()==0){
+  /*      if(vlanList.size()==0){
             return Result.failed("IP区段不能为空");
-        }
+        }*/
         for (VlanDTO vlanDTO : vlanList) {
             if(!Pattern.matches(regex,vlanDTO.getBeginIp())){
                 //效验IP地址格式是否正确
@@ -168,6 +186,10 @@ public class ScannerController {
                 return Result.failed("请输入正确的IP格式");
             }
         }
+        if(StringUtils.isBlank(getLoginUserOrgId())){
+            return Result.failed("该用户不属于任何部门，请先添加部门");
+        }
+        dto.setOrgId(getLoginUserOrgId());
         return orgVlanService.editVlan(dto)?Result.ok("操作成功"):Result.failed("操作失败");
     }
 

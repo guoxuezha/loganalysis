@@ -60,27 +60,10 @@ public class UserController {
 
     private DAO dao;
 
-    public static void main(String[] args) {
-        System.out.println(MD5.encryptPwd("admin", "Ag!Sf3964@_", "GEM#SHA512"));
-    }
-
     @ApiOperation("获取加密结果")
     @PostMapping("/getEncryptStr")
     public String getEncryptStr(@RequestParam("param") String param) {
         return AESUtil.aesEncrypt(param, AESUtil.KEY);
-    }
-
-    @PostMapping("/test")
-    public List<HashMap<String, String>> test() {
-        List<HashMap<String, String>> result = new ArrayList<>();
-        ArrayList<HashMap<String, String>> dataSet = dao.getDataSet(BaseConstant.DEFAULT_POOL_NAME, "SELECT ASSET_NAME, IP_ADDRESS FROM SOP_ASSET", 0, 0);
-        for (HashMap<String, String> map : dataSet) {
-            HashMap<String, String> map1 = new HashMap<>();
-            map1.put("ip",map.get("IP_ADDRESS"));
-            map1.put("name",map.get("ASSET_NAME"));
-            result.add(map1);
-        }
-        return result;
     }
 
     @ApiOperation("获取解密结果")
@@ -129,6 +112,10 @@ public class UserController {
             dao.execBatch(BaseConstant.DEFAULT_POOL_NAME, insertTemplate, types, records, 10);
         }
         return result ? Result.ok("编辑成功!") : Result.failed("编辑失败!");
+    }
+
+    public static void main(String[] args) {
+        System.out.println(MD5.encryptPwd("liuff", "lff123456!", "GEM#SHA512"));
     }
 
     @ApiOperation("重置用户密码")

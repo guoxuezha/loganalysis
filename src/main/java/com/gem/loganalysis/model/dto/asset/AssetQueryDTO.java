@@ -25,6 +25,9 @@ public class AssetQueryDTO {
     @ApiModelProperty(value = "资产管理人(名称模糊匹配,不是ID)")
     private String assetManager;
 
+    @ApiModelProperty(value = "资产管理人")
+    private String assetManagerId;
+
     @ApiModelProperty(value = "资产分组(ID精确查询)")
     private String assetGroupId;
 

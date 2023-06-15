@@ -6,17 +6,14 @@ import com.gem.loganalysis.convert.DictConvert;
 import com.gem.loganalysis.mapper.DictItemMapper;
 import com.gem.loganalysis.mapper.DictType2Mapper;
 import com.gem.loganalysis.model.dto.query.DictItemQueryDTO;
-import com.gem.loganalysis.model.entity.DictData;
 import com.gem.loganalysis.model.entity.DictItem;
 import com.gem.loganalysis.model.entity.DictType2;
 import com.gem.loganalysis.model.vo.DictItemRespVO;
-import com.gem.loganalysis.model.vo.asset.AssetTypeRespVO;
 import com.gem.loganalysis.service.DictItemService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;

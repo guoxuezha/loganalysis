@@ -7,6 +7,7 @@ import com.gem.loganalysis.model.dto.asset.LogicalAssetQueryDTO;
 import com.gem.loganalysis.model.dto.asset.PhysicalAssetQueryDTO;
 import com.gem.loganalysis.model.entity.PhysicalAssetTemp;
 import com.gem.loganalysis.model.vo.PhysicalScannerVO;
+import com.gem.loganalysis.model.vo.asset.AssetOverviewVO;
 
 import java.util.List;
 
@@ -22,4 +23,6 @@ public interface IPhysicalAssetTempService extends IService<PhysicalAssetTemp> {
 
 
     PhysicalScannerVO getPhysicalAssetList(PhysicalAssetQueryDTO dto);
+
+    List<PhysicalAssetTemp> getNewAssetScanList();
 }

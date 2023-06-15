@@ -20,7 +20,7 @@
                 LEFT JOIN
             sop_asset AS a
             ON
-                a.IP_ADDRESS = pat.IP_ADDRESS AND a.DELETE_STATE = 0
+                a.IP_ADDRESS = pat.IP_ADDRESS AND a.DELETE_STATE = 0 AND a.ASSET_CLASS = "1"
         <where>
         <if test="assetOrg!=null and assetOrg.trim()!='' ">
             AND pat.ASSET_ORG = #{assetOrg}
@@ -32,11 +32,33 @@
             AND pat.ASSET_STATUS = #{assetStatus}
         </if>
         <if test="beginScanTime != null and beginScanTime.trim()!=''">
-            AND pat.SCAN_TIME  <![CDATA[>=]]> CONCAT(SUBSTR(#{beginScanTime}, 1, 4), '-', SUBSTR(#{beginScanTime}, 5, 2), '-', SUBSTR(#{beginScanTime}, 7, 2))
+            AND STR_TO_DATE(pat.SCAN_TIME, '%Y%m%d%H%i%s')  <![CDATA[>=]]> #{beginScanTime}
         </if>
         <if test="endScanTime != null and endScanTime.trim()!=''">
-            AND pat.SCAN_TIME <![CDATA[<=]]> CONCAT(SUBSTR(#{endScanTime}, 1, 4), '-', SUBSTR(#{endScanTime}, 5, 2), '-', SUBSTR(#{endScanTime}, 7, 2))
+            AND STR_TO_DATE(pat.SCAN_TIME, '%Y%m%d%H%i%s') <![CDATA[<=]]> #{endScanTime}
         </if>
         </where>
+        ORDER BY
+        pat.RECORD_ID DESC
     </select>
+
+
+    <select id="getNewAssetScanList" resultType="com.gem.loganalysis.model.entity.PhysicalAssetTemp">
+        SELECT DISTINCT
+            t.IP_ADDRESS AS ipAddress,
+            t.SCAN_TIME AS scanTime
+        FROM
+            sop_physical_asset_temp AS t
+                LEFT JOIN
+            sop_asset AS a
+            ON
+                t.IP_ADDRESS = a.IP_ADDRESS
+        WHERE
+            a.IP_ADDRESS IS NULL AND
+            t.ASSET_STATUS = 1
+        ORDER BY
+            t.SCAN_TIME DESC
+            LIMIT 10
+    </select>
+
 </mapper>

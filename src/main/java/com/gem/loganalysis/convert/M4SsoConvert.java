@@ -1,22 +1,14 @@
 package com.gem.loganalysis.convert;
 
 import cn.hutool.core.collection.CollUtil;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.gem.loganalysis.model.dto.edit.DictDataDTO;
-import com.gem.loganalysis.model.dto.edit.DictTypeDTO;
 import com.gem.loganalysis.model.dto.edit.OrgDTO;
-import com.gem.loganalysis.model.entity.DictData;
-import com.gem.loganalysis.model.entity.DictType;
 import com.gem.loganalysis.model.entity.M4SsoOrg;
-import com.gem.loganalysis.model.vo.DictDataRespVO;
-import com.gem.loganalysis.model.vo.DictTypeRespVO;
 import com.gem.loganalysis.model.vo.OrgRespVO;
 import com.gem.loganalysis.model.vo.TreeRespVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.factory.Mappers;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;

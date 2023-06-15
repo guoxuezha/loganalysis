@@ -108,6 +108,7 @@ public class Scanner {
                 }
             }
         }
+        logger.info(ip+" All Scan job finish");
     }
 
 
@@ -126,6 +127,7 @@ public class Scanner {
                 }
             }
         }
+        logger.info(ip+" Common Scan job finish");
     }
 
     /**

@@ -10,6 +10,8 @@ import com.gem.loganalysis.util.GetBeanUtil;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static com.gem.loganalysis.util.UserUtil.getLoginUserOrgId;
+
 /**
  * Ip区段扫描任务类，执行具体的扫描任务
  */
@@ -21,12 +23,16 @@ public class IpScanJob implements Runnable {
 
     private String orgId;
 
+    //扫描类型，SIMPLE,ALL
+    private String scannerType;
+
     private IPhysicalAssetTempService physicalAssetTempService;
 
-    public IpScanJob(String ip,String scanTime,String orgId) {
+    public IpScanJob(String ip,String scanTime,String orgId,String scannerType) {
         this.ip = ip;
         this.scanTime = scanTime;
         this.orgId = orgId;
+        this.scannerType = scannerType;
     }
 
     @Override
@@ -39,8 +45,14 @@ public class IpScanJob implements Runnable {
                     .setIpAddress(ip)
                     .setScanTime(scanTime));
             //System.out.println("ping扫描出了IP"+ip);
+            //继续扫描逻辑资产
+            if("ALL".equals(scannerType)){
+                Scanner.start(ip,"1-65535",scanTime,orgId);
+            }else if("SIMPLE".equals(scannerType)){
+                    Scanner.startCommon(ip,scanTime,orgId);
+            }
         }else {
-            //ping未发现IP，继续TCP扫描
+            //ping未发现IP，继续TCP扫描,只要扫到了，就开始扫逻辑资产
             AtomicBoolean foundResult = new AtomicBoolean(false); // 使用 AtomicBoolean 替代 boolean
 
             for (int i = 1; i <= 1000; i++) {
@@ -54,6 +66,12 @@ public class IpScanJob implements Runnable {
                                 .setIpAddress(ip)
                                 .setScanTime(scanTime));
                         foundResult.set(true); // 修改 AtomicBoolean 的值
+                        //继续扫描逻辑资产
+                        if("ALL".equals(scannerType)){
+                            Scanner.start(ip,"1-65535",scanTime,orgId);
+                        }else if("SIMPLE".equals(scannerType)){
+                            Scanner.startCommon(ip,scanTime,orgId);
+                        }
                     }
                 });
                 thread.start();
@@ -73,26 +91,5 @@ public class IpScanJob implements Runnable {
 
         }
 
-          /*  boolean foundResult = false; // 标志变量，用于指示是否找到结果
-            for (int i=1;i<=900;i++){
-                ScanObject scanObject = ScanEngine.scan(new ScanObject(ip,i), ScanEngine.TCP_FULL_CONNECT_SCAN);
-                if(scanObject.getOpen()!=null&&scanObject.getOpen()){
-                    System.out.println("TCP扫描出了"+ip);;
-                    boolean save = physicalAssetTempService.save(new PhysicalAssetTemp().setAssetStatus("1")
-                            .setAssetOrg(orgId!=null?orgId:"")
-                            .setIpAddress(ip)
-                            .setScanTime(scanTime));
-                    foundResult = true;
-                    break;
-                }
-            }
-            if (!foundResult) {
-                System.out.println("没有结果"+ip);
-                boolean save = physicalAssetTempService.save(new PhysicalAssetTemp().setAssetStatus("0")
-                        .setAssetOrg(orgId!=null?orgId:"")
-                        .setIpAddress(ip)
-                        .setScanTime(scanTime));
-            }
-        }*/
     }
 }

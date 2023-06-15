@@ -33,6 +33,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.gem.loganalysis.util.UserUtil.getAuthorityUserId;
 import static com.gem.loganalysis.util.UserUtil.getLoginUserOrgId;
 
 /**
@@ -86,6 +87,10 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 //效验IP地址格式是否正确
                 return Result.failed("请输入正确的IP地址格式");
             }
+        }
+        //如果资产状态没有传就默认填0
+        if(StringUtils.isBlank(dto.getAssetStatus())){
+            dto.setAssetStatus("0");
         }
 /*        //前端已加密 后端无需AES加密
         if(!StringUtils.isBlank(dto.getNmPassword())){
@@ -344,15 +349,18 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
 
         //TODO 明天把能取到的取到
         homeOverview
-                .setAssetTotalScore(96) // 资产总评分
-                .setSecurityVulnerabilityCount(30) // 安全漏洞数量
-                .setComplianceVulnerabilityCount(25) // 合规漏洞数量
-                .setCloudAssetRiskCount(52) // 云资产风险数量
-                .setBaselineRiskCount(10) // 基线风险数量
-                .setTotalRiskCount(117) // 风险总数
+                .setAssetTotalScore(69.72) // 资产总评分
+                .setLowVulnerabilityCount(4)//低危漏洞
+                .setMediumVulnerabilityCount(16)//中危漏洞
+                .setHighVulnerabilityCount(1)//高危漏洞
+                .setSecurityVulnerabilityCount(21) // 安全漏洞数量
+                .setComplianceVulnerabilityCount(0) // 合规漏洞数量
+                .setCloudAssetRiskCount(0) // 云资产风险数量
+                .setBaselineRiskCount(0) // 基线风险数量
+                .setTotalRiskCount(21) // 风险总数
                 .setDateList(weekDateList()) // 近七天日期集合
-                .setLowRiskCount(Arrays.asList(5, 6, 3, 8, 4, 4, 3)) // 近七天低风险集合
-                .setMediumRiskCount(Arrays.asList(2, 3, 1, 4, 2, 2, 1)) // 近七天中风险集合
+                .setLowRiskCount(Arrays.asList(5, 6, 3, 8, 4, 4, 4)) // 近七天低风险集合
+                .setMediumRiskCount(Arrays.asList(15, 14, 13, 14, 14, 15, 16)) // 近七天中风险集合
                 .setHighRiskCount(Arrays.asList(1, 0, 2, 1, 3, 0, 1)) // 近七天高风险集合
                 .setExportDeviceLoad(Arrays.asList(590, 640, 850, 730, 800, 840, 900)) // 近七天出口设备负荷(流量)
                 .setSecurityDeviceAssetScore(Arrays.asList(85, 90, 92, 88, 95 ,95, 89))//近七天安全设备资产评分集合
@@ -421,18 +429,14 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 .collect(Collectors.groupingBy(AssetRespVO::getAssetCategory));
         assetOverviewVO.setAssetCategoryDistribution(assetCategory);
 /*        //最近新增资产(10条)
-        //TODO 这个不要了 统计的没意义到时候删掉
+        //这个不要了 统计的没意义 先注释掉
         List<AssetRespVO> sorted = assetList.stream()
                 .sorted(Comparator.comparing(AssetRespVO::getCreateTime, Comparator.reverseOrder()))
                 .limit(10)
                 .collect(Collectors.toList());
         assetOverviewVO.setNewAssetList(AssetConvert.INSTANCE.convertList11(sorted));*/
         //最近资产发现(5条)
-        List<PhysicalAssetTemp> newAssetScanner = physicalAssetTempService.list(new LambdaQueryWrapperX<PhysicalAssetTemp>()
-                .eq(PhysicalAssetTemp::getAssetStatus, 1)
-                .orderByDesc(PhysicalAssetTemp::getScanTime)
-                .last("LIMIT 5"));
-        assetOverviewVO.setNewAssetScanList(AssetConvert.INSTANCE.convertList06(newAssetScanner));
+        assetOverviewVO.setNewAssetScanList(AssetConvert.INSTANCE.convertList06(physicalAssetTempService.getNewAssetScanList()));
         //主机开放端口Top5
         //TODO 改成了高危端口TOP5，不知道咋取值
         Map<String, List<AssetRespVO>> ip = assetList.stream()

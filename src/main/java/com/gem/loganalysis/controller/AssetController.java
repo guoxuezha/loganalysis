@@ -41,6 +41,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.gem.loganalysis.util.UserUtil.getAuthorityUserId;
+
 @Api(tags = "资产模块 - 安全管理资产")
 @RestController
 @RequestMapping("/sop/asset")
@@ -74,12 +76,14 @@ public class AssetController {
     @PostMapping("/pageList")
     @ApiOperation("分页查询安全管理资产")
     public Result<PageResponse<AssetRespVO>> pageList(@RequestBody PageRequest<AssetQueryDTO> dto) {
+        dto.getData().setAssetManagerId(getAuthorityUserId());//鉴权
         return Result.ok(assetService.getPageList(dto));
     }
 
     @PostMapping("/list")
     @ApiOperation("查询安全管理资产列表")
     public Result<List<AssetRespVO>> pageList(@RequestBody AssetQueryDTO dto) {
+        dto.setAssetManagerId(getAuthorityUserId());//鉴权
         return Result.ok(assetService.getAssetList(dto));
     }
 

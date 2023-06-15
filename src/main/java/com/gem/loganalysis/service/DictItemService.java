@@ -2,7 +2,6 @@ package com.gem.loganalysis.service;
 
 
 import com.gem.loganalysis.model.dto.query.DictItemQueryDTO;
-import com.gem.loganalysis.model.entity.DictData;
 import com.gem.loganalysis.model.entity.DictItem;
 import com.gem.loganalysis.model.vo.DictItemRespVO;
 

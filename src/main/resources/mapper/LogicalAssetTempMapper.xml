@@ -32,12 +32,13 @@
                 AND lat.ENABLE_PORT = #{enablePort}
             </if>
             <if test="beginScanTime != null and beginScanTime.trim()!=''">
-                AND lat.SCAN_TIME  <![CDATA[>=]]> CONCAT(SUBSTR(#{beginScanTime}, 1, 4), '-', SUBSTR(#{beginScanTime}, 5, 2), '-', SUBSTR(#{beginScanTime}, 7, 2))
+                AND STR_TO_DATE(lat.SCAN_TIME, '%Y%m%d%H%i%s')  <![CDATA[>=]]> #{beginScanTime}
             </if>
             <if test="endScanTime != null and endScanTime.trim()!=''">
-                AND lat.SCAN_TIME <![CDATA[<=]]> CONCAT(SUBSTR(#{endScanTime}, 1, 4), '-', SUBSTR(#{endScanTime}, 5, 2), '-', SUBSTR(#{endScanTime}, 7, 2))
+                AND STR_TO_DATE(lat.SCAN_TIME, '%Y%m%d%H%i%s') <![CDATA[<=]]> #{endScanTime}
             </if>
         </where>
-
+        ORDER BY
+        lat.RECORD_ID DESC
     </select>
 </mapper>

@@ -18,9 +18,11 @@ import com.gem.loganalysis.service.ILogicalAssetTempService;
 import com.gem.loganalysis.service.IM4SsoOrgService;
 import com.gem.loganalysis.service.IOrgVlanService;
 import com.gem.loganalysis.util.JsonUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -50,14 +52,23 @@ public class OrgVlanServiceImpl extends ServiceImpl<OrgVlanMapper, OrgVlan> impl
         List<OrgVlanRespVO> records = orgVlanRespVOPage.getRecords();
         records.forEach(e->{
             e.setOrgName(orgService.changeOrgName(e.getOrgId()));
-            e.setVlanList(JsonUtils.parseArray(e.getVlan(),VlanDTO.class));
+            if(StringUtils.isNotBlank(e.getVlan().trim())){
+                e.setVlanList(JsonUtils.parseArray(e.getVlan(),VlanDTO.class));
+            }else{
+                e.setVlanList(new ArrayList<VlanDTO>());
+            }
         });
         return orgVlanRespVOPage;
     }
 
     @Override
     public boolean editVlan(OrgVlanDTO dto) {
-        String s = JsonUtils.toJsonString(dto.getVlanList());//转成JSON格式放入数据库
+        String s ="";
+        if(dto.getVlanList()!=null&&dto.getVlanList().size()==0){
+            s=" ";//解决全删完mp不更新
+        }else{
+            s = JsonUtils.toJsonString(dto.getVlanList());//转成JSON格式放入数据库
+        }
         return this.saveOrUpdate(new OrgVlan().setVlan(s).setOrgId(dto.getOrgId()));
     }
 
@@ -69,7 +80,11 @@ public class OrgVlanServiceImpl extends ServiceImpl<OrgVlanMapper, OrgVlan> impl
         List<OrgVlanRespVO> orgVlanRespVOPage = AssetConvert.INSTANCE.convertList05(list);
         orgVlanRespVOPage.forEach(e->{
             e.setOrgName(orgService.changeOrgName(e.getOrgId()));
-            e.setVlanList(JsonUtils.parseArray(e.getVlan(),VlanDTO.class));
+            if(StringUtils.isNotBlank(e.getVlan().trim())){
+                e.setVlanList(JsonUtils.parseArray(e.getVlan(),VlanDTO.class));
+            }else{
+                e.setVlanList(new ArrayList<VlanDTO>());
+            }
         });
         return orgVlanRespVOPage;
     }
