@@ -4,10 +4,11 @@ business-config:
   authenticationEnable: false
   responseEncryptEnable: false
   AESKey: SKVNMEIHJLOANSKI
-  logMonitorEnable: false
+  logMonitorEnable: true
   adadDefaultPackage: "defaultPackage"
   logBlockFileRetentionDays: 7
   snmpMonitorEnable: false
+  kafkaMainTopic: logRepo3
 
 minio:
   #Minio服务所在地址

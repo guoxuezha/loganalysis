@@ -299,3 +299,13 @@ ALTER TABLE `loganalysis`.`sop_block_rule`
     MODIFY COLUMN `RULE_TYPE` int NOT NULL COMMENT '规则类型（0按风险级别/1按IP归属地）' AFTER `BLOCK_RULE_DESC`,
     MODIFY COLUMN `BLOCK_DURATION` int NULL DEFAULT 30 COMMENT '临时封堵时长（分钟）' AFTER `BLOCK_TYPE`;
 ```
+
+### 2023-06-14
+
+#### 日志解析规则分步配置,去除非空约束
+
+```SQL
+ALTER TABLE `loganalysis`.`sop_log_analysis_rule_rela`
+    MODIFY COLUMN `MERGE_WINDOW_TIME` int NULL DEFAULT 60 COMMENT '归并窗口时长（分钟）' AFTER `MERGE_ITEMS`,
+    MODIFY COLUMN `EVENT_WINDOW_TIME` int NULL DEFAULT 1 COMMENT '事件判定窗口时长（分钟）' AFTER `MERGE_WINDOW_TIME`;
+```

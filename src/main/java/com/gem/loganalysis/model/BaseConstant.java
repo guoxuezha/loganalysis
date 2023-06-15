@@ -9,6 +9,8 @@ public interface BaseConstant {
 
     String DEFAULT_POOL_NAME = "sop";
 
-    String EXTRA_TERRITORIAL_ACCESS = "(国/省/市)域外访问";
+    String EXTRA_TERRITORIAL_ACCESS = "境外访问";
+
+    String CHILD_TOPIC_PREFIX = "childLogRepo-";
 
 }

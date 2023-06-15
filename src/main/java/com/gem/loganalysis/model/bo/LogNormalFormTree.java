@@ -179,14 +179,14 @@ public class LogNormalFormTree implements Serializable {
         return null;
     }
 
-    public String toJsonStr(boolean turnKeyToDesc) {
+    public HashMap<String, Object> toJsonObject(boolean turnKeyToDesc) {
         HashMap<String, Object> result;
         if (turnKeyToDesc) {
             result = getShowNodeKV(root);
         } else {
             result = getNodeKV(root);
         }
-        return JSONUtil.toJsonStr(result);
+        return result;
     }
 
     private HashMap<String, Object> getNodeKV(SopLogNormalFormNode node) {

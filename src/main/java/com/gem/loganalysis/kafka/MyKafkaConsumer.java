@@ -1,22 +1,18 @@
 package com.gem.loganalysis.kafka;
 
-import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.json.JSONUtil;
 import com.gem.loganalysis.config.BusinessConfigInfo;
-import com.gem.loganalysis.model.bo.AssetPreviewLogHandler;
-import com.gem.loganalysis.model.bo.LogAnalysisRuleBo;
-import com.gem.loganalysis.model.bo.LogAnalysisRulePool;
 import com.gem.loganalysis.model.bo.MergeLog;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Description: 消息队列消费者
@@ -27,30 +23,26 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 @Component
 @Slf4j
-public class KafkaConsumer {
+public class MyKafkaConsumer {
 
-    private static final ExecutorService logAnalysisThreadPool = ExecutorBuilder.create()
-            .setCorePoolSize(5)
-            .setMaxPoolSize(10)
-            .setWorkQueue(new LinkedBlockingQueue<>(100))
-            .build();
+    @Resource
+    private KafkaTemplate<String, Object> kafkaTemplate;
+
     @Resource
     private BusinessConfigInfo businessConfigInfo;
-    @Resource
-    private LogAnalysisRulePool logAnalysisRulePool;
 
-    @KafkaListener(topics = {"logRepo3"})
-    void onMessage1(String record) {
+    @Resource
+    private KafkaAutoTableHandler kafkaAutoTableHandler;
+
+    @KafkaListener(topics = {"${business-config.kafkaMainTopic}"})
+    void onMessage(String record) {
         if (businessConfigInfo.getLogMonitorEnable()) {
             List<MergeLog> messageList = convertLogFormat(record);
             for (MergeLog mergelog : messageList) {
-                // 2023-06-09 新增:保存预览日志
-                AssetPreviewLogHandler.getInstance().append(mergelog);
-
-                LogAnalysisRuleBo logAnalysisRuleBoObject = logAnalysisRulePool.getLogAnalysisRuleObject(mergelog.getHost(), mergelog.getFacility(), mergelog.getSeverity());
-                if (logAnalysisRuleBoObject != null && logAnalysisRuleBoObject.isEnable()) {
-                    logAnalysisRuleBoObject.analysisSourceLog(mergelog);
-                }
+                // 根据IP分发到不同的Topic下
+                String host = mergelog.getHost();
+                NewTopic topic = kafkaAutoTableHandler.getTopic(host);
+                kafkaTemplate.send(topic.name(), mergelog);
             }
         }
     }

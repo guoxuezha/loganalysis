@@ -72,6 +72,10 @@ public class LogFormatter {
         }
 
         // 初始化日志解析规则范式映射关系
+        freshTree(ruleRelaId);
+    }
+
+    protected void freshTree(String ruleRelaId) {
         ILogAnalysisRuleRelaService bean = SpringContextUtil.getBean(ILogAnalysisRuleRelaService.class);
         tree = bean.showLogNormalForm(ruleRelaId);
     }

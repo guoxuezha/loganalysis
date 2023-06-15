@@ -51,8 +51,8 @@ public class BlockRuleController {
 
     private final DAO dao;
 
-    @PostMapping("/getAssetBlockCommand")
     @ApiOperation("查询资产封堵命令")
+    @PostMapping("/getAssetBlockCommand")
     public Result<Object> getAssetBlockCommand(@RequestBody GetDTO dto) {
         ArrayList<HashMap<String, String>> dataSet = dao.getDataSet(BaseConstant.DEFAULT_POOL_NAME, "SELECT BLOCK_COMMAND, DEBLOCK_COMMAND FROM SOP_BLOCK_COMMAND WHERE ASSET_ID = '" + dto.getId() + "' LIMIT 1");
         if (CollUtil.isNotEmpty(dataSet)) {
@@ -61,8 +61,8 @@ public class BlockRuleController {
         return Result.ok();
     }
 
-    @PostMapping("/editAssetBlockCommand")
     @ApiOperation("编辑资产封堵命令")
+    @PostMapping("/editAssetBlockCommand")
     public Result<Object> editAssetBlockCommand(@RequestBody AssetBlockCommandEditDTO dto) {
         dao.execCommand(BaseConstant.DEFAULT_POOL_NAME, "DELETE FROM SOP_BLOCK_COMMAND WHERE ASSET_ID = '" + dto.getAssetId() + "'");
         String insertSql = "INSERT INTO `SOP_BLOCK_COMMAND` (`ASSET_ID`, `BLOCK_COMMAND`, `DEBLOCK_COMMAND`) VALUES (" +
@@ -73,15 +73,15 @@ public class BlockRuleController {
         return i == 1 ? Result.ok("编辑成功!") : Result.failed("编辑失败!");
     }
 
-    @PostMapping("/deleteAssetBlockCommand")
     @ApiOperation("删除资产封堵命令")
+    @PostMapping("/deleteAssetBlockCommand")
     public Result<Object> deleteAssetBlockCommand(@RequestBody GetDTO dto) {
         int i = dao.execCommand(BaseConstant.DEFAULT_POOL_NAME, "DELETE FROM SOP_BLOCK_COMMAND WHERE ASSET_ID = '" + dto.getId() + "'");
         return i >= 0 ? Result.ok("删除成功!") : Result.failed("删除失败!");
     }
 
-    @PostMapping("/pageList")
     @ApiOperation("分页查询封堵规则")
+    @PostMapping("/pageList")
     public Result<Page<BlockRule>> pageList(@RequestBody PageRequest<BlockRuleQueryDTO> dto) {
         Page<BlockRule> page = new Page<>(dto.getPageNum(), dto.getPageSize());
         LambdaQueryWrapperX<BlockRule> wrapperX = new LambdaQueryWrapperX<>();
@@ -89,8 +89,8 @@ public class BlockRuleController {
         return Result.ok(iBlockRuleService.page(page, wrapperX));
     }
 
-    @PostMapping("/edit")
     @ApiOperation("编辑封堵规则")
+    @PostMapping("/edit")
     public Result<String> edit(@RequestBody BlockRuleDTO dto) {
         boolean insert = StrUtil.isEmpty(dto.getBlockRuleId());
         BlockRule blockRule = new BlockRule(dto);
@@ -104,8 +104,8 @@ public class BlockRuleController {
         return result ? Result.ok("编辑成功!") : Result.failed("编辑失败!");
     }
 
-    @PostMapping("/delete")
     @ApiOperation("删除封堵规则")
+    @PostMapping("/delete")
     public Result<String> delete(@RequestBody DeleteDTO dto) {
         boolean result = iBlockRuleService.removeById(dto.getId());
         return result ? Result.ok("删除成功!") : Result.failed("删除失败!");

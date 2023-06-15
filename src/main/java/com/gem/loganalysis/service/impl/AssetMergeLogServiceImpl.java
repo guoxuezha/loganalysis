@@ -6,13 +6,16 @@ import cn.hutool.core.io.IoUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gem.gemada.dal.db.pools.DAO;
 import com.gem.loganalysis.config.MinioConfig;
+import com.gem.loganalysis.mapper.AssetMapper;
 import com.gem.loganalysis.mapper.AssetMergeLogMapper;
 import com.gem.loganalysis.model.BaseConstant;
 import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.PageResponse;
 import com.gem.loganalysis.model.bo.BlockFileSearchServer;
+import com.gem.loganalysis.model.dto.asset.AssetQueryDTO;
 import com.gem.loganalysis.model.dto.query.LogContentQueryDTO;
 import com.gem.loganalysis.model.entity.AssetMergeLog;
+import com.gem.loganalysis.model.entity.SopAssetLogPreview;
 import com.gem.loganalysis.model.vo.LogShowVO;
 import com.gem.loganalysis.model.vo.asset.AssetLogFileVO;
 import com.gem.loganalysis.model.vo.asset.AssetRespVO;
@@ -21,6 +24,7 @@ import com.gem.loganalysis.util.MapToBeanUtil;
 import com.gem.utils.file.BlockData;
 import com.gem.utils.file.BlockFile;
 import com.gem.utils.file.MinioRW;
+import com.github.pagehelper.PageHelper;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -54,6 +58,9 @@ public class AssetMergeLogServiceImpl extends ServiceImpl<AssetMergeLogMapper, A
     @Resource
     private AssetServiceImpl assetServiceImpl;
 
+    @Resource
+    private AssetMapper assetMapper;
+
     @Override
     public List<String> getSourceLog(LogContentQueryDTO dto) {
         List<String> result = new ArrayList<>();
@@ -85,18 +92,25 @@ public class AssetMergeLogServiceImpl extends ServiceImpl<AssetMergeLogMapper, A
     }
 
     @Override
-    public PageResponse<AssetRespVO> getLogAsset(Integer pageNum, Integer pageSize) {
-        PageResponse<AssetRespVO> result = new PageResponse<>();
-        String querySql = "SELECT A.* FROM SOP_ASSET A " +
-                "LEFT JOIN SOP_ASSET_LOG_PREVIEW B ON A.IP_ADDRESS = B.`HOST` " +
-                "WHERE B.`HOST` IS NOT NULL AND A.DELETE_STATE = 0 GROUP BY ASSET_ID";
-        long count = dao.getDataSetCount(BaseConstant.DEFAULT_POOL_NAME, querySql);
-        if (count != 0) {
-            ArrayList<HashMap<String, String>> dataSet = dao.getDataSet(BaseConstant.DEFAULT_POOL_NAME, querySql, pageNum, pageSize);
-            List<AssetRespVO> list = MapToBeanUtil.execute(dataSet, AssetRespVO.class);
-            list.forEach(e -> assetServiceImpl.changeAssetName(e));
-            result.setTotal((int) count);
-            result.setRecords(list);
+    public PageResponse<AssetRespVO> getLogAsset(PageRequest<AssetQueryDTO> dto) {
+        com.github.pagehelper.Page<AssetRespVO> result = PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
+        assetMapper.getLogAsset(dto.getData());
+        result.forEach(e -> assetServiceImpl.changeAssetName(e));
+        return new PageResponse<>(result);
+    }
+
+    @Override
+    public PageResponse<SopAssetLogPreview> getSourceLogDemo(PageRequest<String> dto) {
+        PageResponse<SopAssetLogPreview> result = new PageResponse<>();
+        String querySql = "SELECT SEVERITY, FACILITY, TIMESTAMP, MESSAGE FROM SOP_ASSET_LOG_PREVIEW A " +
+                "LEFT JOIN SOP_ASSET B ON A.`HOST` = B.IP_ADDRESS " +
+                "WHERE B.ASSET_ID = '" + dto.getData() + "'";
+        long total = dao.getDataSetCount(BaseConstant.DEFAULT_POOL_NAME, querySql);
+        result.setTotal((int) total);
+        if (total > 0) {
+            ArrayList<HashMap<String, String>> dataSet = dao.getDataSet(BaseConstant.DEFAULT_POOL_NAME, querySql, dto.getPageNum(), dto.getPageSize());
+            List<SopAssetLogPreview> execute = MapToBeanUtil.execute(dataSet, SopAssetLogPreview.class);
+            result.setRecords(execute);
         }
         return result;
     }
@@ -106,7 +120,7 @@ public class AssetMergeLogServiceImpl extends ServiceImpl<AssetMergeLogMapper, A
         PageResponse<LogShowVO> result = new PageResponse<>();
         String querySql = "SELECT MESSAGE " +
                 "FROM SOP_ASSET_MERGE_LOG WHERE RULE_RELA_ID IN " +
-                "(SELECT RULE_RELA_ID FROM SOP_LOG_ANALYSIS_RULE_RELA WHERE ASSET_ID = '" + dto.getData() + "')";
+                "(SELECT RULE_RELA_ID FROM SOP_LOG_ANALYSIS_RULE_RELA WHERE ASSET_ID = '" + dto.getData() + "') ORDER BY UPDATE_TIME";
         long count = dao.getDataSetCount(BaseConstant.DEFAULT_POOL_NAME, querySql);
         if (count != 0) {
             ArrayList<HashMap<String, String>> dataSet = dao.getDataSet(BaseConstant.DEFAULT_POOL_NAME, querySql, dto.getPageNum(), dto.getPageSize());

@@ -8,6 +8,7 @@ import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.gem.loganalysis.mapper.AssetEventMapper;
 import com.gem.loganalysis.mapper.AssetMergeLogMapper;
@@ -202,19 +203,36 @@ public class LogAnalysisRuleBo {
      */
     public void reloadInfo(LogAnalysisRuleRelaDTO dto) {
         this.enable = false;
-        this.facility = dto.getFacility();
-        this.severity = dto.getSeverity();
+        if (StrUtil.isNotEmpty(dto.getFacility())) {
+            this.facility = dto.getFacility();
+        }
+        if (StrUtil.isNotEmpty(dto.getSeverity())) {
+            this.severity = dto.getSeverity();
+        }
+        // 若绑定的解析规则发生了变更,再执行日志格式化配置对象关联修改
+        if (StrUtil.isNotEmpty(dto.getAnalysisRuleId()) && !dto.getAnalysisRuleId().equals(analysisRuleId)) {
+            this.logFormatter = new LogFormatter(ruleRelaId);
+        }
+
         if (StrUtil.isNotEmpty(dto.getMergeItems())) {
             String[] split = dto.getMergeItems().split(",");
             this.mergeItemList = Arrays.asList(split);
         }
-        this.mergeWindowTime = dto.getMergeWindowTime();
-        this.eventWindowTime = dto.getEventWindowTime();
-        this.eventThreshold = dto.getEventThreshold();
+        if (dto.getMergeWindowTime() != null) {
+            this.mergeWindowTime = dto.getMergeWindowTime();
+        }
+        if (dto.getEventWindowTime() != null) {
+            this.eventWindowTime = dto.getEventWindowTime();
+        }
+        if (dto.getEventThreshold() != null) {
+            this.eventThreshold = dto.getEventThreshold();
+        }
 
-        // 若绑定的解析规则发生了变更,再执行关联修改
-        this.logFormatter = new LogFormatter(ruleRelaId);
         this.enable = true;
+    }
+
+    public void refreshFormatterTree() {
+        this.logFormatter.freshTree(this.ruleRelaId);
     }
 
     public void printOverview() {
@@ -284,7 +302,7 @@ public class LogAnalysisRuleBo {
         BlockFileUtil.writeLog(sourceMergeLog, this);
 
         // 5.将日志对象写入归并缓存（异步生成归并日志）
-        mergeLog.setMessage(logMessageTree.toJsonStr(false));
+        mergeLog.setMessage(JSONUtil.toJsonStr(logMessageTree.toJsonObject(false)));
         MergeLog mLog = cacheMap.get(unionKeyStr);
         if (mLog == null) {
             cacheMap.put(unionKeyStr, mergeLog);

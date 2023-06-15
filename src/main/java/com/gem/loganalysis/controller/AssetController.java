@@ -19,25 +19,26 @@ import com.gem.loganalysis.model.entity.M4SsoOrg;
 import com.gem.loganalysis.model.vo.DictItemRespVO;
 import com.gem.loganalysis.model.vo.HomeOverviewVO;
 import com.gem.loganalysis.model.vo.ImportRespVO;
-import com.gem.loganalysis.model.vo.RiskAssetRankingVO;
 import com.gem.loganalysis.model.vo.asset.*;
 import com.gem.loganalysis.service.*;
 import com.gem.loganalysis.util.ExcelUtils;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-
-import org.springframework.validation.annotation.Validated;
-import io.swagger.annotations.*;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Api(tags = "资产模块 - 安全管理资产")
@@ -57,7 +58,6 @@ public class AssetController {
     @Resource
     private DictItemService dictItemService;
 
-
     @PostMapping("/edit")
     @ApiOperation("创建/编辑安全管理资产")
     public Result<String> editAsset(@Valid @RequestBody AssetDTO dto) {
@@ -67,8 +67,8 @@ public class AssetController {
     @PostMapping("/batchInsert")
     @ApiOperation("批量插入安全管理资产")
     public Result<String> editAsset(@Valid @RequestBody List<AssetDTO> dto) {
-        return assetService.saveBatch(AssetConvert.INSTANCE.convertList01(dto))?
-                Result.ok("插入成功"):Result.failed("插入失败");
+        return assetService.saveBatch(AssetConvert.INSTANCE.convertList01(dto)) ?
+                Result.ok("插入成功") : Result.failed("插入失败");
     }
 
     @PostMapping("/pageList")
@@ -86,7 +86,7 @@ public class AssetController {
     @PostMapping("/get")
     @ApiOperation("根据ID获得单一资产信息")
     public Result<AssetRespVO> getAsset(@RequestBody GetDTO dto) {
-        if(dto.getId()==null||dto.getId().trim().equals("")){
+        if (dto.getId() == null || dto.getId().trim().equals("")) {
             return Result.failed("请传入资产唯一编码ID");
         }
         return Result.ok(assetService.getAsset(dto.getId()));
@@ -95,7 +95,7 @@ public class AssetController {
     @PostMapping("/getAccount")
     @ApiOperation("根据ID获得网管密码")
     public Result<AssetAccountRespVO> getAssetAccount(@RequestBody GetDTO dto) {
-        if(dto.getId()==null||dto.getId().trim().equals("")){
+        if (dto.getId() == null || dto.getId().trim().equals("")) {
             return Result.failed("请传入资产唯一编码ID");
         }
         return Result.ok(assetService.getAssetAccount(dto.getId()));
@@ -104,7 +104,7 @@ public class AssetController {
     @PostMapping("/delete")
     @ApiOperation("删除资产")
     public Result<String> deleteAsset(@Valid @RequestBody DeleteDTO dto) {
-        if(StringUtils.isBlank(dto.getId())){
+        if (StringUtils.isBlank(dto.getId())) {
             return Result.failed("请传入需要删除的资产ID");
         }
         return assetService.removeById(dto.getId()) ? Result.ok("删除成功!") : Result.failed("删除失败!");
@@ -119,47 +119,47 @@ public class AssetController {
     @PostMapping("/addAssetTag")
     @ApiOperation("添加标签")
     public Result<String> addAssetTag(@Valid @RequestBody AssetUpdateDTO dto) {
-        if(StringUtils.isBlank(dto.getAssetTag())){
+        if (StringUtils.isBlank(dto.getAssetTag())) {
             return Result.failed("请传入需要添加的资产标签");
         }
         Asset asset = assetService.getById(dto.getAssetId());
-        if(asset==null){
+        if (asset == null) {
             return Result.failed("该资产不存在");
         }
         asset.setAssetTag(dto.getAssetTag());
-        return assetService.updateById(asset)?Result.ok("添加成功"):Result.failed("修改失败");
+        return assetService.updateById(asset) ? Result.ok("添加成功") : Result.failed("修改失败");
     }
 
     @PostMapping("/updateAssetManager")
     @ApiOperation("更换负责人")
     public Result<String> updateAssetManager(@Valid @RequestBody AssetUpdateDTO dto) {
-        if(StringUtils.isBlank(dto.getAssetManager())){
+        if (StringUtils.isBlank(dto.getAssetManager())) {
             return Result.failed("请传入需要更换的负责人");
         }
         Asset asset = assetService.getById(dto.getAssetId());
-        if(asset==null){
+        if (asset == null) {
             return Result.failed("该资产不存在");
         }
         asset.setAssetManager(dto.getAssetManager());
-        return assetService.updateById(asset)?Result.ok("更换成功"):Result.failed("更换失败");
+        return assetService.updateById(asset) ? Result.ok("更换成功") : Result.failed("更换失败");
     }
 
     @PostMapping("/updateGroupId")
     @ApiOperation("修改分组")
     public Result<String> updateGroupId(@Valid @RequestBody AssetUpdateDTO dto) {
-        if(StringUtils.isBlank(dto.getAssetGroupId())){
+        if (StringUtils.isBlank(dto.getAssetGroupId())) {
             return Result.failed("请传入更改后的分组ID");
         }
-        if(StringUtils.isBlank(dto.getAssetOrg())){
+        if (StringUtils.isBlank(dto.getAssetOrg())) {
             return Result.failed("请传入组织部门ID");
         }
         Asset asset = assetService.getById(dto.getAssetId());
-        if(asset==null){
+        if (asset == null) {
             return Result.failed("该资产不存在");
         }
         asset.setAssetGroupId(dto.getAssetGroupId());
         asset.setAssetOrg(dto.getAssetOrg());
-        return assetService.updateById(asset)?Result.ok("修改成功"):Result.failed("修改失败");
+        return assetService.updateById(asset) ? Result.ok("修改成功") : Result.failed("修改失败");
     }
 
     @PostMapping("/physical-import-template")
@@ -169,15 +169,15 @@ public class AssetController {
         // 所有类别
         List<String> assetTypeList = new ArrayList<String>();
         Map<String, List<String>> assetTypeMap = new HashMap<String, List<String>>();
-        typeMap.forEach((m,n)->{
+        typeMap.forEach((m, n) -> {
             assetTypeList.add(m);
-            assetTypeMap.put(m,n.stream().map(AssetTypeRespVO::getTypeName).collect(Collectors.toList()));
+            assetTypeMap.put(m, n.stream().map(AssetTypeRespVO::getTypeName).collect(Collectors.toList()));
         });
 
         // 部门-分组级联
         List<String> orgList = new ArrayList<String>();
         List<M4SsoOrg> m4OrgList = orgService.list();
-        m4OrgList.forEach(e->orgList.add(e.getOrgName()));
+        m4OrgList.forEach(e -> orgList.add(e.getOrgName()));
         List<AssetGroupRespVO> list = assetGroupService.getList(new AssetGroupQueryDTO());
         Map<String, List<String>> groupMap = list.stream()
                 .filter(vo -> !StringUtils.isBlank(vo.getAssetOrgName())) // 过滤掉 AssetOrgName 为空的项
@@ -204,8 +204,8 @@ public class AssetController {
         exampleList.add(physicalAssetExcelVO);
         // 输出 Excel
         EasyExcel.write(response.getOutputStream(), PhysicalAssetExcelVO.class)
-                .registerWriteHandler(new DropDownWriteHandler(assetTypeList,assetTypeMap,1))
-                .registerWriteHandler(new DropDownWriteHandler(orgList,groupMap,13))
+                .registerWriteHandler(new DropDownWriteHandler(assetTypeList, assetTypeMap, 1))
+                .registerWriteHandler(new DropDownWriteHandler(orgList, groupMap, 13))
                 .autoCloseStream(false) // 不要自动关闭，交给 Servlet 自己处理
                 .sheet("物理资产").doWrite(exampleList);
         // 设置 header 和 contentType。写在最后的原因是，避免报错时，响应 contentType 已经被修改了
@@ -225,7 +225,7 @@ public class AssetController {
         // 部门-分组级联
         List<String> orgList = new ArrayList<String>();
         List<M4SsoOrg> m4OrgList = orgService.list();
-        m4OrgList.forEach(e->orgList.add(e.getOrgName()));
+        m4OrgList.forEach(e -> orgList.add(e.getOrgName()));
         List<AssetGroupRespVO> list = assetGroupService.getList(new AssetGroupQueryDTO());
         Map<String, List<String>> groupMap = list.stream()
                 .filter(vo -> !StringUtils.isBlank(vo.getAssetOrgName())) // 过滤掉 AssetOrgName 为空的项
@@ -248,8 +248,8 @@ public class AssetController {
         exampleList.add(logicalAssetExcelVO);
         // 输出 Excel
         EasyExcel.write(response.getOutputStream(), LogicalAssetExcelVO.class)
-                .registerWriteHandler(new DropDownWriteHandler(dictList,null,1))
-                .registerWriteHandler(new DropDownWriteHandler(orgList,groupMap,6))
+                .registerWriteHandler(new DropDownWriteHandler(dictList, null, 1))
+                .registerWriteHandler(new DropDownWriteHandler(orgList, groupMap, 6))
                 .autoCloseStream(false) // 不要自动关闭，交给 Servlet 自己处理
                 .sheet("逻辑资产").doWrite((exampleList));
         // 设置 header 和 contentType。写在最后的原因是，避免报错时，响应 contentType 已经被修改了

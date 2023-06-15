@@ -62,16 +62,5 @@ public class LogAnalysisRuleRelaDTO {
     @ApiModelProperty("事件判定阈值")
     private Integer eventThreshold;
 
-    /**
-     * 事件判定关键字或正则表达式
-     */
-    @ApiModelProperty("事件判定关键字或正则表达式")
-    private String eventKeyword;
-
-    @ApiModelProperty("事件类型字段")
-    private String eventTypeItem;
-
-    @ApiModelProperty("事件级别字段")
-    private String eventClassItem;
 
 }

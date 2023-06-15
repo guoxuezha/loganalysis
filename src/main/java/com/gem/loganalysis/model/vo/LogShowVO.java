@@ -5,6 +5,8 @@ import com.gem.loganalysis.model.bo.LogNormalFormTree;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.HashMap;
+
 /**
  * 日志内容展示VO
  *
@@ -42,9 +44,9 @@ public class LogShowVO {
     /**
      * 归并日志详情
      */
-    //private HashMap<String, Object> detail;
     @ApiModelProperty("归并日志详情")
-    private String detail;
+    private HashMap<String, Object> detail;
+//    private String detail;
 
     public LogShowVO(String message) {
         LogNormalFormTree tree = new LogNormalFormTree(message);
@@ -53,7 +55,7 @@ public class LogShowVO {
         targetIp = tree.getFieldValue(eventParamConfig.getTargetIpItem());
         riskLevel = tree.getFieldValue(eventParamConfig.getRiskLevelItem());
         eventType = tree.getFieldValue(eventParamConfig.getEventTypeItem());
-        detail = tree.toJsonStr(true);
+        detail = tree.toJsonObject(true);
     }
 
 }

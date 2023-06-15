@@ -1,6 +1,5 @@
 package com.gem.loganalysis.service;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.PageResponse;

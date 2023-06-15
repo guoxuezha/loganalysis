@@ -33,4 +33,8 @@ public class AssetQueryDTO {
 
     @ApiModelProperty(value = "资产部门(ID精确查询)")
     private String assetOrg;
+
+    @ApiModelProperty(value = "资产标签")
+    private String assetTag;
+
 }

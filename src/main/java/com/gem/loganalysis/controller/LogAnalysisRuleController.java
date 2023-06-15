@@ -2,7 +2,6 @@ package com.gem.loganalysis.controller;
 
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.Result;
@@ -16,7 +15,6 @@ import com.gem.loganalysis.model.dto.edit.LogAnalysisRuleDTO;
 import com.gem.loganalysis.model.dto.edit.LogAnalysisRuleRelaDTO;
 import com.gem.loganalysis.model.dto.edit.LogFieldMappingDTO;
 import com.gem.loganalysis.model.dto.query.AnalysisRuleQueryDTO;
-import com.gem.loganalysis.model.entity.Asset;
 import com.gem.loganalysis.model.entity.LogAnalysisRule;
 import com.gem.loganalysis.model.entity.LogAnalysisRuleRela;
 import com.gem.loganalysis.model.vo.SopLogNormalFormNode;
@@ -63,7 +61,6 @@ public class LogAnalysisRuleController {
     @ApiOperation("编辑日志范式树")
     @PostMapping("/editLogNormalForm")
     public Result<Object> editLogNormalForm(@RequestBody SopLogNormalFormNode dto) {
-
         return Result.failed("该接口功能尚未实现! 入参格式需要进一步确定");
     }
 
@@ -76,7 +73,14 @@ public class LogAnalysisRuleController {
     @ApiOperation("编辑解析规则日志字段映射关系")
     @PostMapping("/editLogFieldMapping")
     public Result<Object> editLogFieldMapping(@RequestBody LogFieldMappingDTO dto) {
-        return iLogAnalysisRuleRelaService.editLogFieldMapping(dto) ? Result.ok("编辑成功！") : Result.failed("编辑失败！");
+        Boolean result = iLogAnalysisRuleRelaService.editLogFieldMapping(dto);
+        if (result) {
+            LogAnalysisRuleBo logAnalysisRuleObject = logAnalysisRulePool.getLogAnalysisRuleObject(dto.getRuleRelaId());
+            logAnalysisRuleObject.refreshFormatterTree();
+            return Result.ok("编辑成功！");
+        } else {
+            return Result.failed("编辑失败！");
+        }
     }
 
     @ApiOperation("全查日志解析规则列表")
@@ -122,23 +126,17 @@ public class LogAnalysisRuleController {
             editResult = iLogAnalysisRuleRelaService.save(ruleRela);
         } else {
             editResult = iLogAnalysisRuleRelaService.updateById(ruleRela);
-            // 同步修改内存对象
-            if (editResult) {
-                // 先查询日志解析规则对应设备的Host
-                LogAnalysisRuleRela byId = iLogAnalysisRuleRelaService.getById(ruleRela.getRuleRelaId());
-                LambdaQueryWrapper<Asset> queryWrapper = new LambdaQueryWrapper<>();
-                queryWrapper.eq(Asset::getAssetId, byId.getAssetId());
-                Asset one = assetService.getOne(queryWrapper);
-                if (one != null) {
-                    String ipAddress = one.getIpAddress();
-                    LogAnalysisRuleBo logAnalysisRuleBo = logAnalysisRulePool.getLogAnalysisRuleBoMap().get(ipAddress + "~" + byId.getFacility() + "~" + byId.getSeverity());
-                    if (logAnalysisRuleBo != null) {
-                        logAnalysisRuleBo.reloadInfo(dto);
-                    }
-                }
+        }
+        // 同步修改内存对象
+        if (editResult) {
+            LogAnalysisRuleBo logAnalysisRuleBo = logAnalysisRulePool.getLogAnalysisRuleObject(ruleRela.getRuleRelaId());
+            if (logAnalysisRuleBo != null) {
+                logAnalysisRuleBo.reloadInfo(dto);
+            } else {
+                logAnalysisRulePool.getLogAnalysisRuleObject(ruleRela.getRuleRelaId());
             }
         }
-        return editResult ? Result.ok("编辑成功!") : Result.failed("编辑失败！");
+        return editResult ? Result.ok(ruleRela.getRuleRelaId()) : Result.failed("编辑失败！");
     }
 
     /**

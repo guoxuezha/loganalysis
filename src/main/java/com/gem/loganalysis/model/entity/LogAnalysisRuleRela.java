@@ -83,12 +83,6 @@ public class LogAnalysisRuleRela implements Serializable {
     private Integer eventThreshold;
 
     /**
-     * 事件判定关键字或正则表达式
-     */
-    @TableField("EVENT_KEYWORD")
-    private String eventKeyword;
-
-    /**
      * 创建时间
      */
     @TableField("CREATE_TIME")

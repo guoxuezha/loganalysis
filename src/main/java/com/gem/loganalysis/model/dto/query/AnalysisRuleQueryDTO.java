@@ -13,7 +13,7 @@ public class AnalysisRuleQueryDTO {
     /**
      * 资产ID
      */
-    private Integer assetId;
+    private String assetId;
 
     /**
      * 规则类型
