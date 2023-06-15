@@ -46,13 +46,13 @@ public class ScanEngine {
         try{
             // 全连接扫描，发现可用服务
             Socket socket = new Socket();
-            socket.connect(new InetSocketAddress(object.getIp(),object.getPort()),600);
+            socket.connect(new InetSocketAddress(object.getIp(),object.getPort()),2000);
             object.setOpen(true);
             object.setService();
-            // 发送招手信息
+/*            // 发送招手信息
             OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream());
             out.write("hello");
-            out.flush();
+            out.flush();*/
             // 获取服务指纹
             BufferedReader re = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String serviceBanner = re.readLine();
@@ -61,11 +61,11 @@ public class ScanEngine {
             logger.info("[-] Find service :"+ object);
             socket.close();
         } catch (ConnectException e) {
-            // 打印连接失败的端口
-//            logger.info("[-] Close: " + object.getIp() + ":" + object.getPort());
+ /*           // 打印连接失败的端口
+            logger.info("[-] Close: " + object.getIp() + ":" + object.getPort());*/
         } catch (Exception e){
-            // 出现其他异常
-           // logger.info("[-] " + object.toString() + "end with unexecepted exeception:" + e.getMessage());
+          //出现其他异常
+         // logger.info("[-] " + object.toString() + "end with unexecepted exeception:" + e.getMessage());
         }
         return object;
 

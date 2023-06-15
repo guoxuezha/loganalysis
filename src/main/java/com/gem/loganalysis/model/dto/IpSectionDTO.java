@@ -20,4 +20,8 @@ public class IpSectionDTO {
     @NotNull(message = "IP区段不能为空")
     private List<VlanDTO> vlanList;
 
+    @ApiModelProperty(value = "扫描类型，SIMPLE,ALL",required = true)
+    @NotNull(message = "扫描类型不能为空,SIMPLE,ALL")
+    private String scannerType;
+
 }

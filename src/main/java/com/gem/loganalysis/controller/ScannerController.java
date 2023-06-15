@@ -65,7 +65,8 @@ public class ScannerController {
             return Result.failed("该资产不存在");
         }
         //TODO 改成异步 先返回扫描成功再开启扫描
-        Scanner.start(byId.getIpAddress(),"1-65535",DateUtil.format(new Date(),"yyyyMMddHHmmss"),getLoginUserOrgId());
+        //Scanner.start(byId.getIpAddress(),"1-65535",DateUtil.format(new Date(),"yyyyMMddHHmmss"),getLoginUserOrgId());
+        Scanner.startCommon(byId.getIpAddress(),DateUtil.format(new Date(),"yyyyMMddHHmmss"),getLoginUserOrgId());
         return Result.ok("扫描成功");
     }
 
