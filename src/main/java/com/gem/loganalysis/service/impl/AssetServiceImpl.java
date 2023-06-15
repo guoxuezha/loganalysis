@@ -72,6 +72,10 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 return Result.failed("请输入正确的IP地址格式");
             }
         }
+        //如果资产状态没有传就默认填0
+        if(StringUtils.isBlank(dto.getAssetStatus())){
+            dto.setAssetStatus("0");
+        }
 /*        //前端已加密 后端无需AES加密
         if(!StringUtils.isBlank(dto.getNmPassword())){
             String password = AESUtil.aesEncrypt(dto.getNmPassword(), businessConfigInfo.getAESKey());
@@ -407,18 +411,14 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 .collect(Collectors.groupingBy(AssetRespVO::getAssetCategory));
         assetOverviewVO.setAssetCategoryDistribution(assetCategory);
 /*        //最近新增资产(10条)
-        //TODO 这个不要了 统计的没意义到时候删掉
+        //这个不要了 统计的没意义 先注释掉
         List<AssetRespVO> sorted = assetList.stream()
                 .sorted(Comparator.comparing(AssetRespVO::getCreateTime,Comparator.reverseOrder()))
                 .limit(10)
                 .collect(Collectors.toList());
         assetOverviewVO.setNewAssetList(AssetConvert.INSTANCE.convertList11(sorted));*/
         //最近资产发现(5条)
-        List<PhysicalAssetTemp> newAssetScanner = physicalAssetTempService.list(new LambdaQueryWrapperX<PhysicalAssetTemp>()
-                .eq(PhysicalAssetTemp::getAssetStatus, 1)
-                .orderByDesc(PhysicalAssetTemp::getScanTime)
-                .last("LIMIT 5"));
-        assetOverviewVO.setNewAssetScanList(AssetConvert.INSTANCE.convertList06(newAssetScanner));
+        assetOverviewVO.setNewAssetScanList(AssetConvert.INSTANCE.convertList06(physicalAssetTempService.getNewAssetScanList()));
         //主机开放端口Top5
         //TODO 改成了高危端口TOP5，不知道咋取值
         Map<String, List<AssetRespVO>> ip = assetList.stream()

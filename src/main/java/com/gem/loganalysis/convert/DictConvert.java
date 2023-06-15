@@ -32,17 +32,6 @@ public interface DictConvert {
 
     DictConvert INSTANCE = Mappers.getMapper(DictConvert.class);
 
-    DictType convert(DictTypeDTO bean);
-    DictTypeRespVO convert(DictType bean);
-    List<DictTypeRespVO> convertList(List<DictType> list);
-    Page<DictTypeRespVO> convertPage(Page<DictType> page);
-
-
-    DictData convert(DictDataDTO bean);
-    DictDataRespVO convert(DictData bean);
-    List<DictDataRespVO> convertList01(List<DictData> list);
-    Page<DictDataRespVO> convertPage01(Page<DictData> page);
-
 
     DictItemRespVO convert(DictItem bean);
 

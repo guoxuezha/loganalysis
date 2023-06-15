@@ -13,6 +13,7 @@ import com.gem.loganalysis.model.entity.Asset;
 import com.gem.loganalysis.model.entity.LogicalAssetTemp;
 import com.gem.loganalysis.model.entity.PhysicalAssetTemp;
 import com.gem.loganalysis.model.vo.PhysicalScannerVO;
+import com.gem.loganalysis.model.vo.asset.AssetOverviewVO;
 import com.gem.loganalysis.model.vo.asset.PhysicalAssetScannerRespVO;
 import com.gem.loganalysis.service.IPhysicalAssetTempService;
 import org.springframework.stereotype.Service;
@@ -51,5 +52,10 @@ public class PhysicalAssetTempServiceImpl extends ServiceImpl<PhysicalAssetTempM
                         ArrayList::new
                 )));//已纳管
         return result;
+    }
+
+    @Override
+    public List<PhysicalAssetTemp> getNewAssetScanList() {
+        return physicalAssetTempMapper.getNewAssetScanList();
     }
 }
