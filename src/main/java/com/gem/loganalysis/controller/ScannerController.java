@@ -23,6 +23,7 @@ import com.gem.loganalysis.scanner.Scanner;
 import com.gem.loganalysis.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.collections4.Get;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -129,6 +130,18 @@ public class ScannerController {
     @ApiOperation("逻辑资产扫描结果列表")
     public Result<LogicalScannerVO> getLogicalAssetList(@RequestBody LogicalAssetQueryDTO dto) {
         return Result.ok(logicalAssetTempService.getLogicalAssetList(dto));
+    }
+
+    @PostMapping("/deleteLogical")
+    @ApiOperation("删除逻辑资产扫描结果")
+    public Result<String> deleteLogical(@RequestBody GetDTO dto) {
+        return logicalAssetTempService.removeById(dto.getId())?Result.ok("删除成功"):Result.failed("删除失败");
+    }
+
+    @PostMapping("/deletePhysical")
+    @ApiOperation("删除物理资产扫描结果")
+    public Result<String> getLogicalAssetList(@RequestBody GetDTO dto) {
+        return physicalAssetTempService.removeById(dto.getId())?Result.ok("删除成功"):Result.failed("删除失败");
     }
 
     @PostMapping("/physicalAssetList")

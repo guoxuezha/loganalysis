@@ -51,6 +51,9 @@
         <if test="assetClass!=null and assetClass.trim()!='' ">
             AND asset.ASSET_CLASS = #{assetClass}
         </if>
+        <if test="assetManagerId!=null and assetManagerId.trim()!='' ">
+            AND asset.ASSET_MANAGER = #{assetManagerId}
+        </if>
         <if test="assetType!=null and assetType.trim()!='' ">
             AND asset.ASSET_TYPE = #{assetType}
         </if>

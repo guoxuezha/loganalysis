@@ -20,7 +20,7 @@
                 LEFT JOIN
             sop_asset AS a
             ON
-                a.IP_ADDRESS = pat.IP_ADDRESS AND a.DELETE_STATE = 0
+                a.IP_ADDRESS = pat.IP_ADDRESS AND a.DELETE_STATE = 0 AND a.ASSET_CLASS = "1"
         <where>
         <if test="assetOrg!=null and assetOrg.trim()!='' ">
             AND pat.ASSET_ORG = #{assetOrg}

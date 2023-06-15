@@ -33,6 +33,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.gem.loganalysis.util.UserUtil.getAuthorityUserId;
 import static com.gem.loganalysis.util.UserUtil.getLoginUserOrgId;
 
 /**
