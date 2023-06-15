@@ -9,6 +9,7 @@ import com.gem.loganalysis.model.dto.asset.AssetQueryDTO;
 import com.gem.loganalysis.model.entity.Asset;
 import com.gem.loganalysis.model.vo.HomeOverviewVO;
 import com.gem.loganalysis.model.vo.ImportRespVO;
+import com.gem.loganalysis.model.vo.ScreeShowVO;
 import com.gem.loganalysis.model.vo.asset.*;
 
 import java.util.List;
@@ -22,6 +23,7 @@ public interface IAssetService extends IService<Asset> {
 
     /**
      * 新增或更新安全管理资产
+     *
      * @param dto
      * @return
      */
@@ -29,6 +31,7 @@ public interface IAssetService extends IService<Asset> {
 
     /**
      * 分页查询安全管理资产
+     *
      * @param dto
      * @return
      */
@@ -40,6 +43,7 @@ public interface IAssetService extends IService<Asset> {
 
     /**
      * 资产总览
+     *
      * @return
      */
     AssetOverviewVO getOverviewInfo();
@@ -48,6 +52,7 @@ public interface IAssetService extends IService<Asset> {
 
     /**
      * 导入逻辑资产
+     *
      * @param list
      * @return
      */
@@ -55,6 +60,7 @@ public interface IAssetService extends IService<Asset> {
 
     /**
      * 导入物理资产
+     *
      * @param list
      * @return
      */
@@ -62,7 +68,16 @@ public interface IAssetService extends IService<Asset> {
 
     /**
      * 首页
+     *
      * @return
      */
     HomeOverviewVO getHomeOverview();
+
+    /**
+     * 大屏展示
+     *
+     * @return 展示内容
+     */
+    ScreeShowVO screenShow();
+
 }

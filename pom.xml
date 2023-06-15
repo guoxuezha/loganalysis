@@ -11,7 +11,7 @@
     </parent>
     <groupId>com.gem</groupId>
     <artifactId>loganalysis</artifactId>
-    <version>0.44</version>
+    <version>0.45</version>
     <name>logAnalysis</name>
     <packaging>jar</packaging>
     <description>Demo project for Spring Boot</description>
@@ -108,7 +108,7 @@
         <dependency>
             <groupId>com.gem</groupId>
             <artifactId>gsaclient</artifactId>
-            <version>23.06.15</version>
+            <version>23.06.15.002</version>
         </dependency>
 
         <dependency>

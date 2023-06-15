@@ -13,12 +13,11 @@ import com.gem.loganalysis.model.PageResponse;
 import com.gem.loganalysis.model.Result;
 import com.gem.loganalysis.model.dto.asset.AssetDTO;
 import com.gem.loganalysis.model.dto.asset.AssetQueryDTO;
-import com.gem.loganalysis.model.dto.query.LambdaQueryWrapperX;
-import com.gem.loganalysis.model.entity.*;
-import com.gem.loganalysis.model.vo.AssetEventHomeOverviewVO;
-import com.gem.loganalysis.model.vo.HomeOverviewVO;
-import com.gem.loganalysis.model.vo.ImportRespVO;
-import com.gem.loganalysis.model.vo.RiskAssetRankingVO;
+import com.gem.loganalysis.model.entity.Asset;
+import com.gem.loganalysis.model.entity.AssetGroup;
+import com.gem.loganalysis.model.entity.M4SsoOrg;
+import com.gem.loganalysis.model.entity.M4SsoUser;
+import com.gem.loganalysis.model.vo.*;
 import com.gem.loganalysis.model.vo.asset.*;
 import com.gem.loganalysis.service.*;
 import com.github.pagehelper.PageHelper;
@@ -33,7 +32,6 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.gem.loganalysis.util.UserUtil.getAuthorityUserId;
 import static com.gem.loganalysis.util.UserUtil.getLoginUserOrgId;
 
 /**
@@ -89,7 +87,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             }
         }
         //如果资产状态没有传就默认填0
-        if(StringUtils.isBlank(dto.getAssetStatus())){
+        if (StringUtils.isBlank(dto.getAssetStatus())) {
             dto.setAssetStatus("0");
         }
 /*        //前端已加密 后端无需AES加密
@@ -307,14 +305,14 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
 
         HomeOverviewVO homeOverview = assetMapper.getAssetHomeOverview();
         List<AssetEventHomeOverviewVO> event = assetMapper.getEventHomeOverview();
-        event.forEach(e->{
-            if(e.getAssetType().equals("安全设备")){
+        event.forEach(e -> {
+            if (e.getAssetType().equals("安全设备")) {
                 homeOverview.setSecurityDeviceEventsResolvedCount(e.getTotalEventCount()) // 当日安全设备事件总次数
                         .setSecurityDeviceEventsPendingCount(e.getPendingEventCount()); // 当日安全设备事件未处理次数
-            }else if(e.getAssetType().equals("网络设备")){
+            } else if (e.getAssetType().equals("网络设备")) {
                 homeOverview.setNetworkDeviceEventsResolvedCount(e.getTotalEventCount()) // 当日网络设备事件已处理次数
                         .setNetworkDeviceEventsPendingCount(e.getPendingEventCount()); // 当日网络设备事件未处理次数
-            }else if(e.getAssetType().equals("服务器")){
+            } else if (e.getAssetType().equals("服务器")) {
                 homeOverview.setItDeviceEventsResolvedCount(e.getTotalEventCount()) // 当日IT设备事件总次数
                         .setItDeviceEventsPendingCount(e.getPendingEventCount()); // 当日IT设备事件未处理次数
             }
@@ -363,20 +361,26 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 .setMediumRiskCount(Arrays.asList(15, 14, 13, 14, 14, 15, 16)) // 近七天中风险集合
                 .setHighRiskCount(Arrays.asList(1, 0, 2, 1, 3, 0, 1)) // 近七天高风险集合
                 .setExportDeviceLoad(Arrays.asList(590, 640, 850, 730, 800, 840, 900)) // 近七天出口设备负荷(流量)
-                .setSecurityDeviceAssetScore(Arrays.asList(85, 90, 92, 88, 95 ,95, 89))//近七天安全设备资产评分集合
-                .setNetworkDeviceAssetScore(Arrays.asList(82, 85, 89, 86, 88 ,90 , 88))//近七天网络设备资产评分集合
-                .setItDeviceAssetScore(Arrays.asList(80, 85, 90, 88, 86 ,86, 91))//近七天IT设备资产评分集合
+                .setSecurityDeviceAssetScore(Arrays.asList(85, 90, 92, 88, 95, 95, 89))//近七天安全设备资产评分集合
+                .setNetworkDeviceAssetScore(Arrays.asList(82, 85, 89, 86, 88, 90, 88))//近七天网络设备资产评分集合
+                .setItDeviceAssetScore(Arrays.asList(80, 85, 90, 88, 86, 86, 91))//近七天IT设备资产评分集合
                 .setLogicalAssetScore(Arrays.asList(90, 88, 92, 85, 91, 92, 89))//近七天逻辑资产评分集合
                 .setNonEndpointRiskAssetRanking(nonEndpointRiskAssetRanking)//非终端风险资产排行
                 .setEndpointRiskAssetRanking(endpointRiskAssetRanking);//终端风险资产排行
         return homeOverview;
     }
 
-    private List<String> weekDateList(){
+    @Override
+    public ScreeShowVO screenShow() {
+        ScreeShowVO result = new ScreeShowVO();
+        return result;
+    }
+
+    private List<String> weekDateList() {
         List<String> dateList = new ArrayList<>();
         LocalDate currentDate = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd");
-        for (int i = 6; i >= 0 ; i--) {
+        for (int i = 6; i >= 0; i--) {
             String date = currentDate.minusDays(i).format(formatter);
             dateList.add(date);
         }
@@ -410,12 +414,12 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 .filter(e -> e.getAssetClass().equals("0")).count());
         //逻辑资产类型分布
         Map<String, List<AssetRespVO>> logicalAsset = assetList.stream()
-                .filter(e -> e.getAssetClass().equals("0")&&StringUtils.isNotBlank(e.getAssetTypeName()))
+                .filter(e -> e.getAssetClass().equals("0") && StringUtils.isNotBlank(e.getAssetTypeName()))
                 .collect(Collectors.groupingBy(AssetRespVO::getAssetTypeName));
         assetOverviewVO.setLogicalAssetDistribution(logicalAsset);
         //物理资产类型分布
         Map<String, List<AssetRespVO>> physicalType = assetList.stream()
-                .filter(e -> e.getAssetClass().equals("1")&&StringUtils.isNotBlank(e.getTypeName()))
+                .filter(e -> e.getAssetClass().equals("1") && StringUtils.isNotBlank(e.getTypeName()))
                 .collect(Collectors.groupingBy(AssetRespVO::getTypeName));
         assetOverviewVO.setPhysicalAssetTypeDistribution(physicalType);
         //资产状态分布
@@ -425,7 +429,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         assetOverviewVO.setAssetOnlineStatusDistribution(assetStatus);
         //资产类别分布
         Map<String, List<AssetRespVO>> assetCategory = assetList.stream()
-                .filter(e -> e.getAssetClass().equals("1")&&StringUtils.isNotBlank(e.getAssetCategory()))
+                .filter(e -> e.getAssetClass().equals("1") && StringUtils.isNotBlank(e.getAssetCategory()))
                 .collect(Collectors.groupingBy(AssetRespVO::getAssetCategory));
         assetOverviewVO.setAssetCategoryDistribution(assetCategory);
 /*        //最近新增资产(10条)

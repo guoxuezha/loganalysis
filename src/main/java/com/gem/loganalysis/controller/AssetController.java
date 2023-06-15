@@ -19,6 +19,7 @@ import com.gem.loganalysis.model.entity.M4SsoOrg;
 import com.gem.loganalysis.model.vo.DictItemRespVO;
 import com.gem.loganalysis.model.vo.HomeOverviewVO;
 import com.gem.loganalysis.model.vo.ImportRespVO;
+import com.gem.loganalysis.model.vo.ScreeShowVO;
 import com.gem.loganalysis.model.vo.asset.*;
 import com.gem.loganalysis.service.*;
 import com.gem.loganalysis.util.ExcelUtils;
@@ -305,10 +306,15 @@ public class AssetController {
 
     @PostMapping("/homeOverview")
     @ApiOperation("首页总览")
-    public Result<HomeOverviewVO> getHomeOverview(){
+    public Result<HomeOverviewVO> getHomeOverview() {
         HomeOverviewVO homeOverview = assetService.getHomeOverview();
         return Result.ok(homeOverview);
     }
 
+    @PostMapping("/screenShow")
+    @ApiOperation("大屏展示")
+    public Result<ScreeShowVO> screenShow() {
+        return Result.ok(assetService.screenShow());
+    }
 
 }
