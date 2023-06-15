@@ -27,6 +27,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONException;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -306,7 +307,7 @@ public class AssetController {
 
     @PostMapping("/homeOverview")
     @ApiOperation("首页总览")
-    public Result<HomeOverviewVO> getHomeOverview() {
+    public Result<HomeOverviewVO> getHomeOverview() throws JSONException {
         HomeOverviewVO homeOverview = assetService.getHomeOverview();
         return Result.ok(homeOverview);
     }
