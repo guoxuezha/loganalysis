@@ -49,7 +49,7 @@ public class KafkaConsumerRunnable extends Thread {
                 // 从服务器开始拉取数据
                 ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1500));
                 if (records.isEmpty()) {
-                    Thread.sleep(5000);
+                    sleep(5000);
                     continue;
                 }
 

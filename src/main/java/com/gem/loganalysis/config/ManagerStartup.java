@@ -3,7 +3,6 @@ package com.gem.loganalysis.config;
 import com.gem.gemada.dal.db.pools.ConnectionPools;
 import com.gem.gemada.dal.db.pools.DAO;
 import com.gem.gemada.dal.db.pools.PoolParameters;
-import com.gem.loganalysis.gsaclient.GSAClientAgent;
 import com.gem.loganalysis.kafka.KafkaAutoTableHandler;
 import com.gem.loganalysis.snmpmonitor.SNMPMonitorServer;
 import lombok.AllArgsConstructor;
@@ -73,17 +72,13 @@ public class ManagerStartup implements CommandLineRunner {
 
         // Gem-utils 调度器启动
 //        Schedule.getInstance().start();
+
         if (businessConfigInfo.getSnmpMonitorEnable()) {
             SNMPMonitorServer.getInstance().createThreadPool();
         }
 
         // 初始化子Topic监听线程
         kafkaAutoTableHandler.initTopicListener();
-
-        GSAClientAgent gsaClientAgent = GSAClientAgent.getInstance();
-        boolean inited = gsaClientAgent.init();
-        log.info("gsaClientAgent.init(): {}", inited);
-
     }
 
     @Bean

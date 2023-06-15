@@ -56,10 +56,10 @@ logging:
   file:
     name: D:/workspace/project/loganalysis/src/main/resources/log/local.log
 
-#mybatis-plus:
-#  # 控制台打印sql语句
-#  configuration:
-#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+mybatis-plus:
+  # 控制台打印sql语句
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 spring:
   datasource:

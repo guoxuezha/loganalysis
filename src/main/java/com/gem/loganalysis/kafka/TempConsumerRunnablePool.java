@@ -1,13 +1,9 @@
 package com.gem.loganalysis.kafka;
 
 import com.gem.loganalysis.sshserver.KafkaTempConsumerWebSocket;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.Collections;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -35,14 +31,8 @@ public class TempConsumerRunnablePool {
     private void append(String topicName, KafkaTempConsumerWebSocket socket) {
         // 判断是否存在目标Topic
         if (kafkaTopicFactory.exitConsumer(topicName)) {
-            // 创建基于目标Topic的消费者,groupId为 "tempConsumer"
-            Map<String, Object> consumerConfigs = kafkaTopicFactory.consumerConfigs();
-            consumerConfigs.put(ConsumerConfig.GROUP_ID_CONFIG, tempConsumerGroupId);
-            KafkaConsumer<String, String> consumer = new KafkaConsumer<>(consumerConfigs);
-            consumer.subscribe(Collections.singletonList(topicName));
-
             // 创建线程执行消息消费和sendMessage
-            TempConsumerRunnable runnable = new TempConsumerRunnable(socket, consumer);
+            TempConsumerRunnable runnable = new TempConsumerRunnable(socket, kafkaTopicFactory.consumerConfigs(), topicName, tempConsumerGroupId);
             consumerPool.put(topicName, runnable);
         }
     }

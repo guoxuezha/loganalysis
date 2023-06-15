@@ -46,6 +46,9 @@ public class ScreeShowVO {
     @ApiModelProperty("封堵处置")
     private List<TypeNum> blockList;
 
+    @ApiModelProperty("黑白名单")
+    private List<TypeNum> blackAndWhiteList;
+
     public ScreeShowVO() {
         safeEquipmentNum = 1632;
         networkEquipmentNum = 632;
@@ -119,6 +122,12 @@ public class ScreeShowVO {
                 blockList.add(new TypeNum(map.get("BLOCK_STATE"), Integer.parseInt(map.get("NUM"))));
             }
         }
+
+        blackAndWhiteList = new ArrayList<>();
+        long blackListSize = dao.getDataSetCount(BaseConstant.DEFAULT_POOL_NAME, "SELECT 1 FROM M4_SSO_BLACK_LIST");
+        long whiteListSize = dao.getDataSetCount(BaseConstant.DEFAULT_POOL_NAME, "SELECT 1 FROM M4_SSO_WHITE_LIST");
+        blackAndWhiteList.add(new TypeNum("黑名单", (int) blackListSize));
+        blackAndWhiteList.add(new TypeNum("白名单", (int) whiteListSize));
     }
 
     @Data
