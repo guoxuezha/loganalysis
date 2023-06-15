@@ -23,7 +23,6 @@ import com.gem.loganalysis.scanner.Scanner;
 import com.gem.loganalysis.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.apache.commons.collections4.Get;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
