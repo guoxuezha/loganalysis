@@ -122,9 +122,13 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             e.setAssetSecurityStatus("2");
             changeAssetName(e);
             //TODO 资产评分
-            Random rand = new Random();
-            int randomNum = rand.nextInt((100 - 95) + 1) + 95;
-            e.setScore(randomNum);
+            if(e.getSeverity()!=null){
+                e.setScore(100.00-e.getSeverity()*10);
+            }else{
+                Random rand = new Random();
+                int randomNum = rand.nextInt((100 - 95) + 1) + 95;
+                e.setScore((double)randomNum);
+            }
         });
         return new PageResponse<>(result);
     }
@@ -146,9 +150,13 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             e.setAssetSecurityStatus("2");
             changeAssetName(e);
             //TODO 资产评分
-            Random rand = new Random();
-            int randomNum = rand.nextInt((100 - 95) + 1) + 95;
-            e.setScore(randomNum);
+            if(e.getSeverity()!=null){
+                e.setScore(100.00-e.getSeverity()*10);
+            }else{
+                Random rand = new Random();
+                int randomNum = rand.nextInt((100 - 95) + 1) + 95;
+                e.setScore((double)randomNum);
+            }
         });
         return assetRespVOList;
     }

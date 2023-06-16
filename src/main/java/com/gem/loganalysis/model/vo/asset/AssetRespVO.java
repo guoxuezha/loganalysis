@@ -125,7 +125,7 @@ public class AssetRespVO {
     private String assetSecurityStatusName;
 
     @ApiModelProperty(value = "分数")
-    private Integer score;
+    private Double score;
 
     @ApiModelProperty(value = "脆弱值")
     private Double severity;
