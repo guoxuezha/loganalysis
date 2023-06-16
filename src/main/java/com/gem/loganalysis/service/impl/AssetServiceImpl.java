@@ -344,7 +344,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         List<RiskAssetRankingVO> endpointRiskAssetRanking = new ArrayList<>();//IT设备脆弱性
 
         //备用数据
-    /*    RiskAssetRankingVO asset15 = new RiskAssetRankingVO();
+        RiskAssetRankingVO asset15 = new RiskAssetRankingVO();
         asset15.setName("172.16.208.31");
         asset15.setScore(10.0);
         endpointRiskAssetRanking.add(asset15);
@@ -392,8 +392,8 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         RiskAssetRankingVO asset5 = new RiskAssetRankingVO();
         asset5.setName("172.16.200.54");
         asset5.setScore(5.3);
-        nonEndpointRiskAssetRanking.add(asset5);*/
-
+        nonEndpointRiskAssetRanking.add(asset5);
+/*
         List<Map.Entry<String, Double>> netSecurityDeviceTop5 = vulnerabilityService.getNetSecurityDeviceTop5();
         for (Map.Entry<String, Double> entry : netSecurityDeviceTop5) {
             String ipAddress = entry.getKey();
@@ -411,7 +411,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 .collect(Collectors.toList());
         filteredData.forEach(e->{
             endpointRiskAssetRanking.add(new RiskAssetRankingVO(e.getIp(), e.getSeverity()));
-        });
+        });*/
         //漏洞
         VulnDataVO vulnDataVO = vulnerabilityService.getAggregateForVulnBySeverity();
         Integer totalVuln = vulnDataVO.getLow()+vulnDataVO.getMiddle()+vulnDataVO.getHigh();
