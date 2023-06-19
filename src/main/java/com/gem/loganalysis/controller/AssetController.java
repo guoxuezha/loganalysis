@@ -314,8 +314,8 @@ public class AssetController {
 
     @PostMapping("/screenShow")
     @ApiOperation("大屏展示")
-    public Result<ScreeShowVO> screenShow() throws JSONException {
-        return Result.ok(assetService.screenShow());
+    public Result<ScreeShowVO> screenShow(@RequestBody GetDTO dto) throws JSONException {
+        return Result.ok(assetService.screenShow(dto.getId()));
     }
 
 }

@@ -9,6 +9,7 @@ business-config:
   logBlockFileRetentionDays: 7
   snmpMonitorEnable: false
   kafkaMainTopic: logRepo3
+  webSocketPrefix: 123.249.42.58:8080
 
 minio:
   #Minio服务所在地址
@@ -59,7 +60,7 @@ spring:
         master:
           name: loganalysis
           driver-class-name: com.mysql.cj.jdbc.Driver
-          url: jdbc:mysql://123.249.42.58:3306/${spring.datasource.dynamic.datasource.master.name}?characterEncoding=utf8&nullCatalogMeansCurrent=true&useSSL=false&useUnicode=true&0=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Shanghai
+          url: jdbc:mysql://123.249.42.58:3306/loganalysis?characterEncoding=utf8&nullCatalogMeansCurrent=true&useSSL=false&useUnicode=true&0=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Shanghai
           username: root
           password: MySqlPassword!!
   kafka:

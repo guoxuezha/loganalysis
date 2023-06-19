@@ -79,6 +79,6 @@ public interface IAssetService extends IService<Asset> {
      *
      * @return 展示内容
      */
-    ScreeShowVO screenShow() throws JSONException;
+    ScreeShowVO screenShow(String assetType) throws JSONException;
 
 }

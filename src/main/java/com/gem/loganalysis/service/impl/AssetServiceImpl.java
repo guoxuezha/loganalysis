@@ -1,5 +1,6 @@
 package com.gem.loganalysis.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gem.loganalysis.config.BusinessConfigInfo;
@@ -11,6 +12,7 @@ import com.gem.loganalysis.mapper.AssetMapper;
 import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.PageResponse;
 import com.gem.loganalysis.model.Result;
+import com.gem.loganalysis.model.bo.AssetTypeTree;
 import com.gem.loganalysis.model.dto.asset.AssetDTO;
 import com.gem.loganalysis.model.dto.asset.AssetQueryDTO;
 import com.gem.loganalysis.model.dto.query.LambdaQueryWrapperX;
@@ -31,7 +33,6 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.gem.loganalysis.util.UserUtil.getAuthorityUserId;
 import static com.gem.loganalysis.util.UserUtil.getLoginUserOrgId;
 
 /**
@@ -93,7 +94,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             }
         }
         //如果资产状态没有传就默认填0
-        if(StringUtils.isBlank(dto.getAssetStatus())){
+        if (StringUtils.isBlank(dto.getAssetStatus())) {
             dto.setAssetStatus("0");
         }
 /*        //前端已加密 后端无需AES加密
@@ -122,12 +123,12 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             e.setAssetSecurityStatus("2");
             changeAssetName(e);
             //TODO 资产评分
-            if(e.getSeverity()!=null){
-                e.setScore(100.00-e.getSeverity()*10);
-            }else{
+            if (e.getSeverity() != null) {
+                e.setScore(100.00 - e.getSeverity() * 10);
+            } else {
                 Random rand = new Random();
                 int randomNum = rand.nextInt((100 - 95) + 1) + 95;
-                e.setScore((double)randomNum);
+                e.setScore((double) randomNum);
             }
         });
         return new PageResponse<>(result);
@@ -150,12 +151,12 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             e.setAssetSecurityStatus("2");
             changeAssetName(e);
             //TODO 资产评分
-            if(e.getSeverity()!=null){
-                e.setScore(100.00-e.getSeverity()*10);
-            }else{
+            if (e.getSeverity() != null) {
+                e.setScore(100.00 - e.getSeverity() * 10);
+            } else {
                 Random rand = new Random();
                 int randomNum = rand.nextInt((100 - 95) + 1) + 95;
-                e.setScore((double)randomNum);
+                e.setScore((double) randomNum);
             }
         });
         return assetRespVOList;
@@ -335,14 +336,14 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
 
         HomeOverviewVO homeOverview = assetMapper.getAssetHomeOverview();
         List<AssetEventHomeOverviewVO> event = assetMapper.getEventHomeOverview();
-        event.forEach(e->{
-            if(e.getAssetType().equals("安全设备")){
+        event.forEach(e -> {
+            if (e.getAssetType().equals("安全设备")) {
                 homeOverview.setSecurityDeviceEventsResolvedCount(e.getTotalEventCount()) // 当日安全设备事件总次数
                         .setSecurityDeviceEventsPendingCount(e.getPendingEventCount()); // 当日安全设备事件未处理次数
-            }else if(e.getAssetType().equals("网络设备")){
+            } else if (e.getAssetType().equals("网络设备")) {
                 homeOverview.setNetworkDeviceEventsResolvedCount(e.getTotalEventCount()) // 当日网络设备事件已处理次数
                         .setNetworkDeviceEventsPendingCount(e.getPendingEventCount()); // 当日网络设备事件未处理次数
-            }else if(e.getAssetType().equals("服务器")){
+            } else if (e.getAssetType().equals("服务器")) {
                 homeOverview.setItDeviceEventsResolvedCount(e.getTotalEventCount()) // 当日IT设备事件总次数
                         .setItDeviceEventsPendingCount(e.getPendingEventCount()); // 当日IT设备事件未处理次数
             }
@@ -422,16 +423,16 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         });*/
         //漏洞
         VulnDataVO vulnDataVO = vulnerabilityService.getAggregateForVulnBySeverity();
-        Integer totalVuln = vulnDataVO.getLow()+vulnDataVO.getMiddle()+vulnDataVO.getHigh();
+        Integer totalVuln = vulnDataVO.getLow() + vulnDataVO.getMiddle() + vulnDataVO.getHigh();
         //风险 目前漏洞没有放到风险里 所以风险个数为漏洞+风险
-        int riskCount =(int) riskService.count();
+        int riskCount = (int) riskService.count();
         homeOverview
                 .setAssetTotalScore(vulnDataVO.getScore()) // 资产总评分
                 .setLowVulnerabilityCount(vulnDataVO.getLow())//低危漏洞
                 .setMediumVulnerabilityCount(vulnDataVO.getMiddle())//中危漏洞
                 .setHighVulnerabilityCount(vulnDataVO.getHigh())//高危漏洞
                 .setSecurityVulnerabilityCount(totalVuln) // 安全漏洞数量
-                .setTotalRiskCount(riskCount+totalVuln); // 风险总数
+                .setTotalRiskCount(riskCount + totalVuln); // 风险总数
 
         //备用数据
     /*    int riskCount =(int) riskService.count();
@@ -494,7 +495,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     }
 
     @Override
-    public ScreeShowVO screenShow() throws JSONException {
+    public ScreeShowVO screenShow(String type) throws JSONException {
         ScreeShowVO result = new ScreeShowVO();
         HomeOverviewVO homeOverview = assetMapper.getAssetHomeOverview();
         result.setSafeEquipmentNum(homeOverview.getSecurityDeviceTotalCount());
@@ -503,22 +504,44 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         result.setTerminalEquipmentNum(homeOverview.getEndpointDeviceTotalCount());
 
         List<HostsSeverityVO> deviceTop = vulnerabilityService.getDeviceTop();
-        List<Asset> assetList = this.list();
-        Map<String, String> ipToAssetNameMap = new HashMap<>();
-        // 创建一个Map，以IP作为键，资产名称作为值
-        for (Asset asset : assetList) {
-            ipToAssetNameMap.put(asset.getIpAddress(), asset.getAssetName());
+        boolean allType = "0".equals(type);
+        if (allType) {
+            deviceTop = deviceTop.subList(0, 10);
         }
+        LambdaQueryWrapper<Asset> wrapper = new LambdaQueryWrapper<>();
+        wrapper.select(Asset::getIpAddress, Asset::getAssetName, Asset::getAssetType)
+                .eq(Asset::getAssetClass, "1")
+                .eq(Asset::getDeleteState, 0);
+        List<Asset> assetList = this.list(wrapper);
+        // 创建一个Map,以IP作为键,资产对象作为值
+        Map<String, List<Asset>> assetMap = assetList.stream().collect(Collectors.groupingBy(Asset::getIpAddress));
+        List<HostsSeverityVO> typeDeviceTop = new ArrayList<>();
+        AssetTypeTree typeTreeInstance = AssetTypeTree.getInstance();
         // 遍历deviceTop列表，并根据IP匹配资产名称
         for (HostsSeverityVO device : deviceTop) {
             String ipAddress = device.getIp();
-            String assetName = ipToAssetNameMap.get(ipAddress);
-            // 将匹配到的资产名称设置到device对象中
-            device.setAssetName(assetName);
+            List<Asset> assets = assetMap.get(ipAddress);
+            if (CollUtil.isNotEmpty(assets)) {
+                Asset asset = assets.get(0);
+                String assetName = asset.getAssetName();
+                String assetType = asset.getAssetType();
+                if (allType) {
+                    device.setAssetName(assetName);
+                } else {
+                    Integer parentNodeId = typeTreeInstance.getParentNodeId(Integer.valueOf(assetType));
+                    // 判断资产类型是否匹配
+                    if (type.equals(parentNodeId.toString())) {
+                        // 将匹配到的资产名称设置到device对象中
+                        typeDeviceTop.add(device);
+                        if (typeDeviceTop.size() == 10) {
+                            deviceTop = typeDeviceTop;
+                            break;
+                        }
+                    }
+                }
+            }
         }
-        List<HostsSeverityVO> collect = deviceTop.stream().limit(10)
-                .collect(Collectors.toList());
-        result.setRiskAsset(collect);
+        result.setRiskAsset(deviceTop);
 
         //备用数据
        /* List<HostsSeverityVO> hostSeverityList = new ArrayList<>();
@@ -587,11 +610,11 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         return result;
     }
 
-    private List<String> weekDateList(){
+    private List<String> weekDateList() {
         List<String> dateList = new ArrayList<>();
         LocalDate currentDate = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd");
-        for (int i = 6; i >= 0 ; i--) {
+        for (int i = 6; i >= 0; i--) {
             String date = currentDate.minusDays(i).format(formatter);
             dateList.add(date);
         }
@@ -625,12 +648,12 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 .filter(e -> e.getAssetClass().equals("0")).count());
         //逻辑资产类型分布
         Map<String, List<AssetRespVO>> logicalAsset = assetList.stream()
-                .filter(e -> e.getAssetClass().equals("0")&&StringUtils.isNotBlank(e.getAssetTypeName()))
+                .filter(e -> e.getAssetClass().equals("0") && StringUtils.isNotBlank(e.getAssetTypeName()))
                 .collect(Collectors.groupingBy(AssetRespVO::getAssetTypeName));
         assetOverviewVO.setLogicalAssetDistribution(logicalAsset);
         //物理资产类型分布
         Map<String, List<AssetRespVO>> physicalType = assetList.stream()
-                .filter(e -> e.getAssetClass().equals("1")&&StringUtils.isNotBlank(e.getTypeName()))
+                .filter(e -> e.getAssetClass().equals("1") && StringUtils.isNotBlank(e.getTypeName()))
                 .collect(Collectors.groupingBy(AssetRespVO::getTypeName));
         assetOverviewVO.setPhysicalAssetTypeDistribution(physicalType);
         //资产状态分布
@@ -640,7 +663,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         assetOverviewVO.setAssetOnlineStatusDistribution(assetStatus);
         //资产类别分布
         Map<String, List<AssetRespVO>> assetCategory = assetList.stream()
-                .filter(e -> e.getAssetClass().equals("1")&&StringUtils.isNotBlank(e.getAssetCategory()))
+                .filter(e -> e.getAssetClass().equals("1") && StringUtils.isNotBlank(e.getAssetCategory()))
                 .collect(Collectors.groupingBy(AssetRespVO::getAssetCategory));
         assetOverviewVO.setAssetCategoryDistribution(assetCategory);
 /*        //最近新增资产(10条)

@@ -5,6 +5,7 @@ import com.gem.gemada.dal.db.pools.DAO;
 import com.gem.gemada.dal.db.pools.PoolParameters;
 import com.gem.loganalysis.kafka.KafkaAutoTableHandler;
 import com.gem.loganalysis.snmpmonitor.SNMPMonitorServer;
+import com.gem.utils.schedule.Schedule;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -71,7 +72,7 @@ public class ManagerStartup implements CommandLineRunner {
 //        instance.createConnPools();
 
         // Gem-utils 调度器启动
-//        Schedule.getInstance().start();
+        Schedule.getInstance().start();
 
         if (businessConfigInfo.getSnmpMonitorEnable()) {
             SNMPMonitorServer.getInstance().createThreadPool();

@@ -43,7 +43,7 @@ public class TempConsumerRunnable extends Thread {
                 }
                 for (ConsumerRecord<String, String> record : records) {
                     synchronized (socket) {
-                        socket.getSession().getBasicRemote().sendText(record.value());
+                        socket.getSession().getBasicRemote().sendText(record.value() + "\n");
                     }
                 }
             } catch (IOException | InterruptedException e) {

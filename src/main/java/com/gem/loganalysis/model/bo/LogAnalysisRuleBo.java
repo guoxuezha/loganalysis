@@ -8,7 +8,6 @@ import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.gem.loganalysis.mapper.AssetEventMapper;
 import com.gem.loganalysis.mapper.AssetMergeLogMapper;
@@ -302,23 +301,15 @@ public class LogAnalysisRuleBo {
         BlockFileUtil.writeLog(sourceMergeLog, this);
 
         // 5.将日志对象写入归并缓存（异步生成归并日志）
-        mergeLog.setMessage(JSONUtil.toJsonStr(logMessageTree.toJsonObject(false)));
+        mergeLog.setMessage(logMessageTree.toJsonStr(false));
         MergeLog mLog = cacheMap.get(unionKeyStr);
         if (mLog == null) {
             cacheMap.put(unionKeyStr, mergeLog);
             mLog = mergeLog;
         }
 
-        // 6.判断是否满足根据IP属地封堵条件
-        LogEventParamConfig eventParamConfig = LogEventParamConfig.getInstance();
-        String sourceIp = logMessageTree.getFieldValue(eventParamConfig.getSourceIpItem());
-        if (BlockRuleServer.getInstance().judgeNeedRegionBlock(this.asset.getAssetId(), sourceIp)) {
-            // 生成中危事件记录及风险记录
-            eventStart(mergeLog, sourceIp, logMessageTree.getFieldValue(eventParamConfig.getTargetIpItem()), BaseConstant.EXTRA_TERRITORIAL_ACCESS, "2");
-        } else {
-            // 进入阈值计算分支
-            logIncrAndStartEvent(mLog, unionKeyStr, logMessageTree);
-        }
+        // 进入阈值计算分支
+        logIncrAndStartEvent(mLog, unionKeyStr, logMessageTree);
     }
 
     /**
@@ -360,7 +351,13 @@ public class LogAnalysisRuleBo {
                 log.warn("发生未知类型事件! ruleRelaId: {}, mergeLog: {}", ruleRelaId, mergeLog);
                 return;
             }
-            // 事件开始
+            // 先判断是否满足根据IP属地封堵条件
+            if (BlockRuleServer.getInstance().judgeNeedRegionBlock(this.asset.getAssetId(), sourceIp)) {
+                // 生成中危事件记录及风险记录
+                eventStart(mergeLog, sourceIp, logMessageTree.getFieldValue(eventParamConfig.getTargetIpItem()), BaseConstant.EXTRA_TERRITORIAL_ACCESS, "2");
+            }
+
+            // 再生成事件开始
             eventStart(mergeLog, sourceIp, targetIp, eventType, riskLevel);
         }
     }

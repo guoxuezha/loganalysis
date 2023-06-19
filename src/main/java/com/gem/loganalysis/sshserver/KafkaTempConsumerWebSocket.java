@@ -11,6 +11,7 @@ import com.gem.utils.websocket.WebSocket;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,6 +56,11 @@ public class KafkaTempConsumerWebSocket extends WebSocket {
             return "订阅成功!";
         }
         return "不存在目标资产!";
+    }
+
+    @Override
+    public void beforeClose(Session session) {
+
     }
 
     @Override

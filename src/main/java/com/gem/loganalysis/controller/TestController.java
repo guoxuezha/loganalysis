@@ -1,9 +1,9 @@
 package com.gem.loganalysis.controller;
 
-import com.gem.loganalysis.model.bo.LogEventListener;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -16,11 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 public class TestController {
 
-    private final LogEventListener logEventListener;
-
-    @PostMapping("/1")
-    public void test1() {
-
+    @PostMapping("/2")
+    public Integer test2(@RequestParam("id") Integer id) {
+//        return AssetTypeTree.getInstance().getParentNodeId(id);
+        return null;
     }
 
 }

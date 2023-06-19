@@ -3,6 +3,7 @@ package com.gem.loganalysis.controller;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.gem.loganalysis.config.BusinessConfigInfo;
 import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.Result;
 import com.gem.loganalysis.model.bo.LogAnalysisRuleBo;
@@ -51,6 +52,14 @@ public class LogAnalysisRuleController {
     private final ILogAnalysisRuleRelaService iLogAnalysisRuleRelaService;
 
     private final LogAnalysisRulePool logAnalysisRulePool;
+
+    private final BusinessConfigInfo businessConfigInfo;
+
+    @ApiOperation("查看WebSocket地址前缀")
+    @PostMapping("/getSocketPrefix")
+    public Result<String> getSocketPrefix() {
+        return Result.ok(businessConfigInfo.getWebSocketPrefix());
+    }
 
     @ApiOperation("查看日志范式树")
     @PostMapping("/showLogNormalForm")

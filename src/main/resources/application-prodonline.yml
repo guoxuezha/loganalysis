@@ -4,11 +4,12 @@ business-config:
   authenticationEnable: true
   responseEncryptEnable: true
   AESKey: SKVNMEIHJLOANSKI
-  logMonitorEnable: false
+  logMonitorEnable: true
   adadDefaultPackage: "defaultPackage"
   logBlockFileRetentionDays: 7
   snmpMonitorEnable: false
   kafkaMainTopic: logRepo3
+  webSocketPrefix: 222.95.84.173:8080
 
 minio:
   #Minio服务所在地址

@@ -43,7 +43,9 @@ public class MainKafkaConsumer {
     void onMessage(String record) {
         if (businessConfigInfo.getLogMonitorEnable()) {
             List<MergeLog> messageList = convertLogFormat(record);
+            int count = 0;
             for (MergeLog mergelog : messageList) {
+                count++;
                 // 根据IP分发到不同的Topic下
                 String host = mergelog.getHost();
                 NewTopic topic = kafkaAutoTableHandler.getTopic(host);

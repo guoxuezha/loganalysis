@@ -51,4 +51,9 @@ public class BusinessConfigInfo {
      */
     private Integer logBlockFileRetentionDays;
 
+    /**
+     * webSocket前缀
+     */
+    private String webSocketPrefix;
+
 }

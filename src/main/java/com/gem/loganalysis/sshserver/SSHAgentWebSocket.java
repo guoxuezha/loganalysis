@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 
+import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,6 +56,11 @@ public class SSHAgentWebSocket extends WebSocket {
         }
 
         return null;
+    }
+
+    @Override
+    public void beforeClose(Session session) {
+
     }
 
     /*收到消息时执行*/

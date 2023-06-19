@@ -1,10 +1,8 @@
 package com.gem.loganalysis.model.vo;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.RandomUtil;
 import com.gem.gemada.dal.db.pools.DAO;
 import com.gem.loganalysis.model.BaseConstant;
-import com.gem.loganalysis.model.vo.asset.AssetRespVO;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,7 +10,6 @@ import lombok.Data;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 大屏显示数据视图类
@@ -64,7 +61,7 @@ public class ScreeShowVO {
         }
 
         eventList = new ArrayList<>();
-        String s3 = "SELECT A.ASSET_ID, A.ASSET_NAME FROM SOP_ASSET A LEFT JOIN SOP_ASSET_EVENT B ON A.ASSET_ID = B.ASSET_ID GROUP BY A.ASSET_ID ORDER BY COUNT(1) DESC LIMIT 7";
+        String s3 = "SELECT A.ASSET_ID, A.ASSET_NAME FROM SOP_ASSET A LEFT JOIN SOP_ASSET_EVENT B ON A.ASSET_ID = B.ASSET_ID WHERE B.EVENT_ID IS NOT NULL GROUP BY A.ASSET_ID ORDER BY COUNT(1) DESC LIMIT 7";
         ArrayList<HashMap<String, String>> dataSet3 = dao.getDataSet(BaseConstant.DEFAULT_POOL_NAME, s3);
         String[] assetNames = new String[7];
         Integer[] low = new Integer[]{0, 0, 0, 0, 0, 0, 0};
