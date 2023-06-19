@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -77,7 +78,7 @@ public class AssetController {
 
     @PostMapping("/pageList")
     @ApiOperation("分页查询安全管理资产")
-    public Result<PageResponse<AssetRespVO>> pageList(@RequestBody PageRequest<AssetQueryDTO> dto) throws JSONException {
+    public Result<PageResponse<AssetRespVO>> pageList(@RequestBody PageRequest<AssetQueryDTO> dto) throws JSONException{
         dto.getData().setAssetManagerId(getAuthorityUserId());//鉴权
         return Result.ok(assetService.getPageList(dto));
     }

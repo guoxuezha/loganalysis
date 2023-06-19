@@ -19,6 +19,7 @@ import com.gem.loganalysis.model.dto.query.LambdaQueryWrapperX;
 import com.gem.loganalysis.model.entity.*;
 import com.gem.loganalysis.model.vo.*;
 import com.gem.loganalysis.model.vo.asset.*;
+import com.gem.loganalysis.model.vo.vulnerability.VulnerabilityScanningVO;
 import com.gem.loganalysis.service.*;
 import com.github.pagehelper.PageHelper;
 import org.apache.commons.lang3.StringUtils;
@@ -27,6 +28,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import javax.annotation.Resource;
+import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -109,8 +112,15 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     public PageResponse<AssetRespVO> getPageList(PageRequest<AssetQueryDTO> dto) throws JSONException {
         com.github.pagehelper.Page<AssetRespVO> result = PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
         assetMapper.getAssetList(dto.getData());
-        //转义
+        //TODO 一个资产多个脆弱值 是不是该取最高（？)
         List<HostsSeverityVO> deviceTop = vulnerabilityService.getDeviceTop();
+        //漏洞列表
+        List<VulnerabilityScanningVO> severity = vulnerabilityService.getAggregateForResultBySeverity();
+        //构成IP为KEY，severity值数组为VALUE的形式
+        Map<String, List<Double>> collect = severity.stream()
+                .filter(item -> item.getHost_ip() != null && item.getSeverity() != null)
+                .collect(Collectors.groupingBy(VulnerabilityScanningVO::getHost_ip,
+                        Collectors.mapping(VulnerabilityScanningVO::getSeverity, Collectors.toList())));
         result.forEach(e -> {
             String ip = e.getIpAddress();
             for (HostsSeverityVO hostsSeverityVO : deviceTop) {
@@ -119,26 +129,41 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                     break; // 找到匹配的 IP 后退出内层循环
                 }
             }
-            //TODO 资产的安全状态目前先全部放安全，等待之后风险部分完成再放入
-            e.setAssetSecurityStatus("2");
+            //资产评分
+            //权重系数为中1.2，高2
+            e.setScore(calculateOverallSecurityScore(collect.get(e.getIpAddress()),1.2,2));
+            //资产的安全状态80-100给正常 60-80给告警 0-60给危险
+            e.setAssetSecurityStatus(getSecurityStatus(e.getScore()));
+            //转义
             changeAssetName(e);
-            //TODO 资产评分
-            if (e.getSeverity() != null) {
-                e.setScore(100.00 - e.getSeverity() * 10);
-            } else {
-                Random rand = new Random();
-                int randomNum = rand.nextInt((100 - 95) + 1) + 95;
-                e.setScore((double) randomNum);
-            }
         });
         return new PageResponse<>(result);
+    }
+
+    private String getSecurityStatus(Double score){
+        if (score >= 80 && score <= 100) {
+            return "2";
+        } else if (score >= 60 && score < 80) {
+            return "1";
+        } else if (score >= 0 && score < 60) {
+            return "0";
+        }else{
+            return "3";
+        }
     }
 
     @Override
     public List<AssetRespVO> getAssetList(AssetQueryDTO dto) throws JSONException {
         List<AssetRespVO> assetRespVOList = assetMapper.getAssetList(dto);
+        //TODO 一个资产多个脆弱值 是不是该取最高（？)
         List<HostsSeverityVO> deviceTop = vulnerabilityService.getDeviceTop();
-        //转义
+        //漏洞列表
+        List<VulnerabilityScanningVO> severity = vulnerabilityService.getAggregateForResultBySeverity();
+        //构成IP为KEY，severity值数组为VALUE的形式
+        Map<String, List<Double>> collect = severity.stream()
+                .filter(item -> item.getHost_ip() != null && item.getSeverity() != null)
+                .collect(Collectors.groupingBy(VulnerabilityScanningVO::getHost_ip,
+                        Collectors.mapping(VulnerabilityScanningVO::getSeverity, Collectors.toList())));
         assetRespVOList.forEach(e -> {
             String ip = e.getIpAddress();
             for (HostsSeverityVO hostsSeverityVO : deviceTop) {
@@ -147,17 +172,13 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                     break; // 找到匹配的 IP 后退出内层循环
                 }
             }
-            //TODO 资产的安全状态目前先全部放安全，等待之后风险部分完成再放入
-            e.setAssetSecurityStatus("2");
+            //资产评分
+            //权重系数为中1.2，高2
+            e.setScore(calculateOverallSecurityScore(collect.get(e.getIpAddress()),1.2,2));
+            //资产的安全状态80-100给正常 60-80给告警 0-60给危险
+            e.setAssetSecurityStatus(getSecurityStatus(e.getScore()));
+            //转义
             changeAssetName(e);
-            //TODO 资产评分
-            if (e.getSeverity() != null) {
-                e.setScore(100.00 - e.getSeverity() * 10);
-            } else {
-                Random rand = new Random();
-                int randomNum = rand.nextInt((100 - 95) + 1) + 95;
-                e.setScore((double) randomNum);
-            }
         });
         return assetRespVOList;
     }
@@ -804,5 +825,72 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             }
         }*/
         return respVO;
+    }
+
+
+
+    //计算资产评分
+    public static double calculateOverallSecurityScore(List<Double> vulnerabilities, double mediumWeight, double highWeight) {
+        if (vulnerabilities==null||vulnerabilities.isEmpty()) {
+            return 100.00; // 如果 vulnerabilities 列表为空，直接返回 100 分
+        }
+        double totalVulnerabilities = vulnerabilities.size();
+
+        double maxLowVulnerability = 0;
+        double maxMediumVulnerability = 0;
+        double maxHighVulnerability = 0;
+
+        for (double vulnerability : vulnerabilities) {
+            if (vulnerability >= 0 && vulnerability < 4) {
+                if (vulnerability > maxLowVulnerability) {
+                    maxLowVulnerability = vulnerability;
+                }
+            } else if (vulnerability >= 4 && vulnerability < 7) {
+                if (vulnerability > maxMediumVulnerability) {
+                    maxMediumVulnerability = vulnerability;
+                }
+            } else if (vulnerability >= 7 && vulnerability <= 10) {
+                if (vulnerability > maxHighVulnerability) {
+                    maxHighVulnerability = vulnerability;
+                }
+            }
+        }
+
+        double mediumScore = maxMediumVulnerability * mediumWeight * (1 + getVulnerabilityCount(vulnerabilities, 4, 7) / totalVulnerabilities);
+        double highScore = maxHighVulnerability * highWeight * (1 + getVulnerabilityCount(vulnerabilities, 7, 10) / totalVulnerabilities);
+
+        double overallSecurityScore = 100 - maxLowVulnerability - mediumScore - highScore;
+
+        // 格式化分数并保留两位小数
+        DecimalFormat decimalFormat = new DecimalFormat("#.##");
+        String formattedScore = decimalFormat.format(overallSecurityScore);
+        overallSecurityScore = Double.parseDouble(formattedScore);
+
+        return overallSecurityScore;
+    }
+
+    //计算范围内的漏洞数量
+    private static double getVulnerabilityCount(List<Double> vulnerabilities, double minScore, double maxScore) {
+        double count = 0;
+        for (double vulnerability : vulnerabilities) {
+            if (vulnerability >= minScore && vulnerability <= maxScore) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public static void main(String[] args) {
+
+        // 漏洞脆弱性的分数列表
+        List<Double> vulnerabilities = Arrays.asList(1.5, 2.0, 5.5, 8.0, 9.5);
+
+        // 中危加权系数和高危加权系数
+        double mediumWeight = 1.2;
+        double highWeight = 2;
+
+        double overallSecurityScore = calculateOverallSecurityScore(vulnerabilities, mediumWeight, highWeight);
+
+        System.out.println("整体安全性得分: " + overallSecurityScore);
     }
 }
