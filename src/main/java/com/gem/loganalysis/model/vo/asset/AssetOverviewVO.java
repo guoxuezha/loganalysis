@@ -38,7 +38,7 @@ public class AssetOverviewVO {
     @ApiModelProperty(value = "物理资产类型分布")
     private List<HashMap<String, Object>> physicalAssetTypeDistribution;
 
-    @ApiModelProperty(value = "资产在役情况分布")
+    @ApiModelProperty(value = "资产管控情况分布")
     private List<HashMap<String, Object>> assetStatusDistribution;
 
     @ApiModelProperty(value = "资产在线情况分布")
@@ -53,7 +53,7 @@ public class AssetOverviewVO {
     @ApiModelProperty(value = "最近资产发现(5条)")
     private List<NewAssetScanList> newAssetScanList;
 
-    @ApiModelProperty(value = "主机开放端口Top5")
+    @ApiModelProperty(value = "端口应用TOP5")
     private List<TypeNum> ipTop5;
 
     @ApiModelProperty(value = "主机端口Top5")
@@ -161,38 +161,22 @@ public class AssetOverviewVO {
         this.assetCategoryDistribution = result;
     }
 
-/*    //放入资产状态
-    //在役 =在役 + 在线 + 离线  退役=退役
-    public void setAssetStatusDistribution(Map<String, List<AssetRespVO>> map) {
+    //放入资产管控情况
+    public void setAssetStatusDistribution(int managedCount,int unmanagedCount) {
         List<HashMap<String, Object>> result = new ArrayList<>();
-        //已纳管_在线   已纳管_离线  未纳管 三种状态
-        int managedOnlineCount = 0; // 已纳管_在线 =在役 + 在线 的个数
-        int managedOfflineCount = 0; // 已纳管_离线的个数 = 离线
-        int unmanagedCount = 0; // 未纳管个数 = 退役+空
-        for (Map.Entry<String, List<AssetRespVO>> entry : map.entrySet()) {
-            // 统计各个状态的个数
-            if (entry.getKey().equals("在线")) {
-                managedOnlineCount += entry.getValue().size();
-            } else if (entry.getKey().equals("离线")) {
-                managedOfflineCount += entry.getValue().size();
-            } else if (entry.getKey().equals("")|| entry.getKey().equals("退役")) {
-                unmanagedCount += entry.getValue().size();
-            }
-        }
-        HashMap<String, Object> active = new HashMap<>();
-        active.put("assetStatus", "在线");
-        active.put("num", managedOnlineCount);
-        result.add(active);
-        HashMap<String, Object> retired = new HashMap<>();
-        retired.put("assetStatus", "离线");
-        retired.put("num", managedOfflineCount);
-        result.add(retired);
-        HashMap<String, Object> empty = new HashMap<>();
-        empty.put("assetStatus", "未纳管");
-        empty.put("num", unmanagedCount);
-        result.add(empty);
+        //已纳管  未纳管 两种状态
+        //已纳管 就是资产表物理资产的总数据
+        //未纳管就是资产扫描出来的物理资产表里还不存在的的总数
+        HashMap<String, Object> managed = new HashMap<>();
+        managed.put("assetStatus", "已纳管");
+        managed.put("num", managedCount);
+        result.add(managed);
+        HashMap<String, Object> unmanaged = new HashMap<>();
+        unmanaged.put("assetStatus", "未纳管");
+        unmanaged.put("num", unmanagedCount);
+        result.add(unmanaged);
         this.assetStatusDistribution = result;
-    }*/
+    }
 
     //放入资产在线状态
     public void setAssetOnlineStatusDistribution(Map<String, List<AssetRespVO>> map) {

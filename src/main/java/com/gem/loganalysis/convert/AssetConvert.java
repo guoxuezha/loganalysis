@@ -114,4 +114,6 @@ public interface AssetConvert {
     LogicalAssetDiscoveryRule convert(LogicalAssetDiscoveryRuleDTO bean);
     List<LogicalAssetDiscoveryRuleVO> convertList19(List<LogicalAssetDiscoveryRule> list);
     Page<LogicalAssetDiscoveryRuleVO> convertPage07(Page<LogicalAssetDiscoveryRule> list);
+
+    DailyData convert(DailyData bean);
 }

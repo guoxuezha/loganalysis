@@ -25,4 +25,6 @@ public interface IPhysicalAssetTempService extends IService<PhysicalAssetTemp> {
     PhysicalScannerVO getPhysicalAssetList(PhysicalAssetQueryDTO dto);
 
     List<PhysicalAssetTemp> getNewAssetScanList();
+
+    Integer getUnmanagedCount();
 }

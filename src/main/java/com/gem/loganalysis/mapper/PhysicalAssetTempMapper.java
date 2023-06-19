@@ -23,4 +23,6 @@ public interface PhysicalAssetTempMapper extends BaseMapper<PhysicalAssetTemp> {
     List<PhysicalAssetScannerRespVO> getPhysicalAssetList(PhysicalAssetQueryDTO dto);
 
     List<PhysicalAssetTemp> getNewAssetScanList();
+
+    Integer getUnmanagedCount();
 }

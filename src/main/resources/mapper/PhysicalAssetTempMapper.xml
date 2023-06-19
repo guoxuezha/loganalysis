@@ -61,4 +61,18 @@
             LIMIT 10
     </select>
 
+    <select id="getUnmanagedCount" resultType="java.lang.Integer">
+        SELECT
+            COUNT(DISTINCT t.IP_ADDRESS)
+        FROM
+            sop_physical_asset_temp AS t
+                LEFT JOIN
+            sop_asset AS a
+            ON
+                t.IP_ADDRESS = a.IP_ADDRESS
+        WHERE
+            a.IP_ADDRESS IS NULL AND
+            t.ASSET_STATUS = 1
+    </select>
+
 </mapper>

@@ -16,4 +16,5 @@ public class HostsSeverityVO {
     private String comment;
     private String os;
     private String assetName;
+    private String assetCategory;
 }

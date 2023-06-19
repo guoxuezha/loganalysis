@@ -352,7 +352,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         List<RiskAssetRankingVO> nonEndpointRiskAssetRanking = new ArrayList<>();//网络安全设备脆弱性
         List<RiskAssetRankingVO> endpointRiskAssetRanking = new ArrayList<>();//IT设备脆弱性
 
-        //备用数据
+/*        //备用数据
         RiskAssetRankingVO asset15 = new RiskAssetRankingVO();
         asset15.setName("172.16.208.31");
         asset15.setScore(10.0);
@@ -401,8 +401,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         RiskAssetRankingVO asset5 = new RiskAssetRankingVO();
         asset5.setName("172.16.200.54");
         asset5.setScore(5.3);
-        nonEndpointRiskAssetRanking.add(asset5);
-/*
+        nonEndpointRiskAssetRanking.add(asset5);*/
         List<Map.Entry<String, Double>> netSecurityDeviceTop5 = vulnerabilityService.getNetSecurityDeviceTop5();
         for (Map.Entry<String, Double> entry : netSecurityDeviceTop5) {
             String ipAddress = entry.getKey();
@@ -420,7 +419,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 .collect(Collectors.toList());
         filteredData.forEach(e->{
             endpointRiskAssetRanking.add(new RiskAssetRankingVO(e.getIp(), e.getSeverity()));
-        });*/
+        });
         //漏洞
         VulnDataVO vulnDataVO = vulnerabilityService.getAggregateForVulnBySeverity();
         Integer totalVuln = vulnDataVO.getLow() + vulnDataVO.getMiddle() + vulnDataVO.getHigh();
@@ -444,7 +443,17 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 .setSecurityVulnerabilityCount(32) // 安全漏洞数量
                 .setTotalRiskCount(riskCount+32); // 风险总数*/
 
-        List<DailyData> list = dailyDataService.list(new LambdaQueryWrapperX<DailyData>().orderByAsc(DailyData::getDateTime).last("LIMIT 7"));
+        List<DailyData> dataList = dailyDataService.list(new LambdaQueryWrapperX<DailyData>().orderByDesc(DailyData::getDateTime).last("LIMIT 7"));
+        //变年份去掉并且根据时间排序
+        List<DailyData> list = dataList.stream()
+                .sorted(Comparator.comparing(dailyData -> LocalDate.parse(dailyData.getDateTime())))
+                .map(dailyData -> {
+                    String formattedDate = LocalDate.parse(dailyData.getDateTime())
+                            .format(DateTimeFormatter.ofPattern("MM-dd"));
+                    dailyData.setDateTime(formattedDate);
+                    return AssetConvert.INSTANCE.convert(dailyData);
+                })
+                .collect(Collectors.toList());
         List<String> dateList = new ArrayList<>(); // 近七天日期集合
         List<Integer> lowRiskCountList = new ArrayList<>(); // 近七天低风险集合
         List<Integer> mediumRiskCountList = new ArrayList<>(); // 近七天中风险集合
@@ -466,6 +475,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             logicalAssetScoreList.add(e.getLogicalAssetScore() != null ? e.getLogicalAssetScore() : 0.0);
         });
 
+        //TODO 改成实时出口设备负荷(流量) 不知道该咋取
         homeOverview
                 .setDateList(dateList) // 近七天日期集合
                 .setLowRiskCount(lowRiskCountList) // 近七天低风险集合
@@ -479,6 +489,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 .setNonEndpointRiskAssetRanking(nonEndpointRiskAssetRanking)//网络安全设备脆弱性
                 .setEndpointRiskAssetRanking(endpointRiskAssetRanking);//IT设备脆弱性
 
+        //备用演示数据
       /*  homeOverview
                 .setDateList(weekDateList()) // 近七天日期集合
                 .setLowRiskCount(Arrays.asList(5, 6, 3, 8, 4, 4, 4)) // 近七天低风险集合
@@ -496,6 +507,9 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
 
     @Override
     public ScreeShowVO screenShow(String type) throws JSONException {
+        if(StringUtils.isBlank(type)){
+            throw new ServiceException("请传入风险TOP10类型,0为显示全部");
+        }
         ScreeShowVO result = new ScreeShowVO();
         HomeOverviewVO homeOverview = assetMapper.getAssetHomeOverview();
         result.setSafeEquipmentNum(homeOverview.getSecurityDeviceTotalCount());
@@ -504,11 +518,32 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         result.setTerminalEquipmentNum(homeOverview.getEndpointDeviceTotalCount());
 
         List<HostsSeverityVO> deviceTop = vulnerabilityService.getDeviceTop();
-        boolean allType = "0".equals(type);
-        if (allType) {
-            deviceTop = deviceTop.subList(0, 10);
+        List<AssetRespVO> assetList = getAssetList(new AssetQueryDTO());
+        //如果传入为0，则显示全部
+
+
+        Map<String, AssetRespVO> ipToAssetNameMap = new HashMap<>();
+        // 创建一个Map，以IP作为键，资产名称作为值
+        for (AssetRespVO asset : assetList) {
+            ipToAssetNameMap.put(asset.getIpAddress(), asset);
         }
-        LambdaQueryWrapper<Asset> wrapper = new LambdaQueryWrapper<>();
+        // 遍历deviceTop列表，并根据IP匹配资产名称
+        for (HostsSeverityVO device : deviceTop) {
+            String ipAddress = device.getIp();
+            AssetRespVO asset = ipToAssetNameMap.get(ipAddress);
+           if(asset!=null){
+               device.setAssetName(asset.getAssetName());
+               device.setAssetCategory(asset.getAssetCategory());
+           }
+            // 将匹配到的资产名称设置到device对象中
+        }
+        //如果为0不过滤，显示全部
+        List<HostsSeverityVO> collect = deviceTop.stream().limit(10)
+                .filter(device -> type.equals("0") || device.getAssetCategory().equals(type))
+                .collect(Collectors.toList());
+        result.setRiskAsset(collect);
+
+     /*   LambdaQueryWrapper<Asset> wrapper = new LambdaQueryWrapper<>();
         wrapper.select(Asset::getIpAddress, Asset::getAssetName, Asset::getAssetType)
                 .eq(Asset::getAssetClass, "1")
                 .eq(Asset::getDeleteState, 0);
@@ -541,7 +576,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 }
             }
         }
-        result.setRiskAsset(deviceTop);
+        result.setRiskAsset(deviceTop);*/
 
         //备用数据
        /* List<HostsSeverityVO> hostSeverityList = new ArrayList<>();
@@ -641,8 +676,9 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         List<AssetRespVO> assetList = getAssetList(new AssetQueryDTO());
         //内存中进行计算
         //物理资产总数
-        assetOverviewVO.setPhysicalAssetNum((int) assetList.stream()
-                .filter(e -> e.getAssetClass().equals("1")).count());
+        int physicalNum = (int) assetList.stream()
+                .filter(e -> e.getAssetClass().equals("1")).count();
+        assetOverviewVO.setPhysicalAssetNum(physicalNum);
         //逻辑资产总数
         assetOverviewVO.setLogicalAssetNum((int) assetList.stream()
                 .filter(e -> e.getAssetClass().equals("0")).count());
@@ -666,6 +702,9 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 .filter(e -> e.getAssetClass().equals("1") && StringUtils.isNotBlank(e.getAssetCategory()))
                 .collect(Collectors.groupingBy(AssetRespVO::getAssetCategory));
         assetOverviewVO.setAssetCategoryDistribution(assetCategory);
+        //资产纳管状态1.已纳管 就是资产表物理资产的总数据 2.未纳管就是资产扫描出来的物理资产表里还不存在的的总数
+        Integer unmanagedCount = physicalAssetTempService.getUnmanagedCount();
+        assetOverviewVO.setAssetStatusDistribution(physicalNum,unmanagedCount);
 /*        //最近新增资产(10条)
         //这个不要了 统计的没意义 先注释掉
         List<AssetRespVO> sorted = assetList.stream()
@@ -676,13 +715,13 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         //最近资产发现(5条)
         assetOverviewVO.setNewAssetScanList(AssetConvert.INSTANCE.convertList06(physicalAssetTempService.getNewAssetScanList()));
         //主机开放端口Top5
-        //TODO 改成了高危端口TOP5，不知道咋取值
+        //端口应用TOP5
         Map<String, List<AssetRespVO>> ip = assetList.stream()
                 .filter(e -> e.getAssetClass().equals("0") && StringUtils.isNotEmpty(e.getIpAddress()))
                 .collect(Collectors.groupingBy(AssetRespVO::getIpAddress));
         assetOverviewVO.setIpTop5(ip);
         //主机端口Top5
-        //TODO 改成了封堵设备TOP5 可以取但是还没取
+        //TODO 要改成运行负荷TOP5 ？？？？ 具体该怎么改怎么取值
         Map<Integer, List<AssetRespVO>> port = assetList.stream()
                 .filter(e -> e.getAssetClass().equals("0") && e.getServicePort() != null)
                 .collect(Collectors.groupingBy(AssetRespVO::getServicePort));

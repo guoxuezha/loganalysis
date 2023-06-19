@@ -62,4 +62,9 @@ public class PhysicalAssetTempServiceImpl extends ServiceImpl<PhysicalAssetTempM
     public List<PhysicalAssetTemp> getNewAssetScanList() {
         return physicalAssetTempMapper.getNewAssetScanList();
     }
+
+    @Override
+    public Integer getUnmanagedCount() {
+        return physicalAssetTempMapper.getUnmanagedCount();
+    }
 }

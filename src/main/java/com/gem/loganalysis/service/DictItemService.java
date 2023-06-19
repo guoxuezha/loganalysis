@@ -72,7 +72,7 @@ public interface DictItemService {
     List<DictItemRespVO> getDictItem(String id);
 
     /**
-     * 条件查询单层数据
+     * 条件查询数据
      * @param reqVO
      * @return
      */
