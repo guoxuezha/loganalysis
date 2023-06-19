@@ -19,6 +19,9 @@ public class NetworkEquipmentVO {
     @ApiModelProperty(value = "设备名称")
     private String assetName;
 
+    @ApiModelProperty(value = "IP地址")
+    private String ipAddress;
+
     @ApiModelProperty(value = "品牌")
     private String assetBrand;
 

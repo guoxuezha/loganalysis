@@ -28,6 +28,7 @@
         SELECT
             a.ASSET_ID AS assetId,
             a.ASSET_NAME AS assetName,
+            a.IP_ADDRESS AS ipAddress,
             a.ASSET_BRAND AS assetBrand,
             a.ASSET_MODEL AS assetModel,
             o.ORG_NAME AS orgName,
