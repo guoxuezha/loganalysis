@@ -1,8 +1,10 @@
 package com.gem.loganalysis.controller;
 
 import cn.hutool.core.date.DateUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gem.loganalysis.convert.AssetConvert;
+import com.gem.loganalysis.enmu.AssetClass;
 import com.gem.loganalysis.enmu.ScannerType;
 import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.Result;
@@ -11,6 +13,7 @@ import com.gem.loganalysis.model.dto.GetDTO;
 import com.gem.loganalysis.model.dto.IpDTO;
 import com.gem.loganalysis.model.dto.IpSectionDTO;
 import com.gem.loganalysis.model.dto.asset.*;
+import com.gem.loganalysis.model.dto.query.LambdaQueryWrapperX;
 import com.gem.loganalysis.model.entity.Asset;
 import com.gem.loganalysis.model.entity.OrgVlan;
 import com.gem.loganalysis.model.vo.LogicalScannerVO;
@@ -75,7 +78,8 @@ public class ScannerController {
     @PostMapping("/scannerAllPort")
     @ApiOperation("扫描全部资产端口")
     public Result<String> scannerAllPort(@Valid @RequestBody ScannerDTO dto) {
-        List<Asset> list = assetService.list();
+        List<Asset> list = assetService.list(new LambdaQueryWrapper<Asset>()
+                .eq(Asset::getAssetClass, AssetClass.PHYSICAL.getId()));
         if("ALL".equals(dto.getScannerType())){
             list.forEach(e->{
                 Scanner.start(e.getIpAddress(),"1-65535",

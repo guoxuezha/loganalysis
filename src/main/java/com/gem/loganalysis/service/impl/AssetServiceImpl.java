@@ -740,9 +740,45 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 .filter(e -> e.getAssetClass().equals("0") && e.getServicePort() != null)
                 .collect(Collectors.groupingBy(AssetRespVO::getServicePort));
         assetOverviewVO.setIpPortTop5(port);
-        //资产在线数量
+        //每日资产在线数量
         List<AssetOverviewVO.AssetTrendsList> assetTrendsListList = new ArrayList<>();
-        List<String> recentlyDateList = getRecentlyDateList(6);
+        //每日资产未纳管扫描数量
+        List<AssetOverviewVO.AssetTrendsList> assetScanList = new ArrayList<>();
+        //横轴
+        List<String> dateList = new ArrayList<>();
+        List<Integer> physicalScanList = new ArrayList<>();
+        List<Integer> logicalScanList = new ArrayList<>();
+        List<Integer> physicalOnlineList = new ArrayList<>();
+        List<Integer> logicalOnlineList = new ArrayList<>();
+        //每日数据
+        List<DailyData> dataList = dailyDataService.list(new LambdaQueryWrapperX<DailyData>().orderByDesc(DailyData::getDateTime).last("LIMIT 7"));
+        //变年份去掉并且根据时间排序
+        List<DailyData> list = dataList.stream()
+                .sorted(Comparator.comparing(dailyData -> LocalDate.parse(dailyData.getDateTime())))
+                .map(dailyData -> {
+                    String formattedDate = LocalDate.parse(dailyData.getDateTime())
+                            .format(DateTimeFormatter.ofPattern("MM-dd"));
+                    dailyData.setDateTime(formattedDate);
+                    return AssetConvert.INSTANCE.convert(dailyData);
+                })
+                .collect(Collectors.toList());
+        list.forEach(e -> {
+            dateList.add(e.getDateTime() != null ? e.getDateTime() : "0");
+            physicalScanList.add(e.getPhysicalAssetsScanCount() != null ? e.getPhysicalAssetsScanCount() : 0);
+            logicalScanList.add(e.getLogicalAssetsScanCount() != null ? e.getLogicalAssetsScanCount() : 0);
+            physicalOnlineList.add(e.getPhysicalAssetsOnlineCount() != null ? e.getPhysicalAssetsOnlineCount() : 0);
+            logicalOnlineList.add(e.getLogicalAssetsOnlineCount() != null ? e.getLogicalAssetsOnlineCount() : 0);
+        });
+        assetScanList.add(new AssetOverviewVO.AssetTrendsList("物理资产",physicalScanList));
+        assetScanList.add(new AssetOverviewVO.AssetTrendsList("逻辑资产",logicalScanList));
+        assetTrendsListList.add(new AssetOverviewVO.AssetTrendsList("物理资产",physicalOnlineList));
+        assetTrendsListList.add(new AssetOverviewVO.AssetTrendsList("逻辑资产",logicalOnlineList));
+
+        assetOverviewVO.setDateList(dateList);
+        assetOverviewVO.setAssetScanList(assetScanList);
+        assetOverviewVO.setAssetTrendsList(assetTrendsListList);
+        //不查实时的了，从每日数据里取
+        /*List<String> recentlyDateList = getRecentlyDateList(6);
         assetOverviewVO.setDateList(recentlyDateList);
         //物理资产在线数量
         Map<String, Long> physicalMap = getAssetTrendsMap(assetList, "1");
@@ -764,8 +800,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         }
         logicalList.setList(logicalDataList);
         assetTrendsListList.add(logicalList);
-
-        assetOverviewVO.setAssetTrendsList(assetTrendsListList);
+        assetOverviewVO.setAssetTrendsList(assetTrendsListList);*/
         return assetOverviewVO;
     }
 

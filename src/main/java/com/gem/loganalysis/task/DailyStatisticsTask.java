@@ -1,9 +1,13 @@
 package com.gem.loganalysis.task;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.gem.loganalysis.enmu.AssetClass;
+import com.gem.loganalysis.model.dto.asset.AssetQueryDTO;
+import com.gem.loganalysis.model.entity.Asset;
 import com.gem.loganalysis.model.entity.DailyData;
 import com.gem.loganalysis.model.vo.VulnDataVO;
-import com.gem.loganalysis.service.IDailyDataService;
-import com.gem.loganalysis.service.VulnerabilityService;
+import com.gem.loganalysis.model.vo.asset.AssetRespVO;
+import com.gem.loganalysis.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -11,6 +15,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 @EnableScheduling
 @Component
@@ -21,6 +26,12 @@ public class DailyStatisticsTask {
     private IDailyDataService dataService;
     @Resource
     private VulnerabilityService vulnerabilityService;
+    @Resource
+    private IAssetService assetService;
+    @Resource
+    private IPhysicalAssetTempService physicalAssetTempService;
+    @Resource
+    private ILogicalAssetTempService logicalAssetTempService;
 
     private static final int MAX_RETRIES = 3; // 最大重试次数
     private int retryCount = 0; // 当前重试次数
@@ -34,6 +45,7 @@ public class DailyStatisticsTask {
             }else {
                 // 存储成功，重置重试计数
                 retryCount = 0;
+                log.info("save daily statistics data success");
             }
         } catch (Exception e) {
             handleTaskFailure();
@@ -42,18 +54,52 @@ public class DailyStatisticsTask {
 
     private boolean saveStatisticsData() throws JSONException {
         // 从风险的接口中取数值
-        //TODO 资产评分和设备出口流量
         VulnDataVO vulnDataVO = vulnerabilityService.getAggregateForVulnBySeverity();
+        //物理资产扫描未纳管数量
+        Integer unmanagedPhysicalCount = physicalAssetTempService.getUnmanagedCount();
+        //逻辑资产扫描未纳管数量
+        Integer unmanagedLogicalCount = logicalAssetTempService.getUnmanagedCount();
+        //各类资产评分
+        //先查物理资产
+        List<AssetRespVO> assetList = assetService.getAssetList(new AssetQueryDTO().setAssetClass(AssetClass.PHYSICAL.getId()));
+        double SecurityAverageScore = assetList.stream()
+                .filter(asset -> "安全设备".equals(asset.getAssetCategory()))
+                .mapToDouble(AssetRespVO::getScore)
+                .average()
+                .orElse(0.0);
+        double netWorkAverageScore = assetList.stream()
+                .filter(asset -> "网络设备".equals(asset.getAssetCategory()))
+                .mapToDouble(AssetRespVO::getScore)
+                .average()
+                .orElse(0.0);
+        double itAverageScore = assetList.stream()
+                .filter(asset -> "服务器".equals(asset.getAssetCategory())||"存储设备".equals(asset.getAssetCategory()))
+                .mapToDouble(AssetRespVO::getScore)
+                .average()
+                .orElse(0.0);
+        //TODO  逻辑资产评分
+        //物理资产在线数量
+        long physicalCount = assetService.count(new LambdaQueryWrapper<Asset>()
+                .eq(Asset::getAssetClass, AssetClass.PHYSICAL.getId())
+                .eq(Asset::getAssetStatus, "0"));
+        //逻辑资产在线数量
+        long logicalCount = assetService.count(new LambdaQueryWrapper<Asset>()
+                .eq(Asset::getAssetClass, AssetClass.LOGICAL.getId())
+                .eq(Asset::getAssetStatus, "0"));
         DailyData dailyData = new DailyData();
         dailyData.setDateTime(vulnDataVO.getDate());
         dailyData.setLowRiskCount(vulnDataVO.getLow());
         dailyData.setMediumRiskCount(vulnDataVO.getMiddle());
         dailyData.setHighRiskCount(vulnDataVO.getHigh());
-        dailyData.setExportDeviceLoad(900.23); //设备进出口值
-        dailyData.setSecurityDeviceAssetScore(68.54); //安全设备评分
-        dailyData.setNetworkDeviceAssetScore(74.68); //网络设备评分
-        dailyData.setItDeviceAssetScore(70.54); //IT设备评分
+        dailyData.setExportDeviceLoad(900.00); //这个值没用了 可删
+        dailyData.setSecurityDeviceAssetScore(SecurityAverageScore); //安全设备评分
+        dailyData.setNetworkDeviceAssetScore(netWorkAverageScore); //网络设备评分
+        dailyData.setItDeviceAssetScore(itAverageScore); //IT设备评分
         dailyData.setLogicalAssetScore(83.32); //逻辑资产评分
+        dailyData.setLogicalAssetsOnlineCount((int)logicalCount);//逻辑资产在线数量
+        dailyData.setPhysicalAssetsOnlineCount((int)physicalCount);//物理资产在线数量
+        dailyData.setPhysicalAssetsScanCount(unmanagedPhysicalCount);//物理资产扫描数量
+        dailyData.setLogicalAssetsScanCount(unmanagedLogicalCount);//逻辑资产扫描数量
         dailyData.setTotalScore(vulnDataVO.getScore());
         return dataService.save(dailyData);
     }
@@ -78,5 +124,4 @@ public class DailyStatisticsTask {
             retryCount = 0;
         }
     }
-
 }

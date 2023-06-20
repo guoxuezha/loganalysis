@@ -321,4 +321,10 @@ ALTER TABLE loganalysis.sop_logical_asset_temp
 
 ALTER TABLE loganalysis.sop_physical_asset_temp
     ADD COLUMN TYPE INT COMMENT '扫描类型(0为自动 1为手动)';
+
+ALTER TABLE loganalysis.sop_daily_data
+    ADD COLUMN PHYSICAL_ASSETS_ONLINE_COUNT INT COMMENT '物理资产在线数量',
+    ADD COLUMN LOGICAL_ASSETS_ONLINE_COUNT INT COMMENT '逻辑资产在线数量',
+    ADD COLUMN PHYSICAL_ASSETS_SCAN_COUNT INT COMMENT '物理资产扫描数量',
+    ADD COLUMN LOGICAL_ASSETS_SCAN_COUNT INT COMMENT '逻辑资产扫描数量';
 ```

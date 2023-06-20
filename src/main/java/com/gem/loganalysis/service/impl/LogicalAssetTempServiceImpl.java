@@ -54,4 +54,9 @@ public class LogicalAssetTempServiceImpl extends ServiceImpl<LogicalAssetTempMap
                 )));//已纳管
         return result;
     }
+
+    @Override
+    public Integer getUnmanagedCount() {
+        return logicalAssetTempMapper.getUnmanagedCount();
+    }
 }

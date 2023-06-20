@@ -28,4 +28,6 @@ public interface PhysicalAssetTempMapper extends BaseMapper<PhysicalAssetTemp> {
     Integer getUnmanagedCount();
 
     List<PhysicalAssetScannerRespVO> getUnmanagedList(IpDTO data);
+
+    void cleanTable();
 }

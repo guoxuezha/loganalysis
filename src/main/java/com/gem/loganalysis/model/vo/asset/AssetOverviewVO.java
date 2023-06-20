@@ -59,8 +59,11 @@ public class AssetOverviewVO {
     @ApiModelProperty(value = "主机端口Top5")
     private List<TypeNum> ipPortTop5;
 
-    @ApiModelProperty(value = "资产趋势")
+    @ApiModelProperty(value = "资产每日在线数据")
     private List<AssetTrendsList> assetTrendsList;
+
+    @ApiModelProperty(value = "资产每日未纳管扫描数量")
+    private List<AssetTrendsList> assetScanList;
 
     @ApiModelProperty(value = "资产趋势日期数组")
     private List<String> dateList;

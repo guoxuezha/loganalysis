@@ -2,6 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.gem.loganalysis.mapper.PhysicalAssetTempMapper">
 
+    <update id="cleanTable">
+        TRUNCATE TABLE sop_physical_asset_temp;
+    </update>
+
 
     <select id="getPhysicalAssetList"
             resultType="com.gem.loganalysis.model.vo.asset.PhysicalAssetScannerRespVO">

@@ -20,4 +20,6 @@ import java.util.List;
 public interface ILogicalAssetTempService extends IService<LogicalAssetTemp> {
 
     LogicalScannerVO getLogicalAssetList(LogicalAssetQueryDTO dto);
+
+    Integer getUnmanagedCount();
 }

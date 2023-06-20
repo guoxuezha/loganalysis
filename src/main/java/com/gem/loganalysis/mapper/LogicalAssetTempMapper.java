@@ -20,4 +20,8 @@ import java.util.List;
 public interface LogicalAssetTempMapper extends BaseMapper<LogicalAssetTemp> {
 
     List<LogicalAssetScannerRespVO> getLogicalAssetList(LogicalAssetQueryDTO dto);
+
+    Integer getUnmanagedCount();
+
+    void cleanTable();
 }

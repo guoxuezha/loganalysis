@@ -32,7 +32,8 @@ PhysicalAssetScannerRespVO {
     @ApiModelProperty(value = "是否存在(纳管) 0为纳管(已存在) 1为未纳管(不存在)")
     private Integer existsInAssetTable;
 
-    @ApiModelProperty(value = "来源(0为自动 1为手动)")
+    @ApiModelProperty(value = "扫描类型" +
+            "(0为自动 1为手动)")
     private String type;
 
 }

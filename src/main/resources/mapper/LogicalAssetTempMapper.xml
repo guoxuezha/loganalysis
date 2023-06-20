@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.gem.loganalysis.mapper.LogicalAssetTempMapper">
+    <update id="cleanTable">
+        TRUNCATE TABLE sop_logical_asset_temp;
+    </update>
 
     <select id="getLogicalAssetList" resultType="com.gem.loganalysis.model.vo.asset.LogicalAssetScannerRespVO">
         SELECT
@@ -41,5 +44,17 @@
         </where>
         ORDER BY
         lat.RECORD_ID DESC
+    </select>
+    <select id="getUnmanagedCount" resultType="java.lang.Integer">
+        SELECT
+            COUNT(DISTINCT CONCAT(lat.IP_ADDRESS, '_', lat.ENABLE_PORT)) AS count
+        FROM
+            sop_logical_asset_temp AS lat
+        WHERE
+            NOT EXISTS (
+            SELECT 1
+            FROM sop_asset AS a
+            WHERE a.IP_ADDRESS = lat.IP_ADDRESS AND a.SERVICE_PORT = lat.ENABLE_PORT
+            );
     </select>
 </mapper>

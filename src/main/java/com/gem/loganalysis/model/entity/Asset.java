@@ -111,7 +111,7 @@ public class Asset implements Serializable {
      */
     private String assetTag;
     /**
-     * 资产状态（0在役/1退役/2在线/3离线）
+     * 资产状态（0在线1离线）
      */
     private String assetStatus;
     /**

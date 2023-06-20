@@ -92,6 +92,31 @@ public class DailyData implements Serializable {
     @TableField(value = "TOTAL_SCORE")
     private Double totalScore;
 
+    /**
+     * 物理资产在线数量
+     */
+    @TableField(value = "PHYSICAL_ASSETS_ONLINE_COUNT")
+    private Integer physicalAssetsOnlineCount;
+
+    /**
+     * 逻辑资产在线数量
+     */
+    @TableField(value = "LOGICAL_ASSETS_ONLINE_COUNT")
+    private Integer logicalAssetsOnlineCount;
+
+    /**
+     * 物理资产扫描数量
+     */
+    @TableField(value = "PHYSICAL_ASSETS_SCAN_COUNT")
+    private Integer physicalAssetsScanCount;
+
+    /**
+     * 逻辑资产扫描数量
+     */
+    @TableField(value = "LOGICAL_ASSETS_SCAN_COUNT")
+    private Integer logicalAssetsScanCount;
+
+
 
 
 }
