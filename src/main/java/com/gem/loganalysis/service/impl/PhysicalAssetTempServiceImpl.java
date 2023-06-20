@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gem.loganalysis.mapper.PhysicalAssetTempMapper;
 import com.gem.loganalysis.model.PageRequest;
+import com.gem.loganalysis.model.dto.IpDTO;
 import com.gem.loganalysis.model.dto.asset.AssetQueryDTO;
 import com.gem.loganalysis.model.dto.asset.LogicalAssetQueryDTO;
 import com.gem.loganalysis.model.dto.asset.PhysicalAssetQueryDTO;
@@ -66,5 +67,10 @@ public class PhysicalAssetTempServiceImpl extends ServiceImpl<PhysicalAssetTempM
     @Override
     public Integer getUnmanagedCount() {
         return physicalAssetTempMapper.getUnmanagedCount();
+    }
+
+    @Override
+    public List<PhysicalAssetScannerRespVO> getUnmanagedList(IpDTO data) {
+        return physicalAssetTempMapper.getUnmanagedList(data);
     }
 }

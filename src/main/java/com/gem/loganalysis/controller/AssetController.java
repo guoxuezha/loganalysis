@@ -12,6 +12,7 @@ import com.gem.loganalysis.model.PageResponse;
 import com.gem.loganalysis.model.Result;
 import com.gem.loganalysis.model.dto.DeleteDTO;
 import com.gem.loganalysis.model.dto.GetDTO;
+import com.gem.loganalysis.model.dto.IpDTO;
 import com.gem.loganalysis.model.dto.asset.*;
 import com.gem.loganalysis.model.dto.query.DictItemQueryDTO;
 import com.gem.loganalysis.model.entity.Asset;
@@ -317,6 +318,12 @@ public class AssetController {
     @ApiOperation("大屏展示")
     public Result<ScreeShowVO> screenShow(@RequestBody GetDTO dto) throws JSONException {
         return Result.ok(assetService.screenShow(dto.getId()));
+    }
+
+    @PostMapping("/unmanagedPage")
+    @ApiOperation("未纳管分页")
+    public Result<PageResponse<PhysicalAssetScannerRespVO>> getUnmanagedPage(@RequestBody PageRequest<IpDTO> dto){
+        return Result.ok(assetService.getUnmanagedPage(dto));
     }
 
 }

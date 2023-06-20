@@ -11,7 +11,7 @@
             pat.ASSET_ORG AS assetOrg,
             pat.ASSET_STATUS AS assetStatus,
             pat.TYPE AS type,
-            STR_TO_DATE(pat.SCAN_TIME, '%Y%m%d%H%i%s'),
+            STR_TO_DATE(pat.SCAN_TIME, '%Y%m%d%H%i%s') AS scanTime,
             CASE
                 WHEN a.IP_ADDRESS IS NULL THEN 1
                 ELSE 0
@@ -74,6 +74,30 @@
         WHERE
             a.IP_ADDRESS IS NULL AND
             t.ASSET_STATUS = 1
+    </select>
+
+
+    <select id="getUnmanagedList" resultType="com.gem.loganalysis.model.vo.asset.PhysicalAssetScannerRespVO">
+        SELECT DISTINCT
+            t.IP_ADDRESS AS ipAddress,
+            t.RECORD_ID AS recordId,
+            STR_TO_DATE(t.SCAN_TIME, '%Y%m%d%H%i%s') AS scanTime,
+            t.ASSET_ORG AS assetOrg,
+            t.TYPE AS type
+        FROM
+            sop_physical_asset_temp AS t
+                LEFT JOIN
+            sop_asset AS a
+            ON
+                t.IP_ADDRESS = a.IP_ADDRESS
+        WHERE
+            a.IP_ADDRESS IS NULL AND
+            t.ASSET_STATUS = 1
+        <if test="ip!=null and ip.trim()!='' ">
+            AND t.IP_ADDRESS = #{ip}
+        </if>
+        ORDER BY
+         t.RECORD_ID DESC
     </select>
 
 </mapper>

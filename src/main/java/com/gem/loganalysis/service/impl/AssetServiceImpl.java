@@ -13,6 +13,7 @@ import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.PageResponse;
 import com.gem.loganalysis.model.Result;
 import com.gem.loganalysis.model.bo.AssetTypeTree;
+import com.gem.loganalysis.model.dto.IpDTO;
 import com.gem.loganalysis.model.dto.asset.AssetDTO;
 import com.gem.loganalysis.model.dto.asset.AssetQueryDTO;
 import com.gem.loganalysis.model.dto.query.LambdaQueryWrapperX;
@@ -21,7 +22,9 @@ import com.gem.loganalysis.model.vo.*;
 import com.gem.loganalysis.model.vo.asset.*;
 import com.gem.loganalysis.model.vo.vulnerability.VulnerabilityScanningVO;
 import com.gem.loganalysis.service.*;
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.springframework.stereotype.Service;
@@ -647,6 +650,13 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         result.setRiskAsset(hostSeverityList);*/
 
         return result;
+    }
+
+    @Override
+    public PageResponse<PhysicalAssetScannerRespVO> getUnmanagedPage(PageRequest<IpDTO> dto) {
+        Page<PhysicalAssetScannerRespVO> result = PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
+        physicalAssetTempService.getUnmanagedList(dto.getData());
+        return new PageResponse<PhysicalAssetScannerRespVO>(result);
     }
 
     private List<String> weekDateList() {

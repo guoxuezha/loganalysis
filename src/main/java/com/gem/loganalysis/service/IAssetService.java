@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.PageResponse;
 import com.gem.loganalysis.model.Result;
+import com.gem.loganalysis.model.dto.IpDTO;
 import com.gem.loganalysis.model.dto.asset.AssetDTO;
 import com.gem.loganalysis.model.dto.asset.AssetQueryDTO;
 import com.gem.loganalysis.model.entity.Asset;
@@ -82,4 +83,10 @@ public interface IAssetService extends IService<Asset> {
      */
     ScreeShowVO screenShow(String assetType) throws JSONException;
 
+
+    /**
+     *
+     * @return
+     */
+    PageResponse<PhysicalAssetScannerRespVO> getUnmanagedPage(PageRequest<IpDTO> dto);
 }

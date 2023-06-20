@@ -14,8 +14,7 @@ import javax.validation.constraints.NotNull;
 @Data
 public class IpDTO {
 
-    @ApiModelProperty(value = "单个IP地址",required = true)
-    @NotBlank(message = "请传入IP地址")
+    @ApiModelProperty(value = "单个IP地址")
     private String ip;
 
 }
