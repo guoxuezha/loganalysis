@@ -540,8 +540,10 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             // 将匹配到的资产名称设置到device对象中
         }
         //如果为0不过滤，显示全部
-        List<HostsSeverityVO> collect = deviceTop.stream().limit(10)
-                .filter(device -> type.equals("0") || device.getAssetCategory().equals(type))
+        System.out.println(deviceTop);
+        List<HostsSeverityVO> collect = deviceTop.stream()
+                .filter(device -> type.equals("0") || (device.getAssetCategory()!=null&&device.getAssetCategory().equals(type)))
+                .limit(10)
                 .collect(Collectors.toList());
         result.setRiskAsset(collect);
 
