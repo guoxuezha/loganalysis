@@ -11,7 +11,7 @@
             lat.ASSET_TYPE AS assetType,
             lat.ASSET_INFO AS assetInfo,
             lat.TYPE AS type,
-            lat.SCAN_TIME AS scanTime,
+            STR_TO_DATE(lat.SCAN_TIME, '%Y%m%d%H%i%s') AS scanTime,
             CASE
                 WHEN a.IP_ADDRESS IS NULL THEN 1
                 ELSE 0
