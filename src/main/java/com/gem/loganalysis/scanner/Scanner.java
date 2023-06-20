@@ -38,7 +38,7 @@ public class Scanner {
      * @param ips 输入的待扫描ip列表
      * @param ports 输入的待扫描端口
      */
-    public static void start(String ips, String ports,String scanTime,String orgId) {
+    public static void start(String ips, String ports,String scanTime,String orgId,Integer type) {
         // 解析端口
         String[] portArray = ports.split("-");
         int portStart = Integer.parseInt(portArray[0]);
@@ -49,7 +49,7 @@ public class Scanner {
             String[] ipList = ips.split(",");
             logger.info("[-] IP list: " + ipList.toString());
             for (String ip : ipList) {
-                scanAllPort(ip,portStart,portEnd,scanTime,orgId);
+                scanAllPort(ip,portStart,portEnd,scanTime,orgId,type);
             }
         }else if (ips.indexOf('/') != -1){
             String[] ipArray = ips.split("/");
@@ -58,7 +58,7 @@ public class Scanner {
             String[] ipSplit = ipAddress.split(".");
 
         }else {
-            scanAllPort(ips,portStart,portEnd,scanTime,orgId);
+            scanAllPort(ips,portStart,portEnd,scanTime,orgId,type);
         }
         try{
             while(true){
@@ -77,8 +77,8 @@ public class Scanner {
      * 开始方法
      * @param ips 输入的待扫描ip列表
      */
-    public static void startCommon(String ips,String scanTime,String orgId) {
-        scanCommonPort(ips,scanTime,orgId);
+    public static void startCommon(String ips,String scanTime,String orgId,Integer type) {
+        scanCommonPort(ips,scanTime,orgId,type);
         try{
             while(true){
                 if(poolExecutor.getActiveCount() == 0){
@@ -97,9 +97,9 @@ public class Scanner {
      * @param portStart 开始扫描的的端口
      * @param portEnd 停止扫描的端口
      */
-    public static void scanAllPort(String ip, int portStart, int portEnd,String scanTime,String orgId)  {
+    public static void scanAllPort(String ip, int portStart, int portEnd,String scanTime,String orgId,Integer type)  {
         for (int port = portStart; port <= portEnd; port++){
-            scan(ip,port,scanTime,orgId);
+            scan(ip,port,scanTime,orgId,type);
             if(poolExecutor.getQueue().size()>2000){
                 try {
                     Thread.sleep(5*1000);//防止阻塞队列过长内存溢出，限制开启的速率
@@ -116,9 +116,9 @@ public class Scanner {
      * 快速扫描，扫描常用端口
      * @param ip ip地址
      */
-    public static void scanCommonPort(String ip,String scanTime,String orgId)  {
+    public static void scanCommonPort(String ip,String scanTime,String orgId,Integer type)  {
         for (int commonPort : commonPorts) {
-            scan(ip,commonPort,scanTime,orgId);
+            scan(ip,commonPort,scanTime,orgId,type);
             if(poolExecutor.getQueue().size()>2000){
                 try {
                     Thread.sleep(5*1000);//防止阻塞队列过长内存溢出，限制开启的速率
@@ -135,9 +135,9 @@ public class Scanner {
      * @param ip ip地址
      * @param port 端口
      */
-    public static void scan(String ip, int port,String scanTime,String orgId){
+    public static void scan(String ip, int port,String scanTime,String orgId,Integer type){
         // 执行扫描任务
-        poolExecutor.execute(new ScanJob(new ScanObject(ip,port),ScanEngine.TCP_FULL_CONNECT_SCAN,scanTime,orgId));
+        poolExecutor.execute(new ScanJob(new ScanObject(ip,port),ScanEngine.TCP_FULL_CONNECT_SCAN,scanTime,orgId,type));
     }
 
 

@@ -56,5 +56,11 @@ public class PhysicalAssetTemp implements Serializable {
     @TableField("SCAN_TIME")
     private String scanTime;
 
+    /**
+     * 类型 0自动 1手动
+     */
+    @TableField("TYPE")
+    private Integer type;
+
 
 }

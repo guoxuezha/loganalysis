@@ -100,10 +100,11 @@ public class AssetRespVO {
     @ApiModelProperty(value = "资产标签")
     private String assetTag;
 
-    @ApiModelProperty(value = "资产状态（0在役/1退役/2在线/3离线）")
+    @ApiModelProperty(value = "资产状态（0在线/1" +
+            "离线）")
     private String assetStatus;
 
-    @ApiModelProperty(value = "资产状态（0在役/1退役/2在线/3离线）")
+    @ApiModelProperty(value = "资产安全状态")
     private String assetStatusName;
 
     @ApiModelProperty(value = "创建时间")
@@ -126,8 +127,5 @@ public class AssetRespVO {
 
     @ApiModelProperty(value = "分数")
     private Double score;
-
-    @ApiModelProperty(value = "脆弱值")
-    private Double severity;
 
 }

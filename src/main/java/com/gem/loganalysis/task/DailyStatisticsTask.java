@@ -25,7 +25,7 @@ public class DailyStatisticsTask {
     private static final int MAX_RETRIES = 3; // 最大重试次数
     private int retryCount = 0; // 当前重试次数
 
-    @Scheduled(cron = "59 22 15 * * *") // 每天的23:19:59执行
+    @Scheduled(cron = "59 19 23 * * *") // 每天的23:19:59执行
     public void saveDailyStatistics() {
         try {
             boolean success = saveStatisticsData();

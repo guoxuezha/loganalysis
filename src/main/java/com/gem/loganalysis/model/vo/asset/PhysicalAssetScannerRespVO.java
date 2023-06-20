@@ -11,7 +11,8 @@ import lombok.Data;
  */
 @ApiModel("资产模块 - 物理IP资产扫描VO Response ")
 @Data
-public class PhysicalAssetScannerRespVO {
+public class
+PhysicalAssetScannerRespVO {
 
     @ApiModelProperty(value = "唯一编码")
     private String recordId;

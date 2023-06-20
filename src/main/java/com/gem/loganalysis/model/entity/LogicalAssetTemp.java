@@ -68,5 +68,11 @@ public class LogicalAssetTemp implements Serializable {
     @TableField("SCAN_TIME")
     private String scanTime;
 
+    /**
+     * 扫描类型 0自动 1手动
+     */
+    @TableField("TYPE")
+    private Integer type;
+
 
 }

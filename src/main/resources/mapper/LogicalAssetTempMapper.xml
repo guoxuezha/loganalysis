@@ -10,6 +10,7 @@
             lat.ENABLE_PORT AS enablePort,
             lat.ASSET_TYPE AS assetType,
             lat.ASSET_INFO AS assetInfo,
+            lat.TYPE AS type,
             lat.SCAN_TIME AS scanTime,
             CASE
                 WHEN a.IP_ADDRESS IS NULL THEN 1

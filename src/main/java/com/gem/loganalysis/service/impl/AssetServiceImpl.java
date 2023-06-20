@@ -112,8 +112,6 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     public PageResponse<AssetRespVO> getPageList(PageRequest<AssetQueryDTO> dto) throws JSONException {
         com.github.pagehelper.Page<AssetRespVO> result = PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
         assetMapper.getAssetList(dto.getData());
-        //TODO 一个资产多个脆弱值 是不是该取最高（？)
-        List<HostsSeverityVO> deviceTop = vulnerabilityService.getDeviceTop();
         //漏洞列表
         List<VulnerabilityScanningVO> severity = vulnerabilityService.getAggregateForResultBySeverity();
         //构成IP为KEY，severity值数组为VALUE的形式
@@ -122,13 +120,6 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 .collect(Collectors.groupingBy(VulnerabilityScanningVO::getHost_ip,
                         Collectors.mapping(VulnerabilityScanningVO::getSeverity, Collectors.toList())));
         result.forEach(e -> {
-            String ip = e.getIpAddress();
-            for (HostsSeverityVO hostsSeverityVO : deviceTop) {
-                if (ip.equals(hostsSeverityVO.getIp())) {
-                    e.setSeverity(hostsSeverityVO.getSeverity());
-                    break; // 找到匹配的 IP 后退出内层循环
-                }
-            }
             //资产评分
             //权重系数为中1.2，高2
             e.setScore(calculateOverallSecurityScore(collect.get(e.getIpAddress()),1.2,2));
@@ -155,8 +146,6 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     @Override
     public List<AssetRespVO> getAssetList(AssetQueryDTO dto) throws JSONException {
         List<AssetRespVO> assetRespVOList = assetMapper.getAssetList(dto);
-        //TODO 一个资产多个脆弱值 是不是该取最高（？)
-        List<HostsSeverityVO> deviceTop = vulnerabilityService.getDeviceTop();
         //漏洞列表
         List<VulnerabilityScanningVO> severity = vulnerabilityService.getAggregateForResultBySeverity();
         //构成IP为KEY，severity值数组为VALUE的形式
@@ -165,13 +154,6 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 .collect(Collectors.groupingBy(VulnerabilityScanningVO::getHost_ip,
                         Collectors.mapping(VulnerabilityScanningVO::getSeverity, Collectors.toList())));
         assetRespVOList.forEach(e -> {
-            String ip = e.getIpAddress();
-            for (HostsSeverityVO hostsSeverityVO : deviceTop) {
-                if (ip.equals(hostsSeverityVO.getIp())) {
-                    e.setSeverity(hostsSeverityVO.getSeverity());
-                    break; // 找到匹配的 IP 后退出内层循环
-                }
-            }
             //资产评分
             //权重系数为中1.2，高2
             e.setScore(calculateOverallSecurityScore(collect.get(e.getIpAddress()),1.2,2));
@@ -542,7 +524,6 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         List<AssetRespVO> assetList = getAssetList(new AssetQueryDTO());
         //如果传入为0，则显示全部
 
-
         Map<String, AssetRespVO> ipToAssetNameMap = new HashMap<>();
         // 创建一个Map，以IP作为键，资产名称作为值
         for (AssetRespVO asset : assetList) {
@@ -747,11 +728,11 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 .filter(e -> e.getAssetClass().equals("0") && e.getServicePort() != null)
                 .collect(Collectors.groupingBy(AssetRespVO::getServicePort));
         assetOverviewVO.setIpPortTop5(port);
-        //资产趋势
+        //资产在线数量
         List<AssetOverviewVO.AssetTrendsList> assetTrendsListList = new ArrayList<>();
         List<String> recentlyDateList = getRecentlyDateList(6);
         assetOverviewVO.setDateList(recentlyDateList);
-        //物理资产趋势
+        //物理资产在线数量
         Map<String, Long> physicalMap = getAssetTrendsMap(assetList, "1");
         AssetOverviewVO.AssetTrendsList physicalList = new AssetOverviewVO.AssetTrendsList();
         physicalList.setAssetClass("物理资产");
@@ -761,7 +742,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         }
         physicalList.setList(physicalDataList);
         assetTrendsListList.add(physicalList);
-        //逻辑资产趋势
+        //逻辑资产在线数量
         Map<String, Long> logicalMap = getAssetTrendsMap(assetList, "0");
         AssetOverviewVO.AssetTrendsList logicalList = new AssetOverviewVO.AssetTrendsList();
         logicalList.setAssetClass("逻辑资产");
@@ -786,7 +767,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         DateTimeFormatter fullFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         DateTimeFormatter monthFormat = DateTimeFormatter.ofPattern("yyyy-MM");
         Map<String, Long> countMap = assetList.stream()
-                .filter(e -> e.getAssetClass().equals(assetType) && StringUtils.isNotEmpty(e.getCreateTime()))
+                .filter(e -> e.getAssetClass().equals(assetType) &&"0".equals(e.getAssetStatus())&& StringUtils.isNotEmpty(e.getCreateTime()))
                 .map(asset -> LocalDate.parse(asset.getCreateTime(), fullFormat).format(monthFormat))
                 .filter(lastSixMonths::contains)// 只计算最近六个月的数据
                 .collect(Collectors.groupingBy(date -> date, Collectors.counting()));

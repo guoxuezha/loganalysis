@@ -23,14 +23,17 @@ public class ScanJob implements Runnable {
     private String scanTime;
     //所属部门
     private String orgId;
+    //0自动 1手动
+    private Integer type;
 
     private ILogicalAssetTempService logicalAssetTempService;
 
-    public ScanJob(ScanObject object,String scanType,String scanTime,String orgId) {
+    public ScanJob(ScanObject object,String scanType,String scanTime,String orgId,Integer type) {
         this.object = object;
         this.scanType = scanType;
         this.scanTime = scanTime;
         this.orgId = orgId;
+        this.type = type;
     }
 
     @Override
@@ -43,6 +46,7 @@ public class ScanJob implements Runnable {
                     .setIpAddress(object.getIp())
                     .setEnablePort(object.getPort())
                     .setAssetType(object.getService())
+                    .setType(type)
                     .setAssetInfo(object.getBanner()));
         }
     }

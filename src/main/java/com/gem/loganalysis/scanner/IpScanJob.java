@@ -26,13 +26,17 @@ public class IpScanJob implements Runnable {
     //扫描类型，SIMPLE,ALL
     private String scannerType;
 
+    //类型 0自动 1手动
+    private Integer type;
+
     private IPhysicalAssetTempService physicalAssetTempService;
 
-    public IpScanJob(String ip,String scanTime,String orgId,String scannerType) {
+    public IpScanJob(String ip,String scanTime,String orgId,String scannerType,Integer type) {
         this.ip = ip;
         this.scanTime = scanTime;
         this.orgId = orgId;
         this.scannerType = scannerType;
+        this.type = type;
     }
 
     @Override
@@ -43,13 +47,14 @@ public class IpScanJob implements Runnable {
             boolean save = physicalAssetTempService.save(new PhysicalAssetTemp().setAssetStatus("1")
                     .setAssetOrg(orgId!=null?orgId:"")
                     .setIpAddress(ip)
+                    .setType(type)
                     .setScanTime(scanTime));
             //System.out.println("ping扫描出了IP"+ip);
             //继续扫描逻辑资产
             if("ALL".equals(scannerType)){
-                Scanner.start(ip,"1-65535",scanTime,orgId);
+                Scanner.start(ip,"1-65535",scanTime,orgId,type);
             }else if("SIMPLE".equals(scannerType)){
-                    Scanner.startCommon(ip,scanTime,orgId);
+                    Scanner.startCommon(ip,scanTime,orgId,type);
             }
         }else {
             //ping未发现IP，继续TCP扫描,只要扫到了，就开始扫逻辑资产
@@ -64,13 +69,14 @@ public class IpScanJob implements Runnable {
                         boolean save = physicalAssetTempService.save(new PhysicalAssetTemp().setAssetStatus("1")
                                 .setAssetOrg(orgId != null ? orgId : "")
                                 .setIpAddress(ip)
+                                .setType(type)
                                 .setScanTime(scanTime));
                         foundResult.set(true); // 修改 AtomicBoolean 的值
                         //继续扫描逻辑资产
                         if("ALL".equals(scannerType)){
-                            Scanner.start(ip,"1-65535",scanTime,orgId);
+                            Scanner.start(ip,"1-65535",scanTime,orgId,type);
                         }else if("SIMPLE".equals(scannerType)){
-                            Scanner.startCommon(ip,scanTime,orgId);
+                            Scanner.startCommon(ip,scanTime,orgId,type);
                         }
                     }
                 });
@@ -86,6 +92,7 @@ public class IpScanJob implements Runnable {
                 boolean save = physicalAssetTempService.save(new PhysicalAssetTemp().setAssetStatus("0")
                         .setAssetOrg(orgId != null ? orgId : "")
                         .setIpAddress(ip)
+                        .setType(type)
                         .setScanTime(scanTime));
             }
 

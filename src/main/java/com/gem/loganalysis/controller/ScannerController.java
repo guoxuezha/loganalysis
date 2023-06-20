@@ -3,6 +3,7 @@ package com.gem.loganalysis.controller;
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gem.loganalysis.convert.AssetConvert;
+import com.gem.loganalysis.enmu.ScannerType;
 import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.Result;
 import com.gem.loganalysis.model.ScannerDTO;
@@ -64,7 +65,9 @@ public class ScannerController {
             return Result.failed("该资产不存在");
         }
         //TODO 改成异步 先返回扫描成功再开启扫描
-        Scanner.start(byId.getIpAddress(),"1-65535",DateUtil.format(new Date(),"yyyyMMddHHmmss"),getLoginUserOrgId());
+        Scanner.start(byId.getIpAddress(),"1-65535",
+                DateUtil.format(new Date(),"yyyyMMddHHmmss")
+                ,getLoginUserOrgId(), ScannerType.MANUAL.getId());
         //Scanner.startCommon(byId.getIpAddress(),DateUtil.format(new Date(),"yyyyMMddHHmmss"),getLoginUserOrgId());
         return Result.ok("扫描成功");
     }
@@ -76,12 +79,16 @@ public class ScannerController {
         if("ALL".equals(dto.getScannerType())){
             list.forEach(e->{
                 Scanner.start(e.getIpAddress(),"1-65535",
-                        DateUtil.format(new Date(),"yyyyMMddHHmmss"),getLoginUserOrgId());
+                        DateUtil.format(new Date(),"yyyyMMddHHmmss")
+                        ,getLoginUserOrgId()
+                        ,ScannerType.AUTOMATIC.getId());
             });
         }else if("SIMPLE".equals(dto.getScannerType())){
             list.forEach(e->{
                 Scanner.startCommon(e.getIpAddress(),
-                        DateUtil.format(new Date(),"yyyyMMddHHmmss"),getLoginUserOrgId());
+                        DateUtil.format(new Date(),"yyyyMMddHHmmss")
+                        ,getLoginUserOrgId()
+                        ,ScannerType.AUTOMATIC.getId());
             });
         }
         //TODO 改成异步 先返回扫描成功再开启扫描
@@ -99,7 +106,11 @@ public class ScannerController {
             return Result.failed("请输入正确的IP格式");
         }
         //TODO 改成异步 先返回扫描成功再开启扫描
-        Scanner.start(dto.getIp(),"1-65535",DateUtil.format(new Date(),"yyyyMMddHHmmss"),getLoginUserOrgId());
+        Scanner.start(dto.getIp(),"1-65535"
+                ,DateUtil.format(new Date()
+                        ,"yyyyMMddHHmmss")
+                ,getLoginUserOrgId()
+                ,ScannerType.MANUAL.getId());
         return Result.ok("扫描成功");
     }
 
@@ -125,7 +136,11 @@ public class ScannerController {
             return Result.failed("请输入正确的扫描类型,ALL或SIMPLE");
         }
         //TODO 改成异步 先返回扫描成功再开启扫描
-        IpScanner.scannerIpSection(dto.getVlanList(),DateUtil.format(new Date(),"yyyyMMddHHmmss"),getLoginUserOrgId(),dto.getScannerType());
+        IpScanner.scannerIpSection(dto.getVlanList()
+                ,DateUtil.format(new Date(),"yyyyMMddHHmmss")
+                ,getLoginUserOrgId()
+                ,dto.getScannerType()
+                ,ScannerType.MANUAL.getId());
         return Result.ok("扫描成功");
     }
 

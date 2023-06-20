@@ -50,7 +50,7 @@ public class IpScanner {
     /**
      * IP区段扫描
      */
-    public static void scannerIpSection(List<VlanDTO> vlanList, String scanTime,String orgId,String scannerType){
+    public static void scannerIpSection(List<VlanDTO> vlanList, String scanTime,String orgId,String scannerType,Integer type){
         vlanList.forEach(e->{
             String ipBefore = StringUtils.substringBeforeLast(e.getBeginIp(), ".");
             String begin = StringUtils.substringAfterLast(e.getBeginIp(), ".");
@@ -59,7 +59,7 @@ public class IpScanner {
             for(int i = Integer.parseInt(begin);i <= Integer.parseInt(end);i++){
                 String ip = ipBefore+'.'+i;
                 // 执行扫描任务
-                poolExecutor.execute(new IpScanJob(ip,scanTime,orgId,scannerType));
+                poolExecutor.execute(new IpScanJob(ip,scanTime,orgId,scannerType,type));
             }
         });
     }

@@ -10,6 +10,7 @@
             pat.RECORD_ID AS recordId,
             pat.ASSET_ORG AS assetOrg,
             pat.ASSET_STATUS AS assetStatus,
+            pat.TYPE AS type,
             pat.SCAN_TIME AS scanTime,
             CASE
                 WHEN a.IP_ADDRESS IS NULL THEN 1
