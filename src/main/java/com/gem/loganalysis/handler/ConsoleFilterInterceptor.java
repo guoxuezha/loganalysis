@@ -20,6 +20,7 @@ public class ConsoleFilterInterceptor extends OutputStream {
             if (!line.startsWith("renew_session response:")
                     && !line.startsWith("renewSession request:")
                     && !line.startsWith(">>>>>>>>>>>>>>>>>>> renewSession")
+                    && !line.startsWith("{\"postMethod\":\"POST\",\"url\":\"https:")
                     && !line.startsWith("<envelope>")) {
                 originalStream.print(line);
             }
