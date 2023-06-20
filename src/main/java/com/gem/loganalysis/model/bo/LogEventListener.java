@@ -124,7 +124,6 @@ public class LogEventListener {
         }
     }
 
-
     /**
      * 每天0点扫描是否有过早的原始日志文件需要上传到Minio
      */
@@ -149,6 +148,17 @@ public class LogEventListener {
                 }
             }
         }
+    }
+
+    /**
+     * 每分钟从SNMPMonitor中提取最新的接口接收/发送的字节数
+     */
+    @Scheduled(cron = "0 0/1 * * * ? ")
+    public void NetWorkAssetIOScan() {
+        DateTime now = DateTime.now();
+        SNMPCollectInfo snmpCollectInfo = SNMPCollectInfo.getInstance();
+        snmpCollectInfo.updateIOInfo(now);
+        snmpCollectInfo.updateLoadInfo();
     }
 
 }

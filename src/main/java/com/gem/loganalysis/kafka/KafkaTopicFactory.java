@@ -42,7 +42,7 @@ public class KafkaTopicFactory {
 
     @Bean
     public NewTopic initialTopic() {
-        return new NewTopic("logRepo4", 4, (short) 1);
+        return new NewTopic(mainTopic, 4, (short) 1);
     }
 
     /**

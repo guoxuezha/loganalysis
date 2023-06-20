@@ -4,12 +4,14 @@ business-config:
   authenticationEnable: false
   responseEncryptEnable: false
   AESKey: SKVNMEIHJLOANSKI
-  logMonitorEnable: true
+  logMonitorEnable: false
   adadDefaultPackage: "defaultPackage"
   logBlockFileRetentionDays: 7
-  snmpMonitorEnable: false
-  kafkaMainTopic: logRepo3
+  snmpMonitorEnable: true
+  kafkaMainTopic: logRepo4
   webSocketPrefix: 123.249.42.58:8080
+  gSAClientAgentEnable: true
+  overseasVisitJudgment: false
 
 minio:
   #Minio服务所在地址
@@ -103,7 +105,7 @@ spring:
       properties:
         # 默认的消费组ID
         group:
-          id: defaultConsumerGroup01
+          id: defaultConsumerGroup
         # 消费会话超时时间(超过这个时间consumer没有发送心跳,就会触发rebalance操作)
         session:
           timeout:

@@ -1,6 +1,5 @@
 package com.gem.loganalysis.service.impl;
 
-import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gem.loganalysis.config.BusinessConfigInfo;
@@ -12,7 +11,7 @@ import com.gem.loganalysis.mapper.AssetMapper;
 import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.PageResponse;
 import com.gem.loganalysis.model.Result;
-import com.gem.loganalysis.model.bo.AssetTypeTree;
+import com.gem.loganalysis.model.bo.SNMPCollectInfo;
 import com.gem.loganalysis.model.dto.IpDTO;
 import com.gem.loganalysis.model.dto.asset.AssetDTO;
 import com.gem.loganalysis.model.dto.asset.AssetQueryDTO;
@@ -24,7 +23,6 @@ import com.gem.loganalysis.model.vo.vulnerability.VulnerabilityScanningVO;
 import com.gem.loganalysis.service.*;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.springframework.stereotype.Service;
@@ -32,7 +30,6 @@ import org.springframework.validation.annotation.Validated;
 
 import javax.annotation.Resource;
 import java.text.DecimalFormat;
-import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -90,6 +87,71 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         return lastMonths;
     }
 
+    //计算资产评分
+    public static double calculateOverallSecurityScore(List<Double> vulnerabilities, double mediumWeight, double highWeight) {
+        if (vulnerabilities == null || vulnerabilities.isEmpty()) {
+            return 100.00; // 如果 vulnerabilities 列表为空，直接返回 100 分
+        }
+        double totalVulnerabilities = vulnerabilities.size();
+
+        double maxLowVulnerability = 0;
+        double maxMediumVulnerability = 0;
+        double maxHighVulnerability = 0;
+
+        for (double vulnerability : vulnerabilities) {
+            if (vulnerability >= 0 && vulnerability < 4) {
+                if (vulnerability > maxLowVulnerability) {
+                    maxLowVulnerability = vulnerability;
+                }
+            } else if (vulnerability >= 4 && vulnerability < 7) {
+                if (vulnerability > maxMediumVulnerability) {
+                    maxMediumVulnerability = vulnerability;
+                }
+            } else if (vulnerability >= 7 && vulnerability <= 10) {
+                if (vulnerability > maxHighVulnerability) {
+                    maxHighVulnerability = vulnerability;
+                }
+            }
+        }
+
+        double mediumScore = maxMediumVulnerability * mediumWeight * (1 + getVulnerabilityCount(vulnerabilities, 4, 7) / totalVulnerabilities);
+        double highScore = maxHighVulnerability * highWeight * (1 + getVulnerabilityCount(vulnerabilities, 7, 10) / totalVulnerabilities);
+
+        double overallSecurityScore = 100 - maxLowVulnerability - mediumScore - highScore;
+
+        // 格式化分数并保留两位小数
+        DecimalFormat decimalFormat = new DecimalFormat("#.##");
+        String formattedScore = decimalFormat.format(overallSecurityScore);
+        overallSecurityScore = Double.parseDouble(formattedScore);
+
+        return overallSecurityScore;
+    }
+
+    //计算范围内的漏洞数量
+    private static double getVulnerabilityCount(List<Double> vulnerabilities, double minScore, double maxScore) {
+        double count = 0;
+        for (double vulnerability : vulnerabilities) {
+            if (vulnerability >= minScore && vulnerability <= maxScore) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public static void main(String[] args) {
+
+        // 漏洞脆弱性的分数列表
+        List<Double> vulnerabilities = Arrays.asList(1.5, 2.0, 5.5, 8.0, 9.5);
+
+        // 中危加权系数和高危加权系数
+        double mediumWeight = 1.2;
+        double highWeight = 2;
+
+        double overallSecurityScore = calculateOverallSecurityScore(vulnerabilities, mediumWeight, highWeight);
+
+        System.out.println("整体安全性得分: " + overallSecurityScore);
+    }
+
     @Override
     public Result<String> editAsset(AssetDTO dto) {
         if (dto.getIpAddress() != null && !dto.getIpAddress().trim().equals("")) {
@@ -125,7 +187,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         result.forEach(e -> {
             //资产评分
             //权重系数为中1.2，高2
-            e.setScore(calculateOverallSecurityScore(collect.get(e.getIpAddress()),1.2,2));
+            e.setScore(calculateOverallSecurityScore(collect.get(e.getIpAddress()), 1.2, 2));
             //资产的安全状态80-100给正常 60-80给告警 0-60给危险
             e.setAssetSecurityStatus(getSecurityStatus(e.getScore()));
             //转义
@@ -134,14 +196,14 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         return new PageResponse<>(result);
     }
 
-    private String getSecurityStatus(Double score){
+    private String getSecurityStatus(Double score) {
         if (score >= 80 && score <= 100) {
             return "2";
         } else if (score >= 60 && score < 80) {
             return "1";
         } else if (score >= 0 && score < 60) {
             return "0";
-        }else{
+        } else {
             return "3";
         }
     }
@@ -159,7 +221,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         assetRespVOList.forEach(e -> {
             //资产评分
             //权重系数为中1.2，高2
-            e.setScore(calculateOverallSecurityScore(collect.get(e.getIpAddress()),1.2,2));
+            e.setScore(calculateOverallSecurityScore(collect.get(e.getIpAddress()), 1.2, 2));
             //资产的安全状态80-100给正常 60-80给告警 0-60给危险
             e.setAssetSecurityStatus(getSecurityStatus(e.getScore()));
             //转义
@@ -423,7 +485,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                         .anyMatch(asset -> asset.getIpAddress().equals(device.getIp()) && asset.getAssetCategory().equals("服务器")))
                 .limit(5)
                 .collect(Collectors.toList());
-        filteredData.forEach(e->{
+        filteredData.forEach(e -> {
             endpointRiskAssetRanking.add(new RiskAssetRankingVO(e.getIp(), e.getSeverity()));
         });
         //漏洞
@@ -513,7 +575,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
 
     @Override
     public ScreeShowVO screenShow(String type) throws JSONException {
-        if(StringUtils.isBlank(type)){
+        if (StringUtils.isBlank(type)) {
             throw new ServiceException("请传入风险TOP10类型,0为显示全部");
         }
         ScreeShowVO result = new ScreeShowVO();
@@ -536,10 +598,10 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         for (HostsSeverityVO device : deviceTop) {
             String ipAddress = device.getIp();
             AssetRespVO asset = ipToAssetNameMap.get(ipAddress);
-           if(asset!=null){
-               device.setAssetName(asset.getAssetName());
-               device.setAssetCategory(asset.getAssetCategory());
-           }
+            if (asset != null) {
+                device.setAssetName(asset.getAssetName());
+                device.setAssetCategory(asset.getAssetCategory());
+            }
             // 将匹配到的资产名称设置到device对象中
         }
         //如果为0不过滤，显示全部
@@ -718,7 +780,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         assetOverviewVO.setAssetCategoryDistribution(assetCategory);
         //资产纳管状态1.已纳管 就是资产表物理资产的总数据 2.未纳管就是资产扫描出来的物理资产表里还不存在的的总数
         Integer unmanagedCount = physicalAssetTempService.getUnmanagedCount();
-        assetOverviewVO.setAssetStatusDistribution(physicalNum,unmanagedCount);
+        assetOverviewVO.setAssetStatusDistribution(physicalNum, unmanagedCount);
 /*        //最近新增资产(10条)
         //这个不要了 统计的没意义 先注释掉
         List<AssetRespVO> sorted = assetList.stream()
@@ -734,12 +796,16 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 .filter(e -> e.getAssetClass().equals("0") && StringUtils.isNotEmpty(e.getIpAddress()))
                 .collect(Collectors.groupingBy(AssetRespVO::getIpAddress));
         assetOverviewVO.setIpTop5(ip);
-        //主机端口Top5
-        //TODO 要改成运行负荷TOP5 ？？？？ 具体该怎么改怎么取值
-        Map<Integer, List<AssetRespVO>> port = assetList.stream()
-                .filter(e -> e.getAssetClass().equals("0") && e.getServicePort() != null)
-                .collect(Collectors.groupingBy(AssetRespVO::getServicePort));
-        assetOverviewVO.setIpPortTop5(port);
+
+        // 运行负荷Top5
+        List<AssetOverviewVO.TypeNum> loadAssetTop5 = new ArrayList<>();
+        List<ITAssetMonitorInfoVO> itLoadInfoList = SNMPCollectInfo.getInstance().getITLoadInfoList();
+        for (int i = 0; i < Math.min(5, itLoadInfoList.size()); i++) {
+            ITAssetMonitorInfoVO infoVO = itLoadInfoList.get(i);
+            loadAssetTop5.add(new AssetOverviewVO.TypeNum(infoVO.getAssetName(), infoVO.getLoad()));
+        }
+        assetOverviewVO.setLoadAssetTop5(loadAssetTop5);
+
         //每日资产在线数量
         List<AssetOverviewVO.AssetTrendsList> assetTrendsListList = new ArrayList<>();
         //每日资产未纳管扫描数量
@@ -814,7 +880,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         DateTimeFormatter fullFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         DateTimeFormatter monthFormat = DateTimeFormatter.ofPattern("yyyy-MM");
         Map<String, Long> countMap = assetList.stream()
-                .filter(e -> e.getAssetClass().equals(assetType) &&"0".equals(e.getAssetStatus())&& StringUtils.isNotEmpty(e.getCreateTime()))
+                .filter(e -> e.getAssetClass().equals(assetType) && "0".equals(e.getAssetStatus()) && StringUtils.isNotEmpty(e.getCreateTime()))
                 .map(asset -> LocalDate.parse(asset.getCreateTime(), fullFormat).format(monthFormat))
                 .filter(lastSixMonths::contains)// 只计算最近六个月的数据
                 .collect(Collectors.groupingBy(date -> date, Collectors.counting()));
@@ -853,72 +919,5 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             }
         }*/
         return respVO;
-    }
-
-
-
-    //计算资产评分
-    public static double calculateOverallSecurityScore(List<Double> vulnerabilities, double mediumWeight, double highWeight) {
-        if (vulnerabilities==null||vulnerabilities.isEmpty()) {
-            return 100.00; // 如果 vulnerabilities 列表为空，直接返回 100 分
-        }
-        double totalVulnerabilities = vulnerabilities.size();
-
-        double maxLowVulnerability = 0;
-        double maxMediumVulnerability = 0;
-        double maxHighVulnerability = 0;
-
-        for (double vulnerability : vulnerabilities) {
-            if (vulnerability >= 0 && vulnerability < 4) {
-                if (vulnerability > maxLowVulnerability) {
-                    maxLowVulnerability = vulnerability;
-                }
-            } else if (vulnerability >= 4 && vulnerability < 7) {
-                if (vulnerability > maxMediumVulnerability) {
-                    maxMediumVulnerability = vulnerability;
-                }
-            } else if (vulnerability >= 7 && vulnerability <= 10) {
-                if (vulnerability > maxHighVulnerability) {
-                    maxHighVulnerability = vulnerability;
-                }
-            }
-        }
-
-        double mediumScore = maxMediumVulnerability * mediumWeight * (1 + getVulnerabilityCount(vulnerabilities, 4, 7) / totalVulnerabilities);
-        double highScore = maxHighVulnerability * highWeight * (1 + getVulnerabilityCount(vulnerabilities, 7, 10) / totalVulnerabilities);
-
-        double overallSecurityScore = 100 - maxLowVulnerability - mediumScore - highScore;
-
-        // 格式化分数并保留两位小数
-        DecimalFormat decimalFormat = new DecimalFormat("#.##");
-        String formattedScore = decimalFormat.format(overallSecurityScore);
-        overallSecurityScore = Double.parseDouble(formattedScore);
-
-        return overallSecurityScore;
-    }
-
-    //计算范围内的漏洞数量
-    private static double getVulnerabilityCount(List<Double> vulnerabilities, double minScore, double maxScore) {
-        double count = 0;
-        for (double vulnerability : vulnerabilities) {
-            if (vulnerability >= minScore && vulnerability <= maxScore) {
-                count++;
-            }
-        }
-        return count;
-    }
-
-    public static void main(String[] args) {
-
-        // 漏洞脆弱性的分数列表
-        List<Double> vulnerabilities = Arrays.asList(1.5, 2.0, 5.5, 8.0, 9.5);
-
-        // 中危加权系数和高危加权系数
-        double mediumWeight = 1.2;
-        double highWeight = 2;
-
-        double overallSecurityScore = calculateOverallSecurityScore(vulnerabilities, mediumWeight, highWeight);
-
-        System.out.println("整体安全性得分: " + overallSecurityScore);
     }
 }

@@ -1,7 +1,5 @@
 package com.gem.loganalysis.model.vo.asset;
 
-import com.gem.loganalysis.model.vo.AssetEventVO;
-import com.gem.loganalysis.model.vo.EventOverviewVO;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -56,8 +54,8 @@ public class AssetOverviewVO {
     @ApiModelProperty(value = "端口应用TOP5")
     private List<TypeNum> ipTop5;
 
-    @ApiModelProperty(value = "主机端口Top5")
-    private List<TypeNum> ipPortTop5;
+    @ApiModelProperty(value = "运行负荷Top5")
+    private List<TypeNum> loadAssetTop5;
 
     @ApiModelProperty(value = "资产每日在线数据")
     private List<AssetTrendsList> assetTrendsList;
@@ -67,61 +65,6 @@ public class AssetOverviewVO {
 
     @ApiModelProperty(value = "资产趋势日期数组")
     private List<String> dateList;
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class NewAssetList {
-        @ApiModelProperty(value = "资产名称")
-        private String assetName;
-
-        @ApiModelProperty(value = "资产类型")
-        private String assetTypeName;
-
-        @ApiModelProperty(value = "IP地址")
-        private String ipAddress;
-
-        @ApiModelProperty(value = "端口")
-        private String servicePort;
-
-        @ApiModelProperty(value = "新增时间")
-        private String createTime;
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class NewAssetScanList {
-        @ApiModelProperty(value = "发现IP")
-        private String ipAddress;
-
-        @ApiModelProperty(value = "发现时间")
-        private String scanTime;
-    }
-
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class AssetTrendsList {
-        @ApiModelProperty(value = "逻辑资产/物理资产")
-        private String assetClass;
-
-        @ApiModelProperty(value = "资产趋势列表详情")
-        private List<Integer> list;
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Accessors(chain = true)
-    public static class AssetTrendsNum {
-        @ApiModelProperty(value = "日期")
-        private String date;
-
-        @ApiModelProperty(value = "数量")
-        private Integer num;
-    }
 
     //放入物理资产
     public void setPhysicalAssetTypeDistribution(Map<String, List<AssetRespVO>> map) {
@@ -134,6 +77,7 @@ public class AssetOverviewVO {
         }
         this.physicalAssetTypeDistribution = result;
     }
+
     //放入逻辑资产统计
     public void setLogicalAssetDistribution(Map<String, List<AssetRespVO>> map) {
       /*  ArrayList<TypeNum> list = new ArrayList<>();
@@ -151,7 +95,6 @@ public class AssetOverviewVO {
         this.logicalAssetTypeDistribution = result;
     }
 
-
     //放入资产类别
     public void setAssetCategoryDistribution(Map<String, List<AssetRespVO>> map) {
         List<HashMap<String, Object>> result = new ArrayList<>();
@@ -165,7 +108,7 @@ public class AssetOverviewVO {
     }
 
     //放入资产管控情况
-    public void setAssetStatusDistribution(int managedCount,int unmanagedCount) {
+    public void setAssetStatusDistribution(int managedCount, int unmanagedCount) {
         List<HashMap<String, Object>> result = new ArrayList<>();
         //已纳管  未纳管 两种状态
         //已纳管 就是资产表物理资产的总数据
@@ -231,24 +174,59 @@ public class AssetOverviewVO {
     }
 
 
-    //放入主机端口TOP5
-    public void setIpPortTop5(Map<Integer, List<AssetRespVO>> map) {
-        ArrayList<TypeNum> list = new ArrayList<>();
-        for (Map.Entry<Integer, List<AssetRespVO>> entry : map.entrySet()) {
-            list.add(new TypeNum(entry.getKey().toString(), entry.getValue().size()));
-        }
-        List<TypeNum> collect = list.stream()
-                .sorted()
-                .collect(Collectors.toList());
-        if (collect.size() > 5) {
-            this.ipPortTop5 = collect.subList(0, 5);
-        } else {
-            this.ipPortTop5 = collect;
-        }
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class NewAssetList {
+        @ApiModelProperty(value = "资产名称")
+        private String assetName;
+
+        @ApiModelProperty(value = "资产类型")
+        private String assetTypeName;
+
+        @ApiModelProperty(value = "IP地址")
+        private String ipAddress;
+
+        @ApiModelProperty(value = "端口")
+        private String servicePort;
+
+        @ApiModelProperty(value = "新增时间")
+        private String createTime;
     }
 
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class NewAssetScanList {
+        @ApiModelProperty(value = "发现IP")
+        private String ipAddress;
 
+        @ApiModelProperty(value = "发现时间")
+        private String scanTime;
+    }
 
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class AssetTrendsList {
+        @ApiModelProperty(value = "逻辑资产/物理资产")
+        private String assetClass;
+
+        @ApiModelProperty(value = "资产趋势列表详情")
+        private List<Integer> list;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Accessors(chain = true)
+    public static class AssetTrendsNum {
+        @ApiModelProperty(value = "日期")
+        private String date;
+
+        @ApiModelProperty(value = "数量")
+        private Integer num;
+    }
 
     @AllArgsConstructor
     @Getter
@@ -265,6 +243,5 @@ public class AssetOverviewVO {
             return COMPARATOR.compare(o, this);
         }
     }
-
 
 }

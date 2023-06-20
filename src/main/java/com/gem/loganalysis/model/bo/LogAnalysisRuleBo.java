@@ -9,10 +9,10 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.gem.loganalysis.config.BusinessConfigInfo;
 import com.gem.loganalysis.mapper.AssetEventMapper;
 import com.gem.loganalysis.mapper.AssetMergeLogMapper;
 import com.gem.loganalysis.mapper.AssetRiskMapper;
-import com.gem.loganalysis.mapper.LogAnalysisRuleMapper;
 import com.gem.loganalysis.model.BaseConstant;
 import com.gem.loganalysis.model.dto.edit.LogAnalysisRuleRelaDTO;
 import com.gem.loganalysis.model.entity.Asset;
@@ -72,8 +72,8 @@ public class LogAnalysisRuleBo {
     private final AssetEventMapper assetEventMapper;
     private final AssetRiskMapper assetRiskMapper;
     private final AssetMergeLogMapper assetMergeLogMapper;
-    private final LogAnalysisRuleMapper logAnalysisRuleMapper;
 
+    private final BusinessConfigInfo businessConfigInfo;
     /**
      * 资产对象
      */
@@ -152,7 +152,7 @@ public class LogAnalysisRuleBo {
         this.assetEventMapper = SpringContextUtil.getBean(AssetEventMapper.class);
         this.assetRiskMapper = SpringContextUtil.getBean(AssetRiskMapper.class);
         this.assetMergeLogMapper = SpringContextUtil.getBean(AssetMergeLogMapper.class);
-        this.logAnalysisRuleMapper = SpringContextUtil.getBean(LogAnalysisRuleMapper.class);
+        this.businessConfigInfo = SpringContextUtil.getBean(BusinessConfigInfo.class);
 
         // 解析规则关联资产的基本信息
         this.asset = new Asset();
@@ -351,10 +351,12 @@ public class LogAnalysisRuleBo {
                 log.warn("发生未知类型事件! ruleRelaId: {}, mergeLog: {}", ruleRelaId, mergeLog);
                 return;
             }
-            // 先判断是否满足根据IP属地封堵条件
-            if (BlockRuleServer.getInstance().judgeNeedRegionBlock(this.asset.getAssetId(), sourceIp)) {
-                // 生成中危事件记录及风险记录
-                eventStart(mergeLog, sourceIp, logMessageTree.getFieldValue(eventParamConfig.getTargetIpItem()), BaseConstant.EXTRA_TERRITORIAL_ACCESS, "2");
+            if (businessConfigInfo.getOverseasVisitJudgment()) {
+                // 先判断是否满足根据IP属地封堵条件
+                if (BlockRuleServer.getInstance().judgeNeedRegionBlock(this.asset.getAssetId(), sourceIp)) {
+                    // 生成中危事件记录及风险记录
+                    eventStart(mergeLog, sourceIp, logMessageTree.getFieldValue(eventParamConfig.getTargetIpItem()), BaseConstant.EXTRA_TERRITORIAL_ACCESS, "2");
+                }
             }
 
             // 再生成事件开始

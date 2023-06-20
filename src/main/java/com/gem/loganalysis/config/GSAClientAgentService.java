@@ -5,19 +5,32 @@ import com.gem.loganalysis.gsaclient.GSACommand;
 import com.gem.loganalysis.gsaclient.GVMScanReport;
 import com.gem.loganalysis.gsaclient.GVMScanTask;
 import org.json.JSONObject;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
-@Service
+@Component
 public class GSAClientAgentService {
-    private GSAClientAgent instance;
+
+    @Resource
+    private BusinessConfigInfo businessConfigInfo;
+
+    private GSAClientAgent instance = null;
 
     public GSAClientAgentService() {
-        this.instance = GSAClientAgent.getInstance();
-        this.instance.init();
+    }
+
+    @PostConstruct
+    private void init() {
+        if (businessConfigInfo.getGSAClientAgentEnable()) {
+            System.out.println("GSAClientAgent Init...");
+            this.instance = GSAClientAgent.getInstance();
+            this.instance.init();
+        }
     }
 
     // 封装 GSAClientAgent 的方法
@@ -47,7 +60,7 @@ public class GSAClientAgentService {
     }
 
     //获得网络安全设备脆弱性数据
-    public JSONObject getNetSecurityDeviceSeverities(){
+    public JSONObject getNetSecurityDeviceSeverities() {
         // 调用 GSAClientAgent 的方法并返回结果
         return instance.getNetSecurityDeviceSeverities();
     }
@@ -55,7 +68,7 @@ public class GSAClientAgentService {
     //createHost
     public String createHost(String ip, String comment) {
         // 调用 GSAClientAgent 的方法并返回结果
-        return instance.createHost(ip,comment);
+        return instance.createHost(ip, comment);
     }
 
     //deleteHost
@@ -109,7 +122,7 @@ public class GSAClientAgentService {
     //getPortLists
     public String createTask(String host, String targetId) {
         // 调用 GSAClientAgent 的方法并返回结果
-        return instance.createTask(host,targetId);
+        return instance.createTask(host, targetId);
     }
 
     //getPortLists
@@ -151,7 +164,7 @@ public class GSAClientAgentService {
     //executeTasks
     public void executeTasks(List<String> taskList) {
         // 调用 GSAClientAgent 的方法并返回结果
-         instance.executeTasks(taskList);
+        instance.executeTasks(taskList);
     }
 
     //getGVMAssetIdByIp
@@ -163,7 +176,7 @@ public class GSAClientAgentService {
     //getGVMTargetIdByIp
     public String getGVMTargetIdByIp(String ip) {
         // 调用 GSAClientAgent 的方法并返回结果
-       return instance.getGVMTargetIdByIp(ip);
+        return instance.getGVMTargetIdByIp(ip);
     }
 
     //getGVMTaskIdByIp

@@ -16,14 +16,13 @@ import com.gem.loganalysis.model.vo.EventMonitorVO;
 import com.gem.loganalysis.model.vo.EventOverviewVO;
 import com.gem.loganalysis.model.vo.ITEquipmentVO;
 import com.gem.loganalysis.service.IAssetEventService;
+import com.gem.loganalysis.util.CustomDateUtil;
 import com.gem.loganalysis.util.MapToBeanUtil;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.gem.loganalysis.service.impl.AssetRiskServiceImpl.getBetweenDateList;
 
 /**
  * <p>
@@ -152,7 +151,7 @@ public class AssetEventServiceImpl extends ServiceImpl<AssetEventMapper, AssetEv
 
     private HashMap<String, List<EventOverviewVO.TypeNum>> dailyDataPadding(DateTime startDate, Map<String, List<AssetEventVO>> typeRiskListMap) {
         HashMap<String, List<EventOverviewVO.TypeNum>> result = new HashMap<>(4);
-        List<String> betweenDateList = getBetweenDateList(startDate != null ? startDate : new DateTime(), new DateTime());
+        List<String> betweenDateList = CustomDateUtil.getBetweenDateList(startDate != null ? startDate : new DateTime(), new DateTime());
         for (int i = 1; i <= 3; i++) {
             List<EventOverviewVO.TypeNum> list = new ArrayList<>(betweenDateList.size());
             for (String date : betweenDateList) {

@@ -1,19 +1,21 @@
-verifyUrl: http://123.60.214.137:9090/oauth/verifyToken
+verifyUrl: http://localhost:9090/oauth/verifyToken
 
 business-config:
   authenticationEnable: true
   responseEncryptEnable: true
   AESKey: SKVNMEIHJLOANSKI
-  logMonitorEnable: true
+  logMonitorEnable: false
   adadDefaultPackage: "defaultPackage"
   logBlockFileRetentionDays: 7
-  snmpMonitorEnable: false
-  kafkaMainTopic: logRepo3
-  webSocketPrefix: 123.249.42.58:8080
+  snmpMonitorEnable: true
+  kafkaMainTopic: logRepo4
+  webSocketPrefix: 47.92.154.211:7001/digitalAsset
+  gSAClientAgentEnable: true
+  overseasVisitJudgment: false
 
 minio:
   #Minio服务所在地址
-  endpoint: http://123.60.214.137:5000/
+  endpoint: http://localhost:5000/
   #访问的key
   accessKey: Jonny
   #访问的秘钥
@@ -28,9 +30,9 @@ pool:
   dbVersion: ""
   driverName: "com.mysql.cj.jdbc.Driver"
   jndiName: ""
-  jdbcURL: "jdbc:mysql://123.249.42.58:3306/loganalysis?useOldAliasMetadataBehavior=true&useUnicode=true&characterEncoding=UTF8&rewriteBatchedStatements=true&useCursorFetch=true&defaultFetchSize=100"
+  jdbcURL: "jdbc:mysql://localhost:3306/sop?useOldAliasMetadataBehavior=true&useUnicode=true&characterEncoding=UTF8&rewriteBatchedStatements=true&useCursorFetch=true&defaultFetchSize=100"
   userName: "root"
-  password: "MySqlPassword!!"
+  password: "M^stBechgd1"
   schema: ""
   initialSize: 5
   maxActive: 5
@@ -58,14 +60,13 @@ spring:
     dynamic:
       datasource:
         master:
-          name: loganalysis
           driver-class-name: com.mysql.cj.jdbc.Driver
-          url: jdbc:mysql://123.249.42.58:3306/loganalysis?characterEncoding=utf8&nullCatalogMeansCurrent=true&useSSL=false&useUnicode=true&0=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Shanghai
+          url: jdbc:mysql://localhost:3306/sop?characterEncoding=utf8&nullCatalogMeansCurrent=true&useSSL=false&useUnicode=true&0=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Shanghai
           username: root
-          password: MySqlPassword!!
+          password: M^stBechgd1
   kafka:
     ###########【Kafka集群地址】###########
-    bootstrap-servers: 123.60.214.137:9092
+    bootstrap-servers: localhost:9092
 
     ###########【初始化生产者配置】###########
     producer:

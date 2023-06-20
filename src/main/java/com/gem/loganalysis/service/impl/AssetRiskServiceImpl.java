@@ -13,6 +13,7 @@ import com.gem.loganalysis.model.entity.AssetRisk;
 import com.gem.loganalysis.model.vo.RiskOverviewRecordVO;
 import com.gem.loganalysis.model.vo.RiskOverviewVO;
 import com.gem.loganalysis.service.IAssetRiskService;
+import com.gem.loganalysis.util.CustomDateUtil;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -32,22 +33,6 @@ public class AssetRiskServiceImpl extends ServiceImpl<AssetRiskMapper, AssetRisk
 
     @Resource
     private AssetEventMapper assetEventMapper;
-
-    /**
-     * 根据起止日期区间生成日期列表
-     *
-     * @param startDate 起始日期
-     * @param endDate   截止日期
-     * @return 日期列表
-     */
-    public static List<String> getBetweenDateList(DateTime startDate, DateTime endDate) {
-        List<String> dateList = new ArrayList<>();
-        long l = DateUtil.betweenDay(startDate, endDate, false);
-        for (int i = 1; i <= l; i++) {
-            dateList.add(DateUtil.offset(startDate, DateField.DAY_OF_YEAR, i).toString("yyyy-MM-dd"));
-        }
-        return dateList;
-    }
 
     @Override
     public RiskOverviewVO geOverviewInfo(OverviewQueryDTO dto) {
@@ -100,7 +85,7 @@ public class AssetRiskServiceImpl extends ServiceImpl<AssetRiskMapper, AssetRisk
     private Map<String, List<RiskOverviewVO.RiskNumDaily>> dailyDataPadding(DateTime startDate,
                                                                             Map<String, List<RiskOverviewRecordVO>> typeRiskListMap) {
         Map<String, List<RiskOverviewVO.RiskNumDaily>> result = new HashMap<>();
-        List<String> betweenDateList = getBetweenDateList(startDate, new DateTime());
+        List<String> betweenDateList = CustomDateUtil.getBetweenDateList(startDate, new DateTime());
         for (Map.Entry<String, List<RiskOverviewRecordVO>> entry : typeRiskListMap.entrySet()) {
             List<RiskOverviewVO.RiskNumDaily> dailyNum = generateDailyList(betweenDateList);
             List<RiskOverviewRecordVO> vos = entry.getValue();

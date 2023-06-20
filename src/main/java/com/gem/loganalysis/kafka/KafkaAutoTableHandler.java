@@ -1,5 +1,6 @@
 package com.gem.loganalysis.kafka;
 
+import com.gem.loganalysis.config.BusinessConfigInfo;
 import com.gem.loganalysis.model.BaseConstant;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.ListTopicsResult;
@@ -8,6 +9,7 @@ import org.apache.kafka.common.KafkaFuture;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,6 +34,9 @@ public class KafkaAutoTableHandler {
     @Autowired
     private ChildKafkaConsumer childKafkaConsumer;
 
+    @Resource
+    private BusinessConfigInfo businessConfigInfo;
+
     /**
      * 初始化Topic监听线程和newTopic对象缓存
      */
@@ -48,7 +53,9 @@ public class KafkaAutoTableHandler {
                         consumerRunnable.setTopicName(topic);
                         consumerRunnable.setChildKafkaConsumer(childKafkaConsumer);
                         kafkaTopicFactory.appendConsumer(topic, consumerRunnable);
-                        consumerRunnable.start();
+                        if (businessConfigInfo.getLogMonitorEnable()) {
+                            consumerRunnable.start();
+                        }
                     }
                     // 判断newTopic对象是否维护
                     String host = topic.split(BaseConstant.CHILD_TOPIC_PREFIX)[1];

@@ -24,24 +24,13 @@ public class SNMPMonitorServer {
 
     private static final Logger logger = Logger.getLogger("Scanner");
     private static SNMPMonitorServer instance = null;
-    private Map<String, Asset> assets = null;                        //<assetId, Asset>
-    private Map<String, SNMPConfig> configs = null;                    //<assetId, SNMPConfig>
-    private Map<String, DeviceMIB> mibs = null;                        //<oid, DeviceMIB>
-    private Map<String, CommonOID> oids = null;                        //<oid, CommonOID>
+    private Map<String, Asset> assets = null;                          // <assetId, Asset>
+    private Map<String, SNMPConfig> configs = null;                    // <assetId, SNMPConfig>
+    private Map<String, DeviceMIB> mibs = null;                        // <oid, DeviceMIB>
+    private Map<String, CommonOID> oids = null;                        // <oid, CommonOID>
     private SNMPMonitorThreadPool threadPool = null;
 
     private SNMPMonitorServer() {
-        // 服务代理配置信息
-        /*ConnectionPools connPools = ConnectionPools.getInstance();
-        if (connPools.getPool("sop") == null) {
-            if (connPools.createRepositoryConnPool("sop")) {
-                connPools.setAutoTest(true);
-                connPools.startMonitor();
-            } else {
-                logger.info("ConnectionPools build failed. Please restart the application.");
-                return;
-            }
-        }*/
         loadBaseInfo();
     }
 
@@ -80,7 +69,7 @@ public class SNMPMonitorServer {
             assets = new HashMap<>();
         }
         try {
-            String SQL = "SELECT * FROM SOP_ASSET WHERE ASSET_CLASS = '物理资产'";
+            String SQL = "SELECT * FROM SOP_ASSET WHERE ASSET_CLASS = '1'";
             DAO dao = new DAO();
             ArrayList<HashMap<String, String>> result = dao.getDataSet(defaultPoolName, SQL, 0, 0);
             if (result != null) {

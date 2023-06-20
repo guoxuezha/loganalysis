@@ -56,4 +56,14 @@ public class BusinessConfigInfo {
      */
     private String webSocketPrefix;
 
+    /**
+     * 漏洞扫描代理客户端是否启用
+     */
+    private Boolean gSAClientAgentEnable;
+
+    /**
+     * 境外访问判断
+     */
+    private Boolean overseasVisitJudgment;
+
 }

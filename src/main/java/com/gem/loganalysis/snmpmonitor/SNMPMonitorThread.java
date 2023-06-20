@@ -111,48 +111,51 @@ public class SNMPMonitorThread extends Thread {
      *
      * @param result responseStr List
      */
-    private void parseData(List<String> result) {
-//        log.info("result : {}", Arrays.toString(new List[]{result}));
+    public void parseData(List<String> result) {
+        //log.info("result : {}", Arrays.toString(new List[]{result}));
         try {
             if (result != null && result.size() > 0) {
-                for (String response : result) {
-                    List<String> res = parseResponse(response);
-                    if (res.size() == 3 && server.getCommonOIDMap() != null) {
-                        CommonOID oid = server.getCommonOID(res.get(0));
-                        if (oid != null && oid.getDataType().equals(res.get(1))) {
-                            CommonOID val = new CommonOID();
-                            val.setOid(oid.getOid());
-                            val.setDesc(oid.getDesc());
-                            val.setDataType(oid.getDataType());
-                            val.setName(oid.getName());
-                            val.setMeasureName(oid.getMeasureName());
-                            switch (val.getDataType()) {
-                                case "INTEGER":
-                                case "INTEGER32":
-                                case "UINTEGER32":
-                                    String temp = res.get(2);
-                                    String value;
-                                    String unit;
-                                    if (temp.contains(" ")) {
-                                        value = temp.substring(0, temp.indexOf(" ")).trim();
-                                        unit = temp.substring(temp.indexOf(" ") + 1).trim();
-                                    } else if (temp.contains("(") && temp.contains(")")) {
-                                        value = temp.substring(temp.indexOf("(") + 1, temp.indexOf("")).trim();
-                                        unit = temp.substring(0, temp.indexOf("(")).trim();
-                                    } else {
-                                        value = temp;
-                                        unit = "";
-                                    }
-                                    val.setValue(value);
-                                    val.setUnit(unit);
-                                    break;
-                                default:
-                                    val.setValue(res.get(2));
-                                    val.setUnit("");
-                                    break;
+                for (String s : result) {
+                    List<String> responseStr = strToList(s);
+                    for (String response : responseStr) {
+                        List<String> res = parseResponse(response);
+                        if (res.size() == 3 && server.getCommonOIDMap() != null) {
+                            CommonOID oid = server.getCommonOID(res.get(0));
+                            if (oid != null && oid.getDataType().equals(res.get(1))) {
+                                CommonOID val = new CommonOID();
+                                val.setOid(oid.getOid());
+                                val.setDesc(oid.getDesc());
+                                val.setDataType(oid.getDataType());
+                                val.setName(oid.getName());
+                                val.setMeasureName(oid.getMeasureName());
+                                switch (val.getDataType()) {
+                                    case "INTEGER":
+                                    case "INTEGER32":
+                                    case "UINTEGER32":
+                                        String temp = res.get(2);
+                                        String value;
+                                        String unit;
+                                        if (temp.contains(" ")) {
+                                            value = temp.substring(0, temp.indexOf(" ")).trim();
+                                            unit = temp.substring(temp.indexOf(" ") + 1).trim();
+                                        } else if (temp.contains("(") && temp.contains(")")) {
+                                            value = temp.substring(temp.indexOf("(") + 1, temp.indexOf("")).trim();
+                                            unit = temp.substring(0, temp.indexOf("(")).trim();
+                                        } else {
+                                            value = temp;
+                                            unit = "";
+                                        }
+                                        val.setValue(value);
+                                        val.setUnit(unit);
+                                        break;
+                                    default:
+                                        val.setValue(res.get(2));
+                                        val.setUnit("");
+                                        break;
+                                }
+                                log.info("measureName: {}, value:{}", val.getMeasureName(), val.getValue());
+                                measureValues.put(val.getMeasureName(), val);
                             }
-//                            log.info("measureName: {}, value:{}", val.getMeasureName(), val.getValue());
-                            measureValues.put(val.getMeasureName(), val);
                         }
                     }
                 }
@@ -160,6 +163,11 @@ public class SNMPMonitorThread extends Thread {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+
+    private List<String> strToList(String response) {
+        String[] split = response.split(",");
+        return Arrays.asList(split);
     }
 
     public Map<String, CommonOID> getMeasureValues() {
