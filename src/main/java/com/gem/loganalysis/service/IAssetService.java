@@ -89,4 +89,6 @@ public interface IAssetService extends IService<Asset> {
      * @return
      */
     PageResponse<PhysicalAssetScannerRespVO> getUnmanagedPage(PageRequest<IpDTO> dto);
+
+    PageResponse<LogicalAssetScannerRespVO> getUnmanagedLogicalPage(PageRequest<IpDTO> dto);
 }

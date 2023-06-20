@@ -1,6 +1,7 @@
 package com.gem.loganalysis.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.gem.loganalysis.model.dto.IpDTO;
 import com.gem.loganalysis.model.dto.asset.LogicalAssetQueryDTO;
 import com.gem.loganalysis.model.entity.LogicalAssetTemp;
 import com.gem.loganalysis.model.vo.asset.LogicalAssetScannerRespVO;
@@ -24,4 +25,6 @@ public interface LogicalAssetTempMapper extends BaseMapper<LogicalAssetTemp> {
     Integer getUnmanagedCount();
 
     void cleanTable();
+
+    List<LogicalAssetScannerRespVO> getUnmanagedList(IpDTO data);
 }

@@ -338,9 +338,15 @@ public class AssetController {
     }
 
     @PostMapping("/unmanagedPage")
-    @ApiOperation("未纳管分页")
+    @ApiOperation("物理资产未纳管分页")
     public Result<PageResponse<PhysicalAssetScannerRespVO>> getUnmanagedPage(@RequestBody PageRequest<IpDTO> dto){
         return Result.ok(assetService.getUnmanagedPage(dto));
+    }
+
+    @PostMapping("/unmanagedLogicalPage")
+    @ApiOperation("逻辑资产未纳管分页")
+    public Result<PageResponse<LogicalAssetScannerRespVO>> getUnmanagedLogicalPage(@RequestBody PageRequest<IpDTO> dto){
+        return Result.ok(assetService.getUnmanagedLogicalPage(dto));
     }
 
 }

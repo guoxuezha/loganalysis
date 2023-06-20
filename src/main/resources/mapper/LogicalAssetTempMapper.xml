@@ -57,4 +57,29 @@
             WHERE a.IP_ADDRESS = lat.IP_ADDRESS AND a.SERVICE_PORT = lat.ENABLE_PORT
             );
     </select>
+
+    <select id="getUnmanagedList" resultType="com.gem.loganalysis.model.vo.asset.LogicalAssetScannerRespVO">
+        SELECT
+            lat.RECORD_ID AS recordId,
+            lat.ASSET_ORG AS assetOrg,
+            lat.IP_ADDRESS AS ipAddress,
+            lat.ENABLE_PORT AS enablePort,
+            lat.ASSET_TYPE AS assetType,
+            lat.ASSET_INFO AS assetInfo,
+            lat.TYPE AS type,
+            STR_TO_DATE(lat.SCAN_TIME, '%Y%m%d%H%i%s') AS scanTime
+        FROM
+            sop_logical_asset_temp AS lat
+        WHERE
+            NOT EXISTS (
+            SELECT 1
+            FROM sop_asset AS a
+            WHERE a.IP_ADDRESS = lat.IP_ADDRESS AND a.SERVICE_PORT = lat.ENABLE_PORT
+            )
+        <if test="ip!=null and ip.trim()!='' ">
+            AND lat.IP_ADDRESS = #{ip}
+        </if>
+        ORDER BY
+        lat.RECORD_ID DESC
+    </select>
 </mapper>
