@@ -58,6 +58,8 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     @Resource
     private IPhysicalAssetTempService physicalAssetTempService;
     @Resource
+    private ILogicalAssetTempService logicalAssetTempService;
+    @Resource
     private IAssetTypeService assetTypeService;
     @Resource
     private IM4SsoUserService userService;
@@ -719,6 +721,13 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         Page<PhysicalAssetScannerRespVO> result = PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
         physicalAssetTempService.getUnmanagedList(dto.getData());
         return new PageResponse<PhysicalAssetScannerRespVO>(result);
+    }
+
+    @Override
+    public PageResponse<LogicalAssetScannerRespVO> getUnmanagedLogicalPage(PageRequest<IpDTO> dto) {
+        Page<LogicalAssetScannerRespVO> result = PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
+        logicalAssetTempService.getUnmanagedList(dto.getData());
+        return new PageResponse<LogicalAssetScannerRespVO>(result);
     }
 
     private List<String> weekDateList() {

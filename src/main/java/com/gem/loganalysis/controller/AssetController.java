@@ -15,6 +15,7 @@ import com.gem.loganalysis.model.dto.GetDTO;
 import com.gem.loganalysis.model.dto.IpDTO;
 import com.gem.loganalysis.model.dto.asset.*;
 import com.gem.loganalysis.model.dto.query.DictItemQueryDTO;
+import com.gem.loganalysis.model.dto.query.LambdaQueryWrapperX;
 import com.gem.loganalysis.model.entity.Asset;
 import com.gem.loganalysis.model.entity.M4SsoOrg;
 import com.gem.loganalysis.model.vo.DictItemRespVO;
@@ -89,6 +90,22 @@ public class AssetController {
     public Result<List<AssetRespVO>> pageList(@RequestBody AssetQueryDTO dto) throws JSONException {
         dto.setAssetManagerId(getAuthorityUserId());//鉴权
         return Result.ok(assetService.getAssetList(dto));
+    }
+
+    @PostMapping("/simpleList")
+    @ApiOperation(value = "资产的简单列表",notes = "没有做任何处理，适用于下拉，list的接口做了大量处理效率会很低")
+    public Result<List<Asset>> simpleList(@RequestBody AssetQueryDTO dto) {
+        LambdaQueryWrapperX<Asset> wrapper = new LambdaQueryWrapperX<Asset>()
+                .likeIfPresent(Asset::getAssetName,dto.getAssetName())
+                .eqIfPresent(Asset::getAssetClass,dto.getAssetClass())
+                .eqIfPresent(Asset::getAssetType,dto.getAssetType())
+                .likeIfPresent(Asset::getIpAddress,dto.getIpAddress())
+                .eqIfPresent(Asset::getAssetManager,dto.getAssetManagerId())
+                .eqIfPresent(Asset::getAssetGroupId,dto.getAssetGroupId())
+                .eqIfPresent(Asset::getAssetStatus,dto.getAssetStatus())
+                .eqIfPresent(Asset::getAssetOrg,dto.getAssetOrg())
+                .likeIfPresent(Asset::getAssetTag,dto.getAssetTag());
+        return Result.ok(assetService.list(wrapper));
     }
 
     @PostMapping("/get")
@@ -321,9 +338,15 @@ public class AssetController {
     }
 
     @PostMapping("/unmanagedPage")
-    @ApiOperation("未纳管分页")
+    @ApiOperation("物理资产未纳管分页")
     public Result<PageResponse<PhysicalAssetScannerRespVO>> getUnmanagedPage(@RequestBody PageRequest<IpDTO> dto){
         return Result.ok(assetService.getUnmanagedPage(dto));
+    }
+
+    @PostMapping("/unmanagedLogicalPage")
+    @ApiOperation("逻辑资产未纳管分页")
+    public Result<PageResponse<LogicalAssetScannerRespVO>> getUnmanagedLogicalPage(@RequestBody PageRequest<IpDTO> dto){
+        return Result.ok(assetService.getUnmanagedLogicalPage(dto));
     }
 
 }

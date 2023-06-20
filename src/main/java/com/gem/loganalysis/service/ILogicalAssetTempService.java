@@ -3,9 +3,11 @@ package com.gem.loganalysis.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.gem.loganalysis.model.PageRequest;
+import com.gem.loganalysis.model.dto.IpDTO;
 import com.gem.loganalysis.model.dto.asset.LogicalAssetQueryDTO;
 import com.gem.loganalysis.model.entity.LogicalAssetTemp;
 import com.gem.loganalysis.model.vo.LogicalScannerVO;
+import com.gem.loganalysis.model.vo.asset.LogicalAssetScannerRespVO;
 
 import java.util.List;
 
@@ -22,4 +24,6 @@ public interface ILogicalAssetTempService extends IService<LogicalAssetTemp> {
     LogicalScannerVO getLogicalAssetList(LogicalAssetQueryDTO dto);
 
     Integer getUnmanagedCount();
+
+    List<LogicalAssetScannerRespVO> getUnmanagedList(IpDTO data);
 }
