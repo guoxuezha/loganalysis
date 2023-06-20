@@ -32,6 +32,6 @@ public class PhysicalAssetScannerRespVO {
     private Integer existsInAssetTable;
 
     @ApiModelProperty(value = "来源(0为自动 1为手动)")
-    private String source;
+    private String type;
 
 }

@@ -309,3 +309,16 @@ ALTER TABLE `loganalysis`.`sop_log_analysis_rule_rela`
     MODIFY COLUMN `MERGE_WINDOW_TIME` int NULL DEFAULT 60 COMMENT '归并窗口时长（分钟）' AFTER `MERGE_ITEMS`,
     MODIFY COLUMN `EVENT_WINDOW_TIME` int NULL DEFAULT 1 COMMENT '事件判定窗口时长（分钟）' AFTER `MERGE_WINDOW_TIME`;
 ```
+
+### 2023-06-20
+
+#### 增加逻辑资产推测类型长度，并且增加字段TYPE（0为自动扫描 1为手动扫描）
+
+```SQL
+ALTER TABLE loganalysis.sop_logical_asset_temp
+    MODIFY COLUMN ASSET_TYPE VARCHAR(32),
+    ADD COLUMN TYPE INT COMMENT '扫描类型(0为自动 1为手动)';
+
+ALTER TABLE loganalysis.sop_physical_asset_temp
+    ADD COLUMN TYPE INT COMMENT '扫描类型(0为自动 1为手动)';
+```
