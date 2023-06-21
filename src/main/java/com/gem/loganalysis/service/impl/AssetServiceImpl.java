@@ -407,6 +407,8 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     public HomeOverviewVO getHomeOverview() throws JSONException {
 
         HomeOverviewVO homeOverview = assetMapper.getAssetHomeOverview();
+        homeOverview.setLogicalAssetCount((int)this.count(new LambdaQueryWrapper<Asset>()
+                .eq(Asset::getAssetClass,"0")));
         List<AssetEventHomeOverviewVO> event = assetMapper.getEventHomeOverview();
         event.forEach(e -> {
             if (e.getAssetType().equals("安全设备")) {
@@ -786,6 +788,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         assetOverviewVO.setPhysicalAssetTypeDistribution(physicalType);
         //资产状态分布
         Map<String, List<AssetRespVO>> assetStatus = assetList.stream()
+                .filter(e -> e.getAssetClass().equals("1") && StringUtils.isNotBlank(e.getAssetStatusName()))
                 .collect(Collectors.groupingBy(AssetRespVO::getAssetStatusName));
         //assetOverviewVO.setAssetStatusDistribution(assetStatus);
         assetOverviewVO.setAssetOnlineStatusDistribution(assetStatus);
