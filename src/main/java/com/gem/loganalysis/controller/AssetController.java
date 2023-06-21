@@ -23,6 +23,7 @@ import com.gem.loganalysis.model.vo.HomeOverviewVO;
 import com.gem.loganalysis.model.vo.ImportRespVO;
 import com.gem.loganalysis.model.vo.ScreeShowVO;
 import com.gem.loganalysis.model.vo.asset.*;
+import com.gem.loganalysis.model.vo.vulnerability.VulnerabilityScanningVO;
 import com.gem.loganalysis.service.*;
 import com.gem.loganalysis.util.ExcelUtils;
 import io.swagger.annotations.Api;
@@ -45,6 +46,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.gem.loganalysis.util.UserUtil.getAuthorityUserId;
 
@@ -347,6 +349,12 @@ public class AssetController {
     @ApiOperation("逻辑资产未纳管分页")
     public Result<PageResponse<LogicalAssetScannerRespVO>> getUnmanagedLogicalPage(@RequestBody PageRequest<IpDTO> dto){
         return Result.ok(assetService.getUnmanagedLogicalPage(dto));
+    }
+
+    @PostMapping("/vulnerabilityScanningList")
+    @ApiOperation("资产漏洞")
+    public Result<List<VulnerabilityScanningVO>> getVulnerabilityScanningList(){
+        return Result.ok(assetService.getVulnerabilityScanningList());
     }
 
 }

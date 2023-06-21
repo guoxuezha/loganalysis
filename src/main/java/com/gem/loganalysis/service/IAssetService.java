@@ -12,6 +12,7 @@ import com.gem.loganalysis.model.vo.HomeOverviewVO;
 import com.gem.loganalysis.model.vo.ImportRespVO;
 import com.gem.loganalysis.model.vo.ScreeShowVO;
 import com.gem.loganalysis.model.vo.asset.*;
+import com.gem.loganalysis.model.vo.vulnerability.VulnerabilityScanningVO;
 import org.json.JSONException;
 
 import java.text.ParseException;
@@ -91,4 +92,6 @@ public interface IAssetService extends IService<Asset> {
     PageResponse<PhysicalAssetScannerRespVO> getUnmanagedPage(PageRequest<IpDTO> dto);
 
     PageResponse<LogicalAssetScannerRespVO> getUnmanagedLogicalPage(PageRequest<IpDTO> dto);
+
+    List<VulnerabilityScanningVO> getVulnerabilityScanningList();
 }

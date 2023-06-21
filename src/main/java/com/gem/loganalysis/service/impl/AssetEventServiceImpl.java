@@ -93,7 +93,7 @@ public class AssetEventServiceImpl extends ServiceImpl<AssetEventMapper, AssetEv
         EventMonitorVO eventMonitorVO = new EventMonitorVO();
         eventMonitorVO.setNetworkEquipmentList(assetEventMapper.getEquipmentList("网络设备"));//网络设备
         eventMonitorVO.setSafetyDEquipmentList(assetEventMapper.getEquipmentList("安全设备"));//安全设备
-        //TODO 怎么拿到数据 网络吞吐量怎么拿 先写假的了
+        //已经不从这里取数据了，这里的假数据没用了，单独写了接口
         ITEquipmentVO itEquipmentList1 = new ITEquipmentVO()
                 .setIpAddress("104.253.151.3")
                 .setTypeName("交换机")

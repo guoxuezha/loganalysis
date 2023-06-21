@@ -52,7 +52,7 @@ public class AssetOverviewVO {
     private List<NewAssetScanList> newAssetScanList;
 
     @ApiModelProperty(value = "端口应用TOP5")
-    private List<TypeNum> ipTop5;
+    private List<TypeNum> ipPortTop5;
 
     @ApiModelProperty(value = "运行负荷Top5")
     private List<TypeNum> loadAssetTop5;
@@ -156,20 +156,19 @@ public class AssetOverviewVO {
         this.assetOnlineStatusDistribution = result;
     }
 
-    //放入主机开放端口Top5
-    public void setIpTop5(Map<String, List<AssetRespVO>> map) {
+    //放入主机端口TOP5
+    public void setIpPortTop5(Map<Integer, List<AssetRespVO>> map) {
         ArrayList<TypeNum> list = new ArrayList<>();
-        for (Map.Entry<String, List<AssetRespVO>> entry : map.entrySet()) {
-            list.add(new TypeNum(entry.getKey(), entry.getValue().size()));
+        for (Map.Entry<Integer, List<AssetRespVO>> entry : map.entrySet()) {
+            list.add(new TypeNum(entry.getKey().toString(), entry.getValue().size()));
         }
         List<TypeNum> collect = list.stream()
-                //.sorted(Comparator.comparing(TypeNum::getNum))
                 .sorted()
                 .collect(Collectors.toList());
         if (collect.size() > 5) {
-            this.ipTop5 = collect.subList(0, 5);
+            this.ipPortTop5 = collect.subList(0, 5);
         } else {
-            this.ipTop5 = collect;
+            this.ipPortTop5 = collect;
         }
     }
 

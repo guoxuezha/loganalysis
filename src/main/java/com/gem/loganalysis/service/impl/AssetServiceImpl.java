@@ -262,7 +262,9 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 asset.setAssetClass(AssetClass.LOGICAL.getId());
                 //判断资产名称是否存在
                 Asset one = this.getOne(new LambdaQueryWrapper<Asset>()
-                        .eq(Asset::getAssetName, e.getAssetName()).last("LIMIT 1"));
+                        .eq(Asset::getIpAddress, e.getIpAddress())
+                        .eq(Asset::getServicePort,e.getServicePort())
+                        .last("LIMIT 1"));
                 if (one != null) {
                     throw new ServiceException("该资产:" + e.getAssetName() + "已存在");
                 }
@@ -532,7 +534,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         List<Double> securityDeviceAssetScoreList = new ArrayList<>(); // 近七天安全设备资产评分集合
         List<Double> networkDeviceAssetScoreList = new ArrayList<>(); // 近七天网络设备资产评分集合
         List<Double> itDeviceAssetScoreList = new ArrayList<>(); // 近七天IT设备资产评分集合
-        List<Double> logicalAssetScoreList = new ArrayList<>(); // 近七天逻辑资产评分集合
+        //List<Double> logicalAssetScoreList = new ArrayList<>(); // 近七天逻辑资产评分集合 逻辑资产暂无评分
         list.forEach(e -> {
             dateList.add(e.getDateTime() != null ? e.getDateTime() : "0");
             lowRiskCountList.add(e.getLowRiskCount() != null ? e.getLowRiskCount() : 0);
@@ -542,10 +544,9 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             securityDeviceAssetScoreList.add(e.getSecurityDeviceAssetScore() != null ? e.getSecurityDeviceAssetScore() : 0.0);
             networkDeviceAssetScoreList.add(e.getNetworkDeviceAssetScore() != null ? e.getNetworkDeviceAssetScore() : 0.0);
             itDeviceAssetScoreList.add(e.getItDeviceAssetScore() != null ? e.getItDeviceAssetScore() : 0.0);
-            logicalAssetScoreList.add(e.getLogicalAssetScore() != null ? e.getLogicalAssetScore() : 0.0);
+            //logicalAssetScoreList.add(e.getLogicalAssetScore() != null ? e.getLogicalAssetScore() : 0.0); //逻辑资产暂无评分
         });
 
-        //TODO 改成实时出口设备负荷(流量) 不知道该咋取
         homeOverview
                 .setDateList(dateList) // 近七天日期集合
                 .setLowRiskCount(lowRiskCountList) // 近七天低风险集合
@@ -555,7 +556,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 .setSecurityDeviceAssetScore(securityDeviceAssetScoreList)//近七天安全设备资产评分集合
                 .setNetworkDeviceAssetScore(networkDeviceAssetScoreList)//近七天网络设备资产评分集合
                 .setItDeviceAssetScore(itDeviceAssetScoreList)//近七天IT设备资产评分集合
-                .setLogicalAssetScore(logicalAssetScoreList)//近七天逻辑资产评分集合
+                //.setLogicalAssetScore(logicalAssetScoreList)//近七天逻辑资产评分集合
                 .setNonEndpointRiskAssetRanking(nonEndpointRiskAssetRanking)//网络安全设备脆弱性
                 .setEndpointRiskAssetRanking(endpointRiskAssetRanking);//IT设备脆弱性
 
@@ -730,6 +731,12 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         return new PageResponse<LogicalAssetScannerRespVO>(result);
     }
 
+    @Override
+    public List<VulnerabilityScanningVO> getVulnerabilityScanningList() {
+        List<VulnerabilityScanningVO> severity = vulnerabilityService.getAggregateForResultBySeverity();
+        return severity;
+    }
+
     private List<String> weekDateList() {
         List<String> dateList = new ArrayList<>();
         LocalDate currentDate = LocalDate.now();
@@ -799,12 +806,12 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         assetOverviewVO.setNewAssetList(AssetConvert.INSTANCE.convertList11(sorted));*/
         //最近资产发现(5条)
         assetOverviewVO.setNewAssetScanList(AssetConvert.INSTANCE.convertList06(physicalAssetTempService.getNewAssetScanList()));
-        //主机开放端口Top5
         //端口应用TOP5
-        Map<String, List<AssetRespVO>> ip = assetList.stream()
-                .filter(e -> e.getAssetClass().equals("0") && StringUtils.isNotEmpty(e.getIpAddress()))
-                .collect(Collectors.groupingBy(AssetRespVO::getIpAddress));
-        assetOverviewVO.setIpTop5(ip);
+        Map<Integer, List<AssetRespVO>> port = assetList.stream()
+                .filter(e -> e.getAssetClass().equals("0") && e.getServicePort() != null)
+                .collect(Collectors.groupingBy(AssetRespVO::getServicePort));
+        assetOverviewVO.setIpPortTop5(port);
+
 
         // 运行负荷Top5
         List<AssetOverviewVO.TypeNum> loadAssetTop5 = new ArrayList<>();

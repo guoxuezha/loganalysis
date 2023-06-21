@@ -24,8 +24,8 @@ public class IpScanner {
     // 日志
     private static Logger logger = Logger.getLogger("Scanner");
     // 使用多线程扫描
-    private static ThreadPoolExecutor poolExecutor = new ThreadPoolExecutor(2*cpuCores
-            ,25*cpuCores,1000,
+    private static ThreadPoolExecutor poolExecutor = new ThreadPoolExecutor(10
+            ,20,1000,
             TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(),
             Executors.defaultThreadFactory(),new ThreadPoolExecutor.AbortPolicy());
 

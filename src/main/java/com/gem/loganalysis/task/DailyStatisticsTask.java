@@ -77,7 +77,7 @@ public class DailyStatisticsTask {
                 .mapToDouble(AssetRespVO::getScore)
                 .average()
                 .orElse(0.0);
-        //TODO  逻辑资产评分
+
         //物理资产在线数量
         long physicalCount = assetService.count(new LambdaQueryWrapper<Asset>()
                 .eq(Asset::getAssetClass, AssetClass.PHYSICAL.getId())
@@ -86,6 +86,7 @@ public class DailyStatisticsTask {
         long logicalCount = assetService.count(new LambdaQueryWrapper<Asset>()
                 .eq(Asset::getAssetClass, AssetClass.LOGICAL.getId())
                 .eq(Asset::getAssetStatus, "0"));
+        //逻辑资产暂时不评分
         DailyData dailyData = new DailyData();
         dailyData.setDateTime(vulnDataVO.getDate());
         dailyData.setLowRiskCount(vulnDataVO.getLow());
@@ -95,7 +96,7 @@ public class DailyStatisticsTask {
         dailyData.setSecurityDeviceAssetScore(SecurityAverageScore); //安全设备评分
         dailyData.setNetworkDeviceAssetScore(netWorkAverageScore); //网络设备评分
         dailyData.setItDeviceAssetScore(itAverageScore); //IT设备评分
-        dailyData.setLogicalAssetScore(83.32); //逻辑资产评分
+        dailyData.setLogicalAssetScore(100.00); //逻辑资产评分
         dailyData.setLogicalAssetsOnlineCount((int)logicalCount);//逻辑资产在线数量
         dailyData.setPhysicalAssetsOnlineCount((int)physicalCount);//物理资产在线数量
         dailyData.setPhysicalAssetsScanCount(unmanagedPhysicalCount);//物理资产扫描数量

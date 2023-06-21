@@ -59,7 +59,7 @@ public class DailyScanTask {
                                 , DateUtil.format(new Date(),"yyyyMMddHHmmss")
                                 ,"系统"
                                 ,"SIMPLE"
-                                , ScannerType.MANUAL.getId());
+                                , ScannerType.AUTOMATIC.getId());
                     }
                 }
             });

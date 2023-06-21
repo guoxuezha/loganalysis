@@ -27,8 +27,8 @@ public class Scanner {
 
 
     // 使用多线程扫描
-    private static ThreadPoolExecutor poolExecutor = new ThreadPoolExecutor(20*cpuCores
-            ,40*cpuCores,1000,
+    private static ThreadPoolExecutor poolExecutor = new ThreadPoolExecutor(20
+            ,40,1000,
             TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(),
             Executors.defaultThreadFactory(),new ThreadPoolExecutor.AbortPolicy());
 
