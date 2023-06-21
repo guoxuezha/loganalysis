@@ -63,17 +63,22 @@ public class DailyScanTask {
                     }
                 }
             });
-
-
-
+            //五分钟后开始扫描已有端口
+            Thread.sleep(300000);
             //扫描全部IP端口
             List<Asset> asset = assetService.list(new LambdaQueryWrapper<Asset>()
                     .eq(Asset::getAssetClass, AssetClass.PHYSICAL.getId()));
+
             asset.forEach(e->{
                 Scanner.start(e.getIpAddress(),"1-65535",
                         DateUtil.format(new Date(),"yyyyMMddHHmmss")
                         ,"系统"
                         ,ScannerType.AUTOMATIC.getId());
+                try {
+                    Thread.sleep(60000); //每隔一分钟开启一次
+                } catch (InterruptedException interruptedException) {
+                    interruptedException.printStackTrace();
+                }
             });
         } catch (Exception e) {
             log.info(" daily scan error"+e.getMessage());
