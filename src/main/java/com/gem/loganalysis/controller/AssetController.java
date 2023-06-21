@@ -333,6 +333,13 @@ public class AssetController {
         return Result.ok(homeOverview);
     }
 
+    @PostMapping("/homeOverviewMonitor")
+    @ApiOperation(value = "首页总览-事件监控",notes = "把首页的事件监控分割出来，方便刷新")
+    public Result<HomeOverviewVO> getHomeOverviewMonitor() {
+        HomeOverviewVO homeOverview = assetService.getHomeOverviewMonitor();
+        return Result.ok(homeOverview);
+    }
+
     @PostMapping("/screenShow")
     @ApiOperation("大屏展示")
     public Result<ScreeShowVO> screenShow(@RequestBody GetDTO dto) throws JSONException {

@@ -78,6 +78,11 @@ public interface IAssetService extends IService<Asset> {
     HomeOverviewVO getHomeOverview() throws JSONException;
 
     /**
+     * 首页事件监控
+     * @return
+     */
+    HomeOverviewVO getHomeOverviewMonitor();
+    /**
      * 大屏展示
      *
      * @return 展示内容

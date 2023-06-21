@@ -409,7 +409,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         HomeOverviewVO homeOverview = assetMapper.getAssetHomeOverview();
         homeOverview.setLogicalAssetCount((int)this.count(new LambdaQueryWrapper<Asset>()
                 .eq(Asset::getAssetClass,"0")));
-        List<AssetEventHomeOverviewVO> event = assetMapper.getEventHomeOverview();
+        /*List<AssetEventHomeOverviewVO> event = assetMapper.getEventHomeOverview();
         event.forEach(e -> {
             if (e.getAssetType().equals("安全设备")) {
                 homeOverview.setSecurityDeviceEventsResolvedCount(e.getTotalEventCount()) // 当日安全设备事件总次数
@@ -421,7 +421,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 homeOverview.setItDeviceEventsResolvedCount(e.getTotalEventCount()) // 当日IT设备事件总次数
                         .setItDeviceEventsPendingCount(e.getPendingEventCount()); // 当日IT设备事件未处理次数
             }
-        });
+        });*/
         // 数据
         List<RiskAssetRankingVO> nonEndpointRiskAssetRanking = new ArrayList<>();//网络安全设备脆弱性
         List<RiskAssetRankingVO> endpointRiskAssetRanking = new ArrayList<>();//IT设备脆弱性
@@ -575,6 +575,27 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 .setLogicalAssetScore(Arrays.asList(90, 88, 92, 85, 91, 92, 89))//近七天逻辑资产评分集合
                 .setNonEndpointRiskAssetRanking(nonEndpointRiskAssetRanking)//网络安全设备脆弱性
                 .setEndpointRiskAssetRanking(endpointRiskAssetRanking);//IT设备脆弱性*/
+        return homeOverview;
+    }
+
+    @Override
+    public HomeOverviewVO getHomeOverviewMonitor() {
+        HomeOverviewVO homeOverview = assetMapper.getAssetHomeOverview();
+        homeOverview.setLogicalAssetCount((int)this.count(new LambdaQueryWrapper<Asset>()
+                .eq(Asset::getAssetClass,"0")));
+        List<AssetEventHomeOverviewVO> event = assetMapper.getEventHomeOverview();
+        event.forEach(e -> {
+            if (e.getAssetType().equals("安全设备")) {
+                homeOverview.setSecurityDeviceEventsResolvedCount(e.getTotalEventCount()) // 当日安全设备事件总次数
+                        .setSecurityDeviceEventsPendingCount(e.getPendingEventCount()); // 当日安全设备事件未处理次数
+            } else if (e.getAssetType().equals("网络设备")) {
+                homeOverview.setNetworkDeviceEventsResolvedCount(e.getTotalEventCount()) // 当日网络设备事件已处理次数
+                        .setNetworkDeviceEventsPendingCount(e.getPendingEventCount()); // 当日网络设备事件未处理次数
+            } else if (e.getAssetType().equals("服务器")) {
+                homeOverview.setItDeviceEventsResolvedCount(e.getTotalEventCount()) // 当日IT设备事件总次数
+                        .setItDeviceEventsPendingCount(e.getPendingEventCount()); // 当日IT设备事件未处理次数
+            }
+        });
         return homeOverview;
     }
 
