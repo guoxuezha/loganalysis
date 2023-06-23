@@ -104,9 +104,9 @@ public class IpScanJob implements Runnable {
                     break;
                 }
 
-                if (foundResult.get()) { // 在循环外部访问 AtomicBoolean 的值
+        /*        if (foundResult.get()) { // 在循环外部访问 AtomicBoolean 的值
                     break; // 停止循环
-                }
+                }*/
             }
 
             if (!foundResult.get()) { // 在循环外部访问 AtomicBoolean 的值
