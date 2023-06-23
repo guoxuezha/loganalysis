@@ -50,7 +50,7 @@ public class IpScanJob implements Runnable {
                     .setType(type)
                     .setScanTime(scanTime));
             //System.out.println("ping扫描出了IP"+ip);
-            //继续扫描逻辑资产
+            //如果扫描除了物理资产继续扫描逻辑资产
             if("ALL".equals(scannerType)){
                 Scanner.start(ip,"1-65535",scanTime,orgId,type);
             }else if("SIMPLE".equals(scannerType)){
@@ -60,9 +60,11 @@ public class IpScanJob implements Runnable {
             //ping未发现IP，继续TCP扫描,只要扫到了，就开始扫逻辑资产
             AtomicBoolean foundResult = new AtomicBoolean(false); // 使用 AtomicBoolean 替代 boolean
 
-            for (int i = 1; i <= 1000; i++) {
+            //TCP扫描1-1000
+            for (int i = 1; i <= 999; i++) {
                 int port = i;
-                Thread thread = new Thread(() -> {
+                //不使用多线程扫描
+              /*  Thread thread = new Thread(() -> {
                     ScanObject scanObject = ScanEngine.scan(new ScanObject(ip, port), ScanEngine.TCP_FULL_CONNECT_SCAN);
                     if (scanObject.getOpen() != null && scanObject.getOpen()) {
                         //System.out.println("TCP扫描出了" + ip);
@@ -72,7 +74,7 @@ public class IpScanJob implements Runnable {
                                 .setType(type)
                                 .setScanTime(scanTime));
                         foundResult.set(true); // 修改 AtomicBoolean 的值
-                        //继续扫描逻辑资产
+                        //如果扫描除了物理资产继续扫描逻辑资产
                         if("ALL".equals(scannerType)){
                             Scanner.start(ip,"1-65535",scanTime,orgId,type);
                         }else if("SIMPLE".equals(scannerType)){
@@ -80,7 +82,27 @@ public class IpScanJob implements Runnable {
                         }
                     }
                 });
-                thread.start();
+                thread.start();*/
+
+                ScanObject scanObject = ScanEngine.scan(new ScanObject(ip, port), ScanEngine.TCP_FULL_CONNECT_SCAN);
+                if (scanObject.getOpen() != null && scanObject.getOpen()) {
+                    // 扫描到开放端口
+                    boolean save = physicalAssetTempService.save(new PhysicalAssetTemp().setAssetStatus("1")
+                            .setAssetOrg(orgId != null ? orgId : "")
+                            .setIpAddress(ip)
+                            .setType(type)
+                            .setScanTime(scanTime));
+                    foundResult.set(true); // 修改 AtomicBoolean 的值
+
+                    if ("ALL".equals(scannerType)) {
+                        Scanner.start(ip, "1-65535", scanTime, orgId, type);
+                    } else if ("SIMPLE".equals(scannerType)) {
+                        Scanner.startCommon(ip, scanTime, orgId, type);
+                    }
+
+                    // 扫描到结果后，中断循环
+                    break;
+                }
 
                 if (foundResult.get()) { // 在循环外部访问 AtomicBoolean 的值
                     break; // 停止循环
