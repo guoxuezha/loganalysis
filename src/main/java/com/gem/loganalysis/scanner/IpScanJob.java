@@ -61,7 +61,7 @@ public class IpScanJob implements Runnable {
             AtomicBoolean foundResult = new AtomicBoolean(false); // 使用 AtomicBoolean 替代 boolean
 
             //TCP扫描1-1000
-            for (int i = 1; i <= 999; i++) {
+            for (int i = 1; i <= 600; i++) {
                 int port = i;
                 //不使用多线程扫描
               /*  Thread thread = new Thread(() -> {
