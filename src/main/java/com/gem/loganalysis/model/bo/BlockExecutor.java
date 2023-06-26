@@ -53,13 +53,11 @@ public class BlockExecutor {
         querySql.delete(querySql.length() - 1, querySql.length()).append(")");
         ArrayList<HashMap<String, String>> dataSet = dao.getDataSet(BaseConstant.DEFAULT_POOL_NAME, querySql.toString(), 0, 0);
         if (CollUtil.isNotEmpty(dataSet)) {
-            /*for (HashMap<String, String> map : dataSet) {
+            for (HashMap<String, String> map : dataSet) {
                 BlockExecuteDTO executeDTO = new BlockExecuteDTO(map, info.getSourceIp());
-                boolean blockResult = block(executeDTO);
-                if (blockResult) {
-
-                }
-            }*/
+                log.info("executeDTO: {}", executeDTO);
+                block(executeDTO);
+            }
             // 修改事件及风险的处置结果
             String updateEventSql = "UPDATE SOP_ASSET_EVENT SET HANDLE_STATUS = 1 WHERE EVENT_ID = '" + info.getEventId() + "' LIMIT 1";
             dao.execCommand(BaseConstant.DEFAULT_POOL_NAME, updateEventSql);

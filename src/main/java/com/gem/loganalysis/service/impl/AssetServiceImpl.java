@@ -744,14 +744,14 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     public PageResponse<PhysicalAssetScannerRespVO> getUnmanagedPage(PageRequest<IpDTO> dto) {
         Page<PhysicalAssetScannerRespVO> result = PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
         physicalAssetTempService.getUnmanagedList(dto.getData());
-        return new PageResponse<PhysicalAssetScannerRespVO>(result);
+        return new PageResponse<>(result);
     }
 
     @Override
     public PageResponse<LogicalAssetScannerRespVO> getUnmanagedLogicalPage(PageRequest<IpDTO> dto) {
         Page<LogicalAssetScannerRespVO> result = PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
         logicalAssetTempService.getUnmanagedList(dto.getData());
-        return new PageResponse<LogicalAssetScannerRespVO>(result);
+        return new PageResponse<>(result);
     }
 
     @Override

@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: prod
+    active: test
 
   mvc:
     static-path-pattern: /**
@@ -22,13 +22,13 @@ spring:
         test-on-borrow: false
         test-on-return: false
       primary: master
-      datasource:
-        slave:
-          name: loganalysis
-          driver-class-name: com.mysql.cj.jdbc.Driver
-          url: jdbc:mysql://121.42.24.63:3306/${spring.datasource.dynamic.datasource.slave.name}?characterEncoding=utf8&nullCatalogMeansCurrent=true&useSSL=false&useUnicode=true&0=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Shanghai
-          username: gemuser
-          password: gemuser123
+      #datasource:
+       # slave:
+          #name: loganalysis
+          #driver-class-name: com.mysql.cj.jdbc.Driver
+          #url: jdbc:mysql://121.42.24.63:3306/${spring.datasource.dynamic.datasource.slave.name}?characterEncoding=utf8&nullCatalogMeansCurrent=true&useSSL=false&useUnicode=true&0=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Shanghai
+          #username: gemuser
+          #password: gemuser123
 
 mybatis-plus:
   mapper-locations: classpath:mapper/*.xml

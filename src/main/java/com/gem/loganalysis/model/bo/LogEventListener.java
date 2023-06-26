@@ -79,7 +79,7 @@ public class LogEventListener {
     /**
      * 查询处置状态为0的风险并尝试执行封堵
      */
-//    @Scheduled(cron = "0 0/1 * * * ? ")
+    @Scheduled(cron = "0 0/1 * * * ? ")
     public void riskHandlerScan() {
         String querySql = "SELECT A.ASSET_ID, A.RISK_LEVEL, B.EVENT_ID, B.EVENT_TYPE, B.SOURCE_IP FROM SOP_ASSET_RISK A " +
                 "LEFT JOIN SOP_ASSET_EVENT B ON A.REF_EVENT_ID = B.EVENT_ID WHERE A.HANDLE_STATUS = 0";
@@ -96,7 +96,7 @@ public class LogEventListener {
     /**
      * 解封扫描
      */
-//    @Scheduled(cron = "0 0/1 * * * ? ")
+    @Scheduled(cron = "0 0/1 * * * ? ")
     public void deBlockScan() {
         // 查询状态为"临时封堵中"的封堵记录
         String querySql = "SELECT A.BLOCK_RECORD_ID, A.BLOCK_IP, A.BLOCK_END_TIME, A.ASSET_ID, " +

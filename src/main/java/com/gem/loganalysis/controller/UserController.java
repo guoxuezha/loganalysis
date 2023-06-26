@@ -60,6 +60,11 @@ public class UserController {
 
     private DAO dao;
 
+    public static void main(String[] args) {
+        System.out.println(MD5.encryptPwd("admin", "Ag!Sf3964@_", "GEM#SHA512"));
+        System.out.println(MD5.encryptPwd("admin", "BA12AE0FEFE00019170387386B59FC4E62AB6F93", "GEM#SHA512"));
+    }
+
     @ApiOperation("获取加密结果")
     @PostMapping("/getEncryptStr")
     public String getEncryptStr(@RequestParam("param") String param) {
@@ -112,10 +117,6 @@ public class UserController {
             dao.execBatch(BaseConstant.DEFAULT_POOL_NAME, insertTemplate, types, records, 10);
         }
         return result ? Result.ok("编辑成功!") : Result.failed("编辑失败!");
-    }
-
-    public static void main(String[] args) {
-        System.out.println(MD5.encryptPwd("admin", "Ag!Sf3964@_", "GEM#SHA512"));
     }
 
     @ApiOperation("重置用户密码")

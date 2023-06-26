@@ -1,16 +1,16 @@
 verifyUrl: http://123.60.214.137:9090/oauth/verifyToken
 
 business-config:
-  authenticationEnable: false
-  responseEncryptEnable: false
+  authenticationEnable: true
+  responseEncryptEnable: true
   AESKey: SKVNMEIHJLOANSKI
-  logMonitorEnable: false
+  logMonitorEnable: true
   adadDefaultPackage: "defaultPackage"
   logBlockFileRetentionDays: 7
   snmpMonitorEnable: true
   kafkaMainTopic: logRepo4
   webSocketPrefix: 123.249.42.58:8080
-  gSAClientAgentEnable: false
+  gSAClientAgentEnable: true
   overseasVisitJudgment: false
 
 minio:
@@ -30,9 +30,9 @@ pool:
   dbVersion: ""
   driverName: "com.mysql.cj.jdbc.Driver"
   jndiName: ""
-  jdbcURL: "jdbc:mysql://123.249.42.58:3306/loganalysis?useOldAliasMetadataBehavior=true&useUnicode=true&characterEncoding=UTF8&rewriteBatchedStatements=true&useCursorFetch=true&defaultFetchSize=100"
-  userName: "root"
-  password: "MySqlPassword!!"
+  jdbcURL: "jdbc:mysql://123.60.214.137:3306/sop?useOldAliasMetadataBehavior=true&useUnicode=true&characterEncoding=UTF8&rewriteBatchedStatements=true&useCursorFetch=true&defaultFetchSize=100"
+  userName: "sop"
+  password: "Gc_199Ms!Pwd@"
   schema: ""
   initialSize: 5
   maxActive: 5
@@ -60,11 +60,10 @@ spring:
     dynamic:
       datasource:
         master:
-          name: loganalysis
           driver-class-name: com.mysql.cj.jdbc.Driver
-          url: jdbc:mysql://123.249.42.58:3306/loganalysis?characterEncoding=utf8&nullCatalogMeansCurrent=true&useSSL=false&useUnicode=true&0=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Shanghai
-          username: root
-          password: MySqlPassword!!
+          url: jdbc:mysql://123.60.214.137:3306/sop?characterEncoding=utf8&nullCatalogMeansCurrent=true&useSSL=false&useUnicode=true&0=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Shanghai
+          username: sop
+          password: Gc_199Ms!Pwd@
   kafka:
     ###########【Kafka集群地址】###########
     bootstrap-servers: 123.60.214.137:9092

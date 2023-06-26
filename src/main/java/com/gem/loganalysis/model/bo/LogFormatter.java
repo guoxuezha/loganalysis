@@ -9,6 +9,7 @@ import com.gem.loganalysis.model.BaseConstant;
 import com.gem.loganalysis.service.ILogAnalysisRuleRelaService;
 import com.gem.loganalysis.util.SpringContextUtil;
 import lombok.Data;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,6 +46,7 @@ public class LogFormatter {
     /**
      * 日志范式映射关系
      */
+    @Getter
     private LogNormalFormTree tree;
 
     protected LogFormatter(String ruleRelaId) {

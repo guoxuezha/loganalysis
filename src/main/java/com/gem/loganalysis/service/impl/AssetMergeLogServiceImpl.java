@@ -11,12 +11,13 @@ import com.gem.loganalysis.mapper.AssetMergeLogMapper;
 import com.gem.loganalysis.model.BaseConstant;
 import com.gem.loganalysis.model.PageRequest;
 import com.gem.loganalysis.model.PageResponse;
-import com.gem.loganalysis.model.bo.BlockFileSearchServer;
+import com.gem.loganalysis.model.bo.*;
 import com.gem.loganalysis.model.dto.asset.AssetQueryDTO;
 import com.gem.loganalysis.model.dto.query.LogContentQueryDTO;
 import com.gem.loganalysis.model.entity.AssetMergeLog;
 import com.gem.loganalysis.model.entity.SopAssetLogPreview;
 import com.gem.loganalysis.model.vo.LogShowVO;
+import com.gem.loganalysis.model.vo.SourceLogVO;
 import com.gem.loganalysis.model.vo.asset.AssetLogFileVO;
 import com.gem.loganalysis.model.vo.asset.AssetRespVO;
 import com.gem.loganalysis.service.IAssetMergeLogService;
@@ -60,6 +61,9 @@ public class AssetMergeLogServiceImpl extends ServiceImpl<AssetMergeLogMapper, A
 
     @Resource
     private AssetMapper assetMapper;
+
+    @Resource
+    private LogAnalysisRulePool logAnalysisRulePool;
 
     @Override
     public List<String> getSourceLog(LogContentQueryDTO dto) {
@@ -165,12 +169,16 @@ public class AssetMergeLogServiceImpl extends ServiceImpl<AssetMergeLogMapper, A
     }
 
     @Override
-    public PageResponse<String> getSourceLogFileContent(PageRequest<String> dto) {
-        PageResponse<String> result = new PageResponse<>();
+    public SourceLogVO getSourceLogFileContent(PageRequest<String> dto) {
+        SourceLogVO result = new SourceLogVO();
+        PageResponse<Object> list = new PageResponse<>();
         String fileName = dto.getData();
+        String ruleRelaId = fileName.substring(0, fileName.length() - 8);
+        LogAnalysisRuleBo logAnalysisRuleObject = logAnalysisRulePool.getLogAnalysisRuleObject(ruleRelaId);
+        LogFormatter logFormatter = logAnalysisRuleObject.getLogFormatter();
         BlockFile blockFile = new BlockFile(getBlockFileRootPath(), fileName + ".DAT", fileName + ".IDX", true, 3, 64);
         long total = blockFile.getBlockCount();
-        result.setTotal((int) total);
+        list.setTotal((int) total);
 
         int start = (dto.getPageNum() - 1) * dto.getPageSize();
         if (total >= start) {
@@ -183,9 +191,25 @@ public class AssetMergeLogServiceImpl extends ServiceImpl<AssetMergeLogMapper, A
                     records.add(new String(fetch.getData(), StandardCharsets.UTF_8));
                 }
             }
-            result.setRecords(records);
+            List<Object> objectList = messageToObject(logFormatter, records);
+            if (CollUtil.isNotEmpty(objectList)) {
+                result.setHeader(logFormatter.getTree().toJsonObject(true));
+            } else {
+                result.setHeader(objectList.get(0));
+            }
+            list.setRecords(objectList);
         }
+        result.setRecord(list);
         blockFile.destroy();
+        return result;
+    }
+
+    private List<Object> messageToObject(LogFormatter logFormatter, List<String> message) {
+        List<Object> result = new ArrayList<>();
+        for (String s : message) {
+            LogNormalFormTree format = logFormatter.format(s);
+            result.add(format.toJsonObject(true));
+        }
         return result;
     }
 

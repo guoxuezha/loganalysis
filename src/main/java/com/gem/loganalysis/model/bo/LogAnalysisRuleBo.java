@@ -345,12 +345,11 @@ public class LogAnalysisRuleBo {
             String targetIp = logMessageTree.getFieldValue(eventParamConfig.getTargetIpItem());
             String eventType = logMessageTree.getFieldValue(eventParamConfig.getEventTypeItem());
             String riskLevel = logMessageTree.getFieldValue(eventParamConfig.getRiskLevelItem());
-            log.info("{} 触发事件, 应执行封堵的IP为: {}, 攻击目标IP为: {}, 事件类型为: {}, 事件级别为: {}",
-                    ruleRelaId, sourceIp, targetIp, eventType, riskLevel);
-            if (eventType == null) {
-                log.warn("发生未知类型事件! ruleRelaId: {}, mergeLog: {}", ruleRelaId, mergeLog);
+            if (sourceIp == null || eventType == null || riskLevel == null) {
+                //log.warn("发生未知类型事件! ruleRelaId: {}, mergeLog: {}", ruleRelaId, mergeLog);
                 return;
             }
+            // log.info("{} 触发事件, 应执行封堵的IP为: {}, 攻击目标IP为: {}, 事件类型为: {}, 事件级别为: {}", ruleRelaId, sourceIp, targetIp, eventType, riskLevel);
             if (businessConfigInfo.getOverseasVisitJudgment()) {
                 // 先判断是否满足根据IP属地封堵条件
                 if (BlockRuleServer.getInstance().judgeNeedRegionBlock(this.asset.getAssetId(), sourceIp)) {

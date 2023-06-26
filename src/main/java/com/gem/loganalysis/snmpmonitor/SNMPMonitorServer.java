@@ -144,7 +144,6 @@ public class SNMPMonitorServer {
         }
     }
 
-
     /**
      * 加载OID的列表
      */
@@ -240,7 +239,6 @@ public class SNMPMonitorServer {
         return oids;
     }
 
-
     public SNMPConfig getSNMPConfig(String assetId) {
         if (configs == null || configs.size() == 0) {
             return null;
@@ -294,9 +292,20 @@ public class SNMPMonitorServer {
             oid = "." + oid;
         }
         if (oids != null) {
-            return oids.get(oid);
+            return search(oid);
         } else {
             return null;
+        }
+    }
+
+    private CommonOID search(String oid) {
+        if (oid.length() == 0) {
+            return null;
+        }
+        if (oids.get(oid) != null) {
+            return oids.get(oid);
+        } else {
+            return search(oid.substring(0, oid.lastIndexOf(".")));
         }
     }
 

@@ -98,7 +98,7 @@ public class SNMPCollectInfo {
                 "LEFT JOIN SOP_ASSET_GROUP B ON A.ASSET_GROUP_ID = B.GROUP_ID " +
                 "LEFT JOIN SOP_ASSET_SNMP_CONFIG C ON A.ASSET_ID = C.ASSET_ID " +
                 "LEFT JOIN SYS_DICT_ITEM D ON A.ASSET_TYPE = D.ID " +
-                "WHERE SNMP_COMMUNITY IS NOT NULL ";
+                "WHERE SNMP_COMMUNITY IS NOT NULL AND A.DELETE_STATE = 0 ";
         ArrayList<HashMap<String, String>> dataSet = new DAO().getDataSet(BaseConstant.DEFAULT_POOL_NAME, querySql, 0, 0);
         if (CollUtil.isNotEmpty(dataSet)) {
             for (HashMap<String, String> map : dataSet) {
@@ -116,15 +116,15 @@ public class SNMPCollectInfo {
                 cache.put(assetId, new AssetIOInfo());
             }
             AssetIOInfo assetIOInfo = cache.get(assetId);
-            CommonOID eth0InOctet = thread.getMeasureValue("eht0接口收到的字节数");
+            CommonOID eth0InOctet = thread.getMeasureValue("接口收到的字节数");
             if (eth0InOctet != null) {
                 String byteSize = eth0InOctet.getValue();
-                assetIOInfo.appendInOctet(new NetIOUnit(Long.parseLong(byteSize), now));
+                assetIOInfo.appendInOctet(new NetIOUnit(Double.parseDouble(byteSize), now));
             }
-            CommonOID eth0OutOctet = thread.getMeasureValue("eht0接口发送的字节数");
+            CommonOID eth0OutOctet = thread.getMeasureValue("接口发送的字节数");
             if (eth0OutOctet != null) {
                 String byteSize = eth0OutOctet.getValue();
-                assetIOInfo.appendOutOctet(new NetIOUnit(Long.parseLong(byteSize), now));
+                assetIOInfo.appendOutOctet(new NetIOUnit(Double.parseDouble(byteSize), now));
             }
             log.info("assetId: {}, assetIOInfo: {}", assetId, assetIOInfo);
         }
@@ -223,7 +223,7 @@ public class SNMPCollectInfo {
             if (map.get(dateTime.toString("HH:mm")) != null) {
                 result.add(map.get(dateTime.toString("HH:mm")));
             } else {
-                result.add(new NetIOUnit(0L, dateTime));
+                result.add(new NetIOUnit(0.0, dateTime));
             }
         }
         return result;
@@ -249,6 +249,19 @@ public class SNMPCollectInfo {
             outOctetSum = new ArrayList<>();
             inOctetIncr = new ArrayList<>();
             outOctetIncr = new ArrayList<>();
+        }
+
+        public ArrayList<NetIOUnit> getOutOctetIncr() {
+            ArrayList<NetIOUnit> result = new ArrayList<>();
+            // get时单位换算,bps转为Mbps
+            for (NetIOUnit ioUnit : outOctetIncr) {
+                NetIOUnit netIOUnit = new NetIOUnit();
+                netIOUnit.size = ioUnit.size / 1024 / 1024;
+                netIOUnit.time = ioUnit.time;
+                netIOUnit.timeStr = ioUnit.timeStr;
+                result.add(netIOUnit);
+            }
+            return result;
         }
 
         protected void appendInOctet(NetIOUnit unit) {
@@ -288,7 +301,7 @@ public class SNMPCollectInfo {
     public static class NetIOUnit {
 
         @ApiModelProperty("字节数")
-        private long size;
+        private Double size;
 
         @ApiModelProperty("时间戳")
         private DateTime time;
@@ -299,10 +312,10 @@ public class SNMPCollectInfo {
         public NetIOUnit(DateTime t) {
             time = t;
             timeStr = t.toString("HH:mm");
-            size = RandomUtil.randomLong(60, 90);
+            size = RandomUtil.randomDouble(60, 90);
         }
 
-        NetIOUnit(Long byteSize, DateTime date) {
+        NetIOUnit(Double byteSize, DateTime date) {
             size = byteSize;
             time = date;
             timeStr = time.toString("HH:mm");
@@ -326,7 +339,14 @@ public class SNMPCollectInfo {
          */
         NetIOUnit getIncrUnit(NetIOUnit endUnit) {
             NetIOUnit incrUnit = new NetIOUnit();
-            incrUnit.size = endUnit.getSize() - this.size;
+            if (endUnit.getSize() != 0) {
+                incrUnit.size = endUnit.getSize() - this.size;
+                if (incrUnit.size < 0) {
+                    log.warn("计算到的差值为负数, a.size = {}, a.time = {}, b.size = {}, b.time= {}", this.size, this.time, endUnit.getSize(), endUnit.time);
+                }
+            } else {
+                incrUnit.size = 0.0;
+            }
             incrUnit.time = endUnit.time;
             incrUnit.timeStr = endUnit.timeStr;
             return incrUnit;

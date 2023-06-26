@@ -119,7 +119,7 @@ public class EventOverviewVO {
     }
 
     public void setUndisposedEventList(List<AssetEventVO> undisposedEventList) {
-        this.undisposedEventList = undisposedEventList;
+        this.undisposedEventList = undisposedEventList.subList(0, Math.min(undisposedEventList.size(), 10));
     }
 
     @AllArgsConstructor

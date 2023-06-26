@@ -8,6 +8,7 @@ import com.gem.loganalysis.model.dto.query.LogContentQueryDTO;
 import com.gem.loganalysis.model.entity.AssetMergeLog;
 import com.gem.loganalysis.model.entity.SopAssetLogPreview;
 import com.gem.loganalysis.model.vo.LogShowVO;
+import com.gem.loganalysis.model.vo.SourceLogVO;
 import com.gem.loganalysis.model.vo.asset.AssetLogFileVO;
 import com.gem.loganalysis.model.vo.asset.AssetRespVO;
 
@@ -39,6 +40,6 @@ public interface IAssetMergeLogService extends IService<AssetMergeLog> {
 
     PageResponse<AssetLogFileVO> getSourceLogFileByAsset(PageRequest<String> dto);
 
-    PageResponse<String> getSourceLogFileContent(PageRequest<String> dto);
+    SourceLogVO getSourceLogFileContent(PageRequest<String> dto);
 
 }

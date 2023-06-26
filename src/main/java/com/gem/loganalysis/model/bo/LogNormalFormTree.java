@@ -189,6 +189,16 @@ public class LogNormalFormTree implements Serializable {
         return JSONUtil.toJsonStr(result);
     }
 
+    public Object toJsonObject(boolean turnKeyToDesc) {
+        Object result;
+        if (turnKeyToDesc) {
+            result = getShowNodeKV(root).get("根节点");
+        } else {
+            result = getNodeKV(root).get("root");
+        }
+        return result;
+    }
+
     private HashMap<String, Object> getNodeKV(SopLogNormalFormNode node) {
         HashMap<String, Object> result = new HashMap<>();
         if (CollUtil.isEmpty(node.getChildren())) {

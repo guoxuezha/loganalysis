@@ -73,8 +73,8 @@ public class AssetBlockRuleBo {
     }
 
     public void refresh() {
-        String querySql = "SELECT BLOCK_RULE_ID, ASSET_D, BLOCK_RULE_DESC, RULE_TYPE, RISK_LEVEL, BLOCK_RANGE, BLOCK_TYPE, BLOCK_DURATION, WHITE_LIST_ENABLE, BLACK_LIST_ENABLE, OPERATION_ASSET_ID " +
-                "FROM SOP_BLOCK_RULE WHERE DELETE_STATE = 0 AND ASSET_D = '" + this.assetId + "'";
+        String querySql = "SELECT BLOCK_RULE_ID, ASSET_ID, BLOCK_RULE_DESC, RULE_TYPE, RISK_LEVEL, BLOCK_RANGE, BLOCK_TYPE, BLOCK_DURATION, WHITE_LIST_ENABLE, BLACK_LIST_ENABLE, OPERATION_ASSET_ID " +
+                "FROM SOP_BLOCK_RULE WHERE DELETE_STATE = 0 AND ASSET_ID = '" + this.assetId + "'";
         ArrayList<HashMap<String, String>> dataSet = new DAO().getDataSet(BaseConstant.DEFAULT_POOL_NAME, querySql, 0, 0);
         if (CollUtil.isNotEmpty(dataSet)) {
             List<BlockRule> ruleList = MapToBeanUtil.execute(dataSet, BlockRule.class);

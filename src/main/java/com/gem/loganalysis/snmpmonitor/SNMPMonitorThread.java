@@ -153,8 +153,9 @@ public class SNMPMonitorThread extends Thread {
                                         val.setUnit("");
                                         break;
                                 }
-                                log.info("measureName: {}, value:{}", val.getMeasureName(), val.getValue());
-                                measureValues.put(val.getMeasureName(), val);
+//                                log.info("measureName: {}, value:{}", val.getMeasureName(), val.getValue());
+                                appendMeasureValue(val);
+                                 measureValues.put(val.getMeasureName(), val);
                             }
                         }
                     }
@@ -172,6 +173,22 @@ public class SNMPMonitorThread extends Thread {
 
     public Map<String, CommonOID> getMeasureValues() {
         return measureValues;
+    }
+
+    private void appendMeasureValue(CommonOID oid) {
+        String measureName = oid.getMeasureName();
+        CommonOID commonOID = measureValues.get(measureName);
+        if (commonOID != null) {
+            String v1 = commonOID.getValue();
+            String v2 = oid.getValue();
+            try {
+                int v3 = Integer.parseInt(v1) + Integer.parseInt(v2);
+                oid.setValue(String.valueOf(v3));
+            } catch (NumberFormatException e) {
+                oid.setValue(commonOID.getValue());
+            }
+        }
+        measureValues.put(measureName, oid);
     }
 
     public CommonOID getMeasureValue(String measureName) {

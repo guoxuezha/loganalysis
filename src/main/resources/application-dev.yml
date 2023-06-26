@@ -7,10 +7,10 @@ business-config:
   logMonitorEnable: false
   adadDefaultPackage: "defaultPackage"
   logBlockFileRetentionDays: 7
-  snmpMonitorEnable: true
+  snmpMonitorEnable: false
   kafkaMainTopic: logRepo4
   webSocketPrefix: 123.249.42.58:8080
-  gSAClientAgentEnable: true
+  gSAClientAgentEnable: false
   overseasVisitJudgment: false
 
 minio:
@@ -122,3 +122,4 @@ spring:
       # 批量消费每次最多消费多少条消息
       max-poll-records: 500
 
+    

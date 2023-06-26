@@ -10,38 +10,38 @@
     <select id="getPhysicalAssetList"
             resultType="com.gem.loganalysis.model.vo.asset.PhysicalAssetScannerRespVO">
         SELECT
-            pat.IP_ADDRESS AS ipAddress,
-            pat.RECORD_ID AS recordId,
-            pat.ASSET_ORG AS assetOrg,
-            pat.ASSET_STATUS AS assetStatus,
-            pat.TYPE AS type,
-            STR_TO_DATE(pat.SCAN_TIME, '%Y%m%d%H%i%s') AS scanTime,
-            CASE
-                WHEN a.IP_ADDRESS IS NULL THEN 1
-                ELSE 0
-                END AS existsInAssetTable
+        pat.IP_ADDRESS AS ipAddress,
+        pat.RECORD_ID AS recordId,
+        pat.ASSET_ORG AS assetOrg,
+        pat.ASSET_STATUS AS assetStatus,
+        pat.TYPE AS type,
+        STR_TO_DATE(pat.SCAN_TIME, '%Y%m%d%H%i%s') AS scanTime,
+        CASE
+        WHEN a.IP_ADDRESS IS NULL THEN 1
+        ELSE 0
+        END AS existsInAssetTable
         FROM
-            sop_physical_asset_temp AS pat
-                LEFT JOIN
-            sop_asset AS a
-            ON
-                a.IP_ADDRESS = pat.IP_ADDRESS AND a.DELETE_STATE = 0 AND a.ASSET_CLASS = "1"
+        sop_physical_asset_temp AS pat
+        LEFT JOIN
+        sop_asset AS a
+        ON
+        a.IP_ADDRESS = pat.IP_ADDRESS AND a.DELETE_STATE = 0 AND a.ASSET_CLASS = "1"
         <where>
-        <if test="assetOrg!=null and assetOrg.trim()!='' ">
-            AND pat.ASSET_ORG = #{assetOrg}
-        </if>
-        <if test="ipAddress!=null and ipAddress.trim()!='' ">
-            AND pat.IP_ADDRESS like concat('%',#{ipAddress},'%')
-        </if>
-        <if test="assetStatus!=null">
-            AND pat.ASSET_STATUS = #{assetStatus}
-        </if>
-        <if test="beginScanTime != null and beginScanTime.trim()!=''">
-            AND STR_TO_DATE(pat.SCAN_TIME, '%Y%m%d%H%i%s')  <![CDATA[>=]]> #{beginScanTime}
-        </if>
-        <if test="endScanTime != null and endScanTime.trim()!=''">
-            AND STR_TO_DATE(pat.SCAN_TIME, '%Y%m%d%H%i%s') <![CDATA[<=]]> #{endScanTime}
-        </if>
+            <if test="assetOrg!=null and assetOrg.trim()!='' ">
+                AND pat.ASSET_ORG = #{assetOrg}
+            </if>
+            <if test="ipAddress!=null and ipAddress.trim()!='' ">
+                AND pat.IP_ADDRESS like concat('%',#{ipAddress},'%')
+            </if>
+            <if test="assetStatus!=null">
+                AND pat.ASSET_STATUS = #{assetStatus}
+            </if>
+            <if test="beginScanTime != null and beginScanTime.trim()!=''">
+                AND STR_TO_DATE(pat.SCAN_TIME, '%Y%m%d%H%i%s')  <![CDATA[>=]]> #{beginScanTime}
+            </if>
+            <if test="endScanTime != null and endScanTime.trim()!=''">
+                AND STR_TO_DATE(pat.SCAN_TIME, '%Y%m%d%H%i%s') <![CDATA[<=]]> #{endScanTime}
+            </if>
         </where>
         ORDER BY
         pat.RECORD_ID DESC
@@ -49,59 +49,52 @@
 
 
     <select id="getNewAssetScanList" resultType="com.gem.loganalysis.model.entity.PhysicalAssetTemp">
-        SELECT DISTINCT
-            t.IP_ADDRESS AS ipAddress,
-            t.SCAN_TIME AS scanTime
-        FROM
-            sop_physical_asset_temp AS t
-                LEFT JOIN
-            sop_asset AS a
-            ON
-                t.IP_ADDRESS = a.IP_ADDRESS
-        WHERE
-            a.IP_ADDRESS IS NULL AND
-            t.ASSET_STATUS = 1
-        ORDER BY
-            t.SCAN_TIME DESC
-            LIMIT 10
+        SELECT DISTINCT t.IP_ADDRESS AS ipAddress,
+                        t.SCAN_TIME  AS scanTime
+        FROM sop_physical_asset_temp AS t
+                 LEFT JOIN
+             sop_asset AS a
+             ON
+                 t.IP_ADDRESS = a.IP_ADDRESS
+        WHERE a.IP_ADDRESS IS NULL
+          AND t.ASSET_STATUS = 1
+        ORDER BY t.SCAN_TIME DESC
+        LIMIT 10
     </select>
 
     <select id="getUnmanagedCount" resultType="java.lang.Integer">
-        SELECT
-            COUNT(DISTINCT t.IP_ADDRESS)
-        FROM
-            sop_physical_asset_temp AS t
-                LEFT JOIN
-            sop_asset AS a
-            ON
-                t.IP_ADDRESS = a.IP_ADDRESS
-        WHERE
-            a.IP_ADDRESS IS NULL AND
-            t.ASSET_STATUS = 1
+        SELECT COUNT(DISTINCT t.IP_ADDRESS)
+        FROM sop_physical_asset_temp AS t
+                 LEFT JOIN
+             sop_asset AS a
+             ON
+                 t.IP_ADDRESS = a.IP_ADDRESS
+        WHERE a.IP_ADDRESS IS NULL
+          AND t.ASSET_STATUS = 1
     </select>
 
 
     <select id="getUnmanagedList" resultType="com.gem.loganalysis.model.vo.asset.PhysicalAssetScannerRespVO">
         SELECT DISTINCT
-            t.IP_ADDRESS AS ipAddress,
-            t.RECORD_ID AS recordId,
-            STR_TO_DATE(t.SCAN_TIME, '%Y%m%d%H%i%s') AS scanTime,
-            t.ASSET_ORG AS assetOrg,
-            t.TYPE AS type
+        t.IP_ADDRESS AS ipAddress,
+        t.RECORD_ID AS recordId,
+        STR_TO_DATE(t.SCAN_TIME, '%Y%m%d%H%i%s') AS scanTime,
+        t.ASSET_ORG AS assetOrg,
+        t.TYPE AS type
         FROM
-            sop_physical_asset_temp AS t
-                LEFT JOIN
-            sop_asset AS a
-            ON
-                t.IP_ADDRESS = a.IP_ADDRESS
+        sop_physical_asset_temp AS t
+        LEFT JOIN
+        sop_asset AS a
+        ON
+        t.IP_ADDRESS = a.IP_ADDRESS
         WHERE
-            a.IP_ADDRESS IS NULL AND
-            t.ASSET_STATUS = 1
+        a.IP_ADDRESS IS NULL AND
+        t.ASSET_STATUS = 1
         <if test="ip!=null and ip.trim()!='' ">
             AND t.IP_ADDRESS = #{ip}
         </if>
         ORDER BY
-         t.RECORD_ID DESC
+        t.RECORD_ID DESC
     </select>
 
 </mapper>
